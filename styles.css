@@ -1,0 +1,188 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+}
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.wrapper h1.glitch {
+  color: white;
+  font-family: sans-serif;
+  font-weight: 800;
+  position: relative;
+  font-size: 40px;
+  padding: 32px;
+}
+.wrapper h1.glitch::before, .wrapper h1.glitch::after {
+  padding: 32px;
+  color: white;
+  content: "FEW VENTURES";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: black;
+  overflow: hidden;
+  top: 0;
+}
+.wrapper h1.glitch::before {
+  left: 3px;
+  text-shadow: -2px 0 #F2FF00;
+  animation-name: glitch-animation-1;
+  animation-duration: 5s;
+  animation-timing-function: linear;
+  animation-delay: 0s;
+  animation-iteration-count: infinite;
+  animation-direction: reverse-alternate;
+}
+.wrapper h1.glitch::after {
+  left: -3px;
+  text-shadow: -2px 0 #082675;
+  animation-name: glitch-animation-2;
+  animation-duration: 5s;
+  animation-timing-function: linear;
+  animation-delay: 0s;
+  animation-iteration-count: infinite;
+  animation-direction: reverse-alternate;
+}
+
+@keyframes glitch-animation-1 {
+  0% {
+    clip: rect(36px, 1050px, 285px, 32px);
+  }
+  5% {
+    clip: rect(381px, 1050px, 341px, 32px);
+  }
+  10% {
+    clip: rect(224px, 1050px, 112px, 32px);
+  }
+  15% {
+    clip: rect(297px, 1050px, 265px, 32px);
+  }
+  20% {
+    clip: rect(196px, 1050px, 415px, 32px);
+  }
+  25% {
+    clip: rect(96px, 1050px, 373px, 32px);
+  }
+  30% {
+    clip: rect(186px, 1050px, 336px, 32px);
+  }
+  35% {
+    clip: rect(61px, 1050px, 401px, 32px);
+  }
+  40% {
+    clip: rect(69px, 1050px, 71px, 32px);
+  }
+  45% {
+    clip: rect(435px, 1050px, 59px, 32px);
+  }
+  50% {
+    clip: rect(223px, 1050px, 217px, 32px);
+  }
+  55% {
+    clip: rect(23px, 1050px, 322px, 32px);
+  }
+  60% {
+    clip: rect(319px, 1050px, 137px, 32px);
+  }
+  65% {
+    clip: rect(395px, 1050px, 431px, 32px);
+  }
+  70% {
+    clip: rect(213px, 1050px, 383px, 32px);
+  }
+  75% {
+    clip: rect(248px, 1050px, 129px, 32px);
+  }
+  80% {
+    clip: rect(315px, 1050px, 193px, 32px);
+  }
+  85% {
+    clip: rect(326px, 1050px, 87px, 32px);
+  }
+  90% {
+    clip: rect(47px, 1050px, 201px, 32px);
+  }
+  95% {
+    clip: rect(338px, 1050px, 43px, 32px);
+  }
+  100% {
+    clip: rect(282px, 1050px, 314px, 32px);
+  }
+}
+@keyframes glitch-animation-2 {
+  0% {
+    clip: rect(425px, 1050px, 4px, 32px);
+  }
+  5% {
+    clip: rect(317px, 1050px, 166px, 32px);
+  }
+  10% {
+    clip: rect(36px, 1050px, 448px, 32px);
+  }
+  15% {
+    clip: rect(46px, 1050px, 360px, 32px);
+  }
+  20% {
+    clip: rect(17px, 1050px, 80px, 32px);
+  }
+  25% {
+    clip: rect(258px, 1050px, 441px, 32px);
+  }
+  30% {
+    clip: rect(58px, 1050px, 106px, 32px);
+  }
+  35% {
+    clip: rect(301px, 1050px, 269px, 32px);
+  }
+  40% {
+    clip: rect(118px, 1050px, 157px, 32px);
+  }
+  45% {
+    clip: rect(353px, 1050px, 32px, 32px);
+  }
+  50% {
+    clip: rect(299px, 1050px, 117px, 32px);
+  }
+  55% {
+    clip: rect(413px, 1050px, 199px, 32px);
+  }
+  60% {
+    clip: rect(330px, 1050px, 57px, 32px);
+  }
+  65% {
+    clip: rect(6px, 1050px, 223px, 32px);
+  }
+  70% {
+    clip: rect(177px, 1050px, 449px, 32px);
+  }
+  75% {
+    clip: rect(77px, 1050px, 82px, 32px);
+  }
+  80% {
+    clip: rect(370px, 1050px, 59px, 32px);
+  }
+  85% {
+    clip: rect(142px, 1050px, 352px, 32px);
+  }
+  90% {
+    clip: rect(189px, 1050px, 39px, 32px);
+  }
+  95% {
+    clip: rect(351px, 1050px, 395px, 32px);
+  }
+  100% {
+    clip: rect(172px, 1050px, 258px, 32px);
+  }
+}
