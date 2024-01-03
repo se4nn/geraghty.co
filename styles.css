@@ -1,188 +1,167 @@
 * {
   margin: 0;
   padding: 0;
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  color: #88E07A;
+  scroll-behavior: smooth;
+  transition: all .5s cubic-bezier(0.77,0,0.18,1);
+  -webkit-transition: all .5s cubic-bezier(0.77,0,0.18,1);
+  transition-delay: 0s;
 }
 
-body, html {
-  width: 100%;
+body {
+  max-width: 100%;
   height: 100%;
-  background-color: black;
+  background-color: #181C17;
+  margin: 3.33vw;
 }
 
-.wrapper {
-  width: 100%;
-  height: 100%;
+h1 {
+  font-weight: 800;
+  font-size: 16vw;
+  line-height: 88%;
+  hanging-punctuation: first last;
+  text-transform: uppercase;
+  opacity: 0.24;
+  max-width: 70%;
+}
+
+p {
+  font-weight: 300;
+  font-stretch: 90;
+  font-size: 4vw;
+  line-height: 112%;
+  font-variation-settings: 'opsz' 96;
+  max-width: 30ch;
+}
+
+a {
+  font-stretch: 90%;
+  font-variation-settings: 'opsz' 96;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+h4 {
+  font-stretch: 90%;
+  line-height: 112%;
+  font-size: 2.4vw;
+  font-weight: 300;
+  letter-spacing: -1px;
+  opacity: 0.4;
+  white-space: none;
+  padding-top: 3vw;
+}
+
+.nav, .footer {
+  display: flex;
   align-items: center;
 }
-.wrapper h1.glitch {
-  color: white;
-  font-family: sans-serif;
-  font-weight: 800;
-  position: relative;
-  font-size: 40px;
-  padding: 32px;
-}
-.wrapper h1.glitch::before, .wrapper h1.glitch::after {
-  padding: 32px;
-  color: white;
-  content: "FEW VENTURES";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: black;
-  overflow: hidden;
-  top: 0;
-}
-.wrapper h1.glitch::before {
-  left: 3px;
-  text-shadow: -2px 0 #F2FF00;
-  animation-name: glitch-animation-1;
-  animation-duration: 5s;
-  animation-timing-function: linear;
-  animation-delay: 0s;
-  animation-iteration-count: infinite;
-  animation-direction: reverse-alternate;
-}
-.wrapper h1.glitch::after {
-  left: -3px;
-  text-shadow: -2px 0 #082675;
-  animation-name: glitch-animation-2;
-  animation-duration: 5s;
-  animation-timing-function: linear;
-  animation-delay: 0s;
-  animation-iteration-count: infinite;
-  animation-direction: reverse-alternate;
+
+.nav {
+  justify-content: space-between;
 }
 
-@keyframes glitch-animation-1 {
-  0% {
-    clip: rect(36px, 1050px, 285px, 32px);
-  }
-  5% {
-    clip: rect(381px, 1050px, 341px, 32px);
-  }
-  10% {
-    clip: rect(224px, 1050px, 112px, 32px);
-  }
-  15% {
-    clip: rect(297px, 1050px, 265px, 32px);
-  }
-  20% {
-    clip: rect(196px, 1050px, 415px, 32px);
-  }
-  25% {
-    clip: rect(96px, 1050px, 373px, 32px);
-  }
-  30% {
-    clip: rect(186px, 1050px, 336px, 32px);
-  }
-  35% {
-    clip: rect(61px, 1050px, 401px, 32px);
-  }
-  40% {
-    clip: rect(69px, 1050px, 71px, 32px);
-  }
-  45% {
-    clip: rect(435px, 1050px, 59px, 32px);
-  }
-  50% {
-    clip: rect(223px, 1050px, 217px, 32px);
-  }
-  55% {
-    clip: rect(23px, 1050px, 322px, 32px);
-  }
-  60% {
-    clip: rect(319px, 1050px, 137px, 32px);
-  }
-  65% {
-    clip: rect(395px, 1050px, 431px, 32px);
-  }
-  70% {
-    clip: rect(213px, 1050px, 383px, 32px);
-  }
-  75% {
-    clip: rect(248px, 1050px, 129px, 32px);
-  }
-  80% {
-    clip: rect(315px, 1050px, 193px, 32px);
-  }
-  85% {
-    clip: rect(326px, 1050px, 87px, 32px);
-  }
-  90% {
-    clip: rect(47px, 1050px, 201px, 32px);
-  }
-  95% {
-    clip: rect(338px, 1050px, 43px, 32px);
-  }
-  100% {
-    clip: rect(282px, 1050px, 314px, 32px);
-  }
+.nav a, .footer a {
+  font-weight: 300;
+  gap: 8px;
+  font-size: 4vw;
+  line-height: 112%;
 }
-@keyframes glitch-animation-2 {
-  0% {
-    clip: rect(425px, 1050px, 4px, 32px);
-  }
-  5% {
-    clip: rect(317px, 1050px, 166px, 32px);
-  }
-  10% {
-    clip: rect(36px, 1050px, 448px, 32px);
-  }
-  15% {
-    clip: rect(46px, 1050px, 360px, 32px);
-  }
-  20% {
-    clip: rect(17px, 1050px, 80px, 32px);
-  }
-  25% {
-    clip: rect(258px, 1050px, 441px, 32px);
-  }
-  30% {
-    clip: rect(58px, 1050px, 106px, 32px);
-  }
-  35% {
-    clip: rect(301px, 1050px, 269px, 32px);
-  }
-  40% {
-    clip: rect(118px, 1050px, 157px, 32px);
-  }
-  45% {
-    clip: rect(353px, 1050px, 32px, 32px);
-  }
-  50% {
-    clip: rect(299px, 1050px, 117px, 32px);
-  }
-  55% {
-    clip: rect(413px, 1050px, 199px, 32px);
-  }
-  60% {
-    clip: rect(330px, 1050px, 57px, 32px);
-  }
-  65% {
-    clip: rect(6px, 1050px, 223px, 32px);
-  }
-  70% {
-    clip: rect(177px, 1050px, 449px, 32px);
-  }
-  75% {
-    clip: rect(77px, 1050px, 82px, 32px);
-  }
-  80% {
-    clip: rect(370px, 1050px, 59px, 32px);
-  }
-  85% {
-    clip: rect(142px, 1050px, 352px, 32px);
-  }
-  90% {
-    clip: rect(189px, 1050px, 39px, 32px);
-  }
-  95% {
-    clip: rect(351px, 1050px, 395px, 32px);
-  }
-  100% {
-    clip: rect(172px, 1050px, 258px, 32px);
-  }
+
+.footer {
+  margin-bottom: 6.6vw;
+}
+
+.footer a {
+  border-bottom: 1.5px solid #88E07A;
+}
+
+.links a {
+  font-weight: 500;
+  font-size: 6vw;
+  line-height: 90%;
+}
+
+.intro {
+  position: relative;
+  display: flex;
+  margin: 6.66vw 0;
+}
+
+.memoji {
+  width: 40%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1vw 2vw;
+  max-width: 80vw;
+  margin: 13.3vw 0;
+}
+
+.links a {
+  display: flex;
+  align-items: start;
+}
+
+.links a span {
+  font-size: 2vw;
+  line-height: 2vw;
+  font-weight: 300;
+}
+
+.project a:hover {
+  color: #fff;
+  z-index: 100;
+  position: relative;
+}
+
+.project a:hover span {
+  color: #fff;
+}
+
+.project a:hover + .project-cover {
+  opacity: 1;
+  z-index: 99;
+}
+
+.project-cover {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.project img {
+  height: calc(100% - 13.2vw);
+  width: calc(100% - 13.2vw);
+  padding: 6.6vw;
+  object-fit: contain;
+}
+
+.project-cover:hover img {
+  opacity: 1;
+}
+
+.somers .project-cover {
+  background-color: hsl(335deg 100% 69% / 80%);
+}
+
+.season .project-cover {
+  background-color: hsl(33deg 30% 69% / 80%);
+}
+
+.fertifa .project-cover {
+  background-color: hsl(266deg 86% 49% / 80%);
 }
