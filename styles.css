@@ -53,7 +53,6 @@ h4 {
   font-weight: 300;
   letter-spacing: -1px;
   opacity: 0.4;
-  white-space: none;
   padding-top: 3vw;
 }
 
@@ -62,7 +61,7 @@ h4 {
   align-items: center;
 }
 
-.nav {
+.nav, .footer {
   justify-content: space-between;
 }
 
@@ -74,12 +73,22 @@ h4 {
   line-height: 112%;
 }
 
+.nav .link, .footer .link{
+  display: flex;
+  align-items: center;
+  display: flex;
+}
+
 .footer {
   margin-bottom: 13.2vw;
 }
 
 .footer a {
   border-bottom: 1.5px solid #88E07A;
+}
+
+.footer h4 {
+  padding: 0;
 }
 
 .links a {
