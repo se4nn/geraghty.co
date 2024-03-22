@@ -1,0 +1,144 @@
+.intro{
+  z-index: -1;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.case-study {
+  display: flex;
+  flex-direction: column;
+  gap: 3.3vw;
+}
+
+.case-study .intro {
+  margin-top: -3.3vw;
+}
+
+.case-study .nav, .case-study .heading {
+  padding: 3.3vw;
+}
+
+.case-study .nav a {
+  color: #fff;
+}
+
+.case-study img {
+  width: 100%;
+}
+
+.case-study .footer img {
+  width: auto;
+}
+
+.project-fw {
+  margin: 0 -3.3vw;
+}
+
+.stack, .stack-2 {
+  display: flex;
+  gap: 3.3vw;
+}
+
+.stack-2 {
+  flex-direction: column;
+}
+
+.stack-2 div{
+  width: 66%;
+}
+
+.stack-2 div:nth-child(2) {
+  align-self: end;
+}
+
+.sixteen-nine {
+  aspect-ratio: 16 / 9;
+}
+
+.nine-sixteen {
+  aspect-ratio: 9 / 16;
+}
+
+.case-study .heading {
+  height: 32vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0;
+}
+
+.case-study h1 {
+  opacity: 1;
+  text-transform: none;
+  font-weight: 500;
+  font-stretch: condensed;
+  font-variation-settings: 'opsz' 96;
+  color: #fff;
+}
+
+.case-study h4 {
+  color: #fff;
+  opacity: 0.64;
+}
+
+/* Case Study Headers */
+
+.case-study .footer {
+  padding-bottom: 3.3vw;
+}
+
+.header.fertifa {
+  background: url(./img/fertifa/image\ 1.png);
+  background-size: cover;
+}
+
+.fertifa .heading {
+  background: linear-gradient(180deg, rgba(110, 17, 232, 0) 0%, #6E11E8 100%);
+}
+
+.header.quicknode {
+  background: url(./img/quicknode/image\ 1.png);
+  background-size: cover;
+}
+
+.quicknode .heading {
+  background: linear-gradient(180deg, rgba(0, 157, 207, 0) 0%, #009DCF 100%);
+}
+
+.header.steepclub {
+  background: url(./img/steepclub/image\ 1.jpg);
+  background-size: cover;
+}
+
+.steepclub .heading {
+  background: linear-gradient(180deg, rgba(230, 42, 244, 0) 0%, #E62AF4 100%);
+}
+
+.header.builtopen {
+  background: url(./img/builtopen/image\ 1.png);
+  background-size: cover;
+}
+
+.builtopen .heading {
+  background: linear-gradient(180deg, rgba(254, 51, 156, 0) 0%, #FE339C 100%);
+}
+
+.header.knoma {
+  background: url(./img/knoma/image\ 1.jpg);
+  background-size: cover;
+}
+
+.knoma .heading {
+  background: linear-gradient(180deg, rgba(145, 0, 255, 0) 0%, #9100FF 100%);
+}
+
+.header.minimum {
+  background: url(./img/minimum/image\ 1.jpg);
+  background-size: cover;
+}
+
+.knoma .heading {
+  background: linear-gradient(180deg, rgba(2, 2, 3, 0) 0%, #020203 100%);
+}
