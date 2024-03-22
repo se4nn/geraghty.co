@@ -206,3 +206,7 @@ h4 {
 .steepclub .project-cover {
   background-color: hsl(281deg 27% 70% / 80%);
 }
+
+.builtopen .project-cover {
+  background-color: hsl(329deg 99% 60% / 80%);
+}
