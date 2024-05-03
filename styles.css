@@ -83,6 +83,10 @@ h4 {
   display: flex;
 }
 
+.nav .link a {
+  margin-left: 3.3vw;
+}
+
 .footer {
   padding: 3.3vw 0 13.2vw;
 }
