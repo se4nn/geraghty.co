@@ -40,4 +40,5 @@ h4 {
   height: 50vh;
   object-fit: cover;
   padding-bottom: 13.2vw;
+  filter: grayscale(1);
 }
