@@ -138,6 +138,20 @@
   background-size: cover;
 }
 
-.knoma .heading {
+.minimum .heading {
   background: linear-gradient(180deg, rgba(2, 2, 3, 0) 0%, #020203 100%);
+}
+
+.header.shuffle {
+  background: url(./img/shuffle/6.jpg);
+  background-size: cover;
+}
+
+.shuffle .heading {
+  background: linear-gradient(180deg, rgba(255, 234, 1, 0) 0%, #FFEA01 100%);
+}
+
+.video {
+  width: 100%;
+  height: auto;
 }
