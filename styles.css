@@ -3,6 +3,7 @@
   padding: 0;
   font-family: 'Bricolage Grotesque';
   font-style: normal;
+  font-display: block;
   color: #88E07A;
   scroll-behavior: smooth;
   transition: all .5s cubic-bezier(0.77,0,0.18,1);
@@ -83,8 +84,8 @@ h4 {
   display: flex;
 }
 
-.footer .link:nth-child(2) {
-  gap: 24px;
+.footer .link {
+  gap: 16px;
 }
 
 .nav .link a {
@@ -177,6 +178,11 @@ h4 {
 
 .project-cover:hover img {
   opacity: 1;
+}
+
+.row {
+  display: flex;
+  gap: 48px;
 }
 
 
