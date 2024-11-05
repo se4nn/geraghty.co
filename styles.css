@@ -179,14 +179,6 @@ h4 {
   opacity: 1;
 }
 
-.project-description {
-  font-size: clamp(16px, 2.4vw, 2.4vw);
-  font-variation-settings: 'opsz' 96;
-  letter-spacing: -0.02em;
-  color: #CDC9C6;
-  font-stretch: 100%;
-}
-
 
 .somers .project-cover {
   background-color: hsl(335deg 100% 69% / 80%);
