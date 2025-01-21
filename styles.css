@@ -46,6 +46,15 @@ a {
   cursor: pointer;
 }
 
+h2 {
+  font-weight: 300;
+  font-stretch: 90%;
+  font-size: clamp(48px, 8vw, 8vw);
+  line-height: 112%;
+  font-variation-settings: 'opsz' 96;
+  max-width: 30ch;
+}
+
 h4 {
   font-stretch: 90%;
   line-height: 112%;
@@ -55,6 +64,14 @@ h4 {
   letter-spacing: -1px;
   opacity: 0.4;
   padding-top: 3vw;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.bold {
+  font-weight: bolder;
 }
 
 .nav, .footer {

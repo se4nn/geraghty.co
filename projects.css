@@ -89,6 +89,11 @@
   color: #CDC9C6;
   font-stretch: 100%;
   font-weight: 200;
+  max-width: 36ch;
+}
+
+.project-description + .project-description {
+  margin-top: clamp(16px, 2.4vw, 32px);
 }
 
 /* Case Study Headers */
