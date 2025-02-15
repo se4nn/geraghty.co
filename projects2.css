@@ -105,7 +105,7 @@
   font-stretch: 85%;
   font-variation-settings: 'opsz' 96;
   color: #0B0B09;
-  font-size: clamp(24vw, 240px, 240px);
+  font-size: clamp(24vw, 240px, 20px);
 }
 
 .case-study h1 {
@@ -301,6 +301,6 @@
   font-stretch: 85%;
   font-variation-settings: 'opsz' 96;
   color: #FBFAF9;
-  font-size: clamp(16vw, 160px, 160px);
+  font-size: clamp(16vw, 160px, 16px);
   line-height: 80%;
 }
