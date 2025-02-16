@@ -31,10 +31,6 @@
   padding: 3.3vw;
 }
 
-.case-study .nav *, .case-study .footer * {
-  color: #0B0B09;
-}
-
 .container-text {
   padding: 0 3.3vw;
   width: 93.4vw;
@@ -104,12 +100,16 @@
   font-weight: 500;
   font-stretch: 85%;
   font-variation-settings: 'opsz' 96;
-  color: #0B0B09;
   font-size: clamp(24vw, 240px, 20px);
+  text-align: center;
 }
 
-.case-study h1 {
-  text-align: center;
+.header.dark h1, .nav.dark *, .footer.dark *, .next-project.dark *{
+  color: #0B0B09;
+}
+
+.header.light h1, .nav.light *, .footer.light *, .next-project.light *{
+  color: #FBFAF9;
 }
 
 .case-study h4 {
@@ -193,7 +193,7 @@
 }
 
 .header.minimum {
-  background: url(./img/minimum/image\ 1.jpg);
+  background: url(./img/minimum/1.jpg);
   background-size: cover;
 }
 
@@ -204,6 +204,11 @@
 .header.shuffle {
   background: url(./img/shuffle/24.png) #FBFAF9 no-repeat;
   background-size: auto 560px;
+  background-position: center center;
+}
+
+.header.minimum {
+  background: url(./img/minimum/image\ 1.jpg) #FBFAF9 no-repeat cover;
   background-position: center center;
 }
 
@@ -251,6 +256,11 @@
   border: none;
 }
 
+.tags .tag.date {
+ background-color: #DADBDA;
+ border: none;
+}
+
 .tags .tag {
   font-weight: 700;
   font-size: 19px;
@@ -286,6 +296,10 @@
 
 .next-project.knoma {
   background: #9100FF;
+}
+
+.next-project.shuffle {
+  background: #FFEA01;
 }
 
 .next-project p {
