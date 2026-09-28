@@ -13,5 +13,6 @@ tile:
     seed: 2
     # The Fertifa artwork was made at a lower darkness: a wider crease
     darkness: 0.34
+    dither: crt
 link: /fertifa.html
 ---

@@ -11,5 +11,6 @@ tile:
     from: var(--gradient-shuffle-from)
     to: var(--gradient-shuffle-to)
     seed: 5
+    dither: crt
 link: /shuffle.html
 ---

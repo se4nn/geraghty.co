@@ -23,8 +23,9 @@ interface Props extends HTMLAttributes<'div'> {
   // reads wrong, e.g. yellow turns lime when the fringe swings cool.
   fringe?: 'auto' | 'warm' | 'cool';
   // Surface texture. 'grain' is the fine noise matched to the Figma artwork.
-  // 'crt' pixelates into cells with an RGB shadow mask, ordered (Bayer)
-  // dither, quantised colour and faint scanlines.
+  // 'crt' treats the page as one big CRT behind the site: cells with an RGB
+  // shadow mask, ordered (Bayer) dither, quantised colour, scanlines and a
+  // rolling beam, all shared across every CRT on the page.
   dither?: 'grain' | 'crt';
   // Core controls. Defaults are the tuned values, override sparingly.
   darkness?: number;
@@ -118,14 +119,13 @@ const {
   // tall with one cell per pixel, so the texture scales with the tile as it
   // does in Figma.
   const DITHER_ROWS = 540;
-  // CRT cells down the height of the box, and the smallest cell in device
-  // pixels. Below about 6px the RGB slots in a cell stop reading, so the
-  // shader fades the mask out on small tiles.
-  const CRT_ROWS = 180;
-  const CRT_MIN_CELL = 3;
-  // Beam passes per loop. At the 61s loop that's one roll every ~7.6s, with
-  // the beam off screen for a moment between rolls.
-  const BEAM_ROLLS = 8;
+  // CRT mode is one big screen fixed behind the page, the size of the
+  // viewport. Every CRT tile is a window onto it: the cell grid, scanlines
+  // and beam are laid out in viewport pixels and share one clock, so they
+  // line up across tiles and the beam sweeps through them in turn.
+  const CRT_CELL = 4.5; // screen pixel pitch, CSS px
+  const BEAM_PERIOD = 7.6; // seconds per sweep, including a moment off screen
+  const SCREEN_FPS = 30; // flicker and row jitter step at the screen's rate
   const TAU = Math.PI * 2;
 
   const VERT = `#version 300 es
@@ -268,7 +268,10 @@ const {
     uniform int u_mode; // 0 grain, 1 crt
     uniform vec2 u_res;
     uniform float u_crtCell; // CRT cell size in device pixels
-    uniform float u_scan; // beam position down the box, 0 top to 1 bottom
+    uniform vec2 u_origin; // this canvas's top-left on the screen, device px
+    uniform vec2 u_screen; // screen (viewport) size, device px
+    uniform float u_scan; // beam position down the screen, 0 top to 1 bottom
+    uniform float u_screenFrame; // shared frame count, for flicker and jitter
     uniform float u_live; // 0 for reduced motion: no beam, no flicker
 
     const int TAPS = 32;
@@ -317,25 +320,29 @@ const {
     float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
 
     void main() {
-      // CRT: every pixel in a cell samples the cell's centre, so the image
-      // itself is made of cells. Alternate columns drop half a cell, like a
-      // slot mask.
-      vec2 coord = gl_FragCoord.xy / u_crtCell;
+      // CRT: position on the shared screen, top-down, in device pixels.
+      // Every pixel in a cell samples the cell's centre, so the image itself
+      // is made of cells. Alternate columns drop half a cell, like a slot mask.
+      vec2 screenPx = vec2(gl_FragCoord.x, u_res.y - gl_FragCoord.y) + u_origin;
+      vec2 coord = screenPx / u_crtCell;
       vec2 cellOffset = vec2(0.0, mod(floor(coord.x), 2.0) * 0.5);
       vec2 cellId = floor(coord + cellOffset);
-      vec2 uv = u_mode == 1 ? (cellId - cellOffset + 0.5) * u_crtCell / u_res : v_uv;
+      vec2 cellCentre = (cellId - cellOffset + 0.5) * u_crtCell;
+      vec2 local = cellCentre - u_origin;
+      vec2 uv = u_mode == 1 ? vec2(local.x, u_res.y - local.y) / u_res : v_uv;
       // The RGB slots need about 6px per cell to read, so small tiles lose them
       float maskFade = smoothstep(4.0, 7.0, u_crtCell);
 
-      // Beam, measured per cell row so cells stay whole. d is how far the
-      // beam has passed this row: negative ahead of it, positive behind.
+      // Beam, measured per cell row on the screen so cells stay whole. d is
+      // how far the beam has passed this row: negative ahead, positive behind.
       float beam = 0.0;
       if (u_mode == 1 && u_live > 0.5) {
-        float d = u_scan - (1.0 - uv.y);
+        float d = u_scan - cellCentre.y / u_screen.y;
         beam = d >= 0.0 ? exp(-d / BEAM_TRAIL) : exp(-(d * d) / (BEAM_LEAD * BEAM_LEAD));
-        // Rows right at the beam slip sideways a little, fresh each frame
+        // Rows right at the beam slip sideways a little, fresh each frame,
+        // and the same screen row slips the same way in every tile
         float edge = exp(-(d * d) / (4.0 * BEAM_LEAD * BEAM_LEAD));
-        float shift = hash(uvec3(uint(cellId.y), uint(u_frame), 7u)) - 0.5;
+        float shift = hash(uvec3(uint(max(cellId.y, 0.0)), uint(u_screenFrame), 7u)) - 0.5;
         uv.x += shift * BEAM_JITTER * edge * u_crtCell / u_res.x;
       }
 
@@ -392,7 +399,7 @@ const {
         col *= 1.0 - SCANLINES * line * (1.0 - 0.6 * beam);
 
         // Faint frame-to-frame flicker
-        col *= 1.0 + (hash(uvec3(0u, 0u, uint(u_frame))) - 0.5) * FLICKER * u_live;
+        col *= 1.0 + (hash(uvec3(0u, 0u, uint(u_screenFrame))) - 0.5) * FLICKER * u_live;
       }
 
       outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -478,6 +485,9 @@ const {
       this.ro.observe(this);
       reducedMotion.addEventListener('change', this.redraw);
       document.addEventListener('visibilitychange', this.redraw);
+      // A CRT window slides over the screen as the page scrolls, so redraw
+      // straight away rather than waiting for the next 30fps frame
+      window.addEventListener('scroll', this.onScroll, { passive: true });
     }
 
     disconnectedCallback() {
@@ -486,6 +496,7 @@ const {
       this.ro?.disconnect();
       reducedMotion.removeEventListener('change', this.redraw);
       document.removeEventListener('visibilitychange', this.redraw);
+      window.removeEventListener('scroll', this.onScroll);
     }
 
     readColours() {
@@ -598,9 +609,16 @@ const {
       gl.uniform1f(up('u_cell'), Math.max(1, this.canvas.height / DITHER_ROWS));
       gl.uniform1i(up('u_mode'), this.dataset.dither === 'crt' ? 1 : 0);
       gl.uniform2f(up('u_res'), this.canvas.width, this.canvas.height);
-      gl.uniform1f(up('u_crtCell'), Math.max(CRT_MIN_CELL, this.canvas.height / CRT_ROWS));
-      // A whole number of rolls per loop keeps the loop seamless
-      gl.uniform1f(up('u_scan'), ((phase * BEAM_ROLLS) % 1) * 1.4 - 0.2);
+      // Where this window sits on the shared screen. Canvas pixels are CSS
+      // pixels times the capped DPR, so the screen uses the same scale.
+      const dpr = this.canvas.width / Math.max(1, this.canvas.clientWidth);
+      const rect = this.canvas.getBoundingClientRect();
+      const now = performance.now() / 1000;
+      gl.uniform1f(up('u_crtCell'), CRT_CELL * dpr);
+      gl.uniform2f(up('u_origin'), rect.left * dpr, rect.top * dpr);
+      gl.uniform2f(up('u_screen'), window.innerWidth * dpr, window.innerHeight * dpr);
+      gl.uniform1f(up('u_scan'), ((now / BEAM_PERIOD) % 1) * 1.4 - 0.2);
+      gl.uniform1f(up('u_screenFrame'), Math.floor(now * SCREEN_FPS) % 1024);
       gl.uniform1f(up('u_live'), reducedMotion.matches ? 0 : 1);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
@@ -638,6 +656,10 @@ const {
       if (this.rafId !== null) cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+
+    onScroll = () => {
+      if (this.dataset.dither === 'crt') this.redraw();
+    };
 
     redraw = () => {
       this.needsRedraw = true;

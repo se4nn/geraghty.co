@@ -15,5 +15,6 @@ tile:
     darkness: 0.2
     # Warm edge on the yellow, as in the artwork. Swung cool, it goes lime.
     fringe: warm
+    dither: crt
   grain: false
 ---

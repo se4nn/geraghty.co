@@ -11,5 +11,6 @@ tile:
     from: var(--gradient-minimum-from)
     to: var(--gradient-minimum-to)
     seed: 6
+    dither: crt
 link: /minimum.html
 ---

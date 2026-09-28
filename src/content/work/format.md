@@ -11,4 +11,5 @@ tile:
     from: var(--gradient-format-from)
     to: var(--gradient-format-to)
     seed: 1
+    dither: crt
 ---

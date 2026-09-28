@@ -11,4 +11,5 @@ tile:
     from: var(--gradient-studia-from)
     to: var(--gradient-studia-to)
     seed: 4
+    dither: crt
 ---
