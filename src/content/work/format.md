@@ -7,4 +7,8 @@ tile:
   image: ../../assets/work/format-tile.png
   logo: ../../assets/logos/format.svg
   logoScale: 0.2675
+  gradient:
+    from: var(--gradient-format-from)
+    to: var(--gradient-format-to)
+    seed: 1
 ---

@@ -1,0 +1,559 @@
+---
+// Lens flare gradient: a live, looping WebGL backdrop.
+// A lite build of format/public/design/experiments/lens-flare.html, cut down
+// to the one look the portfolio uses (Prism) and the values tuned for it.
+//
+// Three colours: an opening colour, a closing colour, and a dark crease
+// between them (Neutral/1000 unless told otherwise). Any CSS colour works,
+// tokens included, e.g. from="var(--chip-format)".
+//
+// Whatever is passed as children stays underneath as the fallback. It shows
+// before the first frame, and when WebGL isn't available.
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  from: string;
+  to: string;
+  mid?: string;
+  // Shifts the noise so tiles sharing colours don't share a shape
+  seed?: number;
+  // Which way the colour fringe falls. 'auto' swings both ways over the loop,
+  // as the full tool does. 'warm' keeps a warm edge on the opening side and a
+  // cool one on the closing side, 'cool' the reverse. Pin it when one way
+  // reads wrong, e.g. yellow turns lime when the fringe swings cool.
+  fringe?: 'auto' | 'warm' | 'cool';
+  // Core controls. Defaults are the tuned values, override sparingly.
+  darkness?: number;
+  period?: number;
+  intensity?: number;
+  scale?: number;
+  grain?: number;
+}
+
+const {
+  from,
+  to,
+  mid = 'var(--neutral-1000)',
+  seed = 0,
+  fringe = 'auto',
+  darkness,
+  period,
+  intensity,
+  scale,
+  grain,
+  class: className,
+  ...attrs
+} = Astro.props;
+---
+
+<lens-flare
+  {...attrs}
+  class:list={['lens-flare', className]}
+  style={`--lf-from: ${from}; --lf-mid: ${mid}; --lf-to: ${to};`}
+  data-seed={seed}
+  data-fringe={fringe}
+  data-darkness={darkness}
+  data-period={period}
+  data-intensity={intensity}
+  data-scale={scale}
+  data-grain={grain}
+>
+  <slot />
+  <canvas class="lens-flare__canvas" aria-hidden="true"></canvas>
+</lens-flare>
+
+<style>
+  /* :where() so a parent can position and size it without a fight */
+  :where(.lens-flare) {
+    position: relative;
+    display: block;
+  }
+
+  .lens-flare {
+    overflow: hidden;
+    /* Shown only if there is no fallback child and no WebGL */
+    background: linear-gradient(100deg, var(--lf-from) 30%, var(--lf-mid) 50%, var(--lf-to) 70%);
+  }
+
+  .lens-flare__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity var(--duration-l) var(--ease-out);
+  }
+
+  .lens-flare[data-ready] .lens-flare__canvas {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  // Core values, set in the full tool
+  const DEFAULTS = {
+    darkness: 0.49,
+    period: 61, // seconds per loop
+    intensity: 1.7,
+    scale: 1.03,
+    grain: 0.3,
+  };
+
+  // Fixed Prism values. These were tuned against the source clips and aren't
+  // meant to be changed per use; the full tool is the place to explore them.
+  const FIELD_SCALE = 0.6; // field pass resolution, it's all low frequency
+  const DPR_CAP = 1.5;
+  const FPS_CAP = 30;
+  // The look was tuned on 16:9 renders. Narrower boxes show the centre of a
+  // 16:9 frame, as the cropped Figma tiles do, so the sweep and smear keep
+  // their proportions instead of squeezing into the box.
+  const REF_ASPECT = 16 / 9;
+  // Dither cells down the height of the box. The artwork was rendered 538px
+  // tall with one cell per pixel, so the texture scales with the tile as it
+  // does in Figma.
+  const DITHER_ROWS = 540;
+  const TAU = Math.PI * 2;
+
+  const VERT = `#version 300 es
+    in vec2 a_pos;
+    out vec2 v_uv;
+    void main() {
+      v_uv = a_pos * 0.5 + 0.5;
+      gl_Position = vec4(a_pos, 0.0, 1.0);
+    }`;
+
+  // Pass 1: a domain-warped looping noise field mapped onto the colour ramp
+  const FRAG_FIELD = `#version 300 es
+    precision highp float;
+    in vec2 v_uv;
+    out vec4 outColor;
+
+    uniform vec2 u_res;
+    uniform float u_phase;
+    uniform float u_seed;
+    uniform float u_scale;
+    uniform float u_darkness;
+    uniform float u_crop; // visible share of the 16:9 reference width
+    uniform vec3 u_from;
+    uniform vec3 u_mid;
+    uniform vec3 u_to;
+
+    const float WARP = 0.6;
+    const float LOOP_RADIUS = 0.9;
+    const float TILT_X = 0.95;
+    const float TEXTURE = 0.62;
+
+    // Ashima 4D simplex noise, github.com/ashima/webgl-noise (MIT)
+    vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    float mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+    float permute(float x) { return mod289(((x * 34.0) + 1.0) * x); }
+    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+    float taylorInvSqrt(float r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+    vec4 grad4(float j, vec4 ip) {
+      const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);
+      vec4 p, s;
+      p.xyz = floor(fract(vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;
+      p.w = 1.5 - dot(abs(p.xyz), ones.xyz);
+      s = vec4(lessThan(p, vec4(0.0)));
+      p.xyz = p.xyz + (s.xyz * 2.0 - 1.0) * s.www;
+      return p;
+    }
+
+    float snoise(vec4 v) {
+      const vec4 C = vec4(0.138196601125011, 0.276393202250021,
+                          0.414589803375032, -0.447213595499958);
+      const float F4 = 0.309016994374947451;
+      vec4 i = floor(v + dot(v, vec4(F4)));
+      vec4 x0 = v - i + dot(i, C.xxxx);
+      vec4 i0;
+      vec3 isX = step(x0.yzw, x0.xxx);
+      vec3 isYZ = step(x0.zww, x0.yyz);
+      i0.x = isX.x + isX.y + isX.z;
+      i0.yzw = 1.0 - isX;
+      i0.y += isYZ.x + isYZ.y;
+      i0.zw += 1.0 - isYZ.xy;
+      i0.z += isYZ.z;
+      i0.w += 1.0 - isYZ.z;
+      vec4 i3 = clamp(i0, 0.0, 1.0);
+      vec4 i2 = clamp(i0 - 1.0, 0.0, 1.0);
+      vec4 i1 = clamp(i0 - 2.0, 0.0, 1.0);
+      vec4 x1 = x0 - i1 + C.xxxx;
+      vec4 x2 = x0 - i2 + C.yyyy;
+      vec4 x3 = x0 - i3 + C.zzzz;
+      vec4 x4 = x0 + C.wwww;
+      i = mod289(i);
+      float j0 = permute(permute(permute(permute(i.w) + i.z) + i.y) + i.x);
+      vec4 j1 = permute(permute(permute(permute(
+                  i.w + vec4(i1.w, i2.w, i3.w, 1.0))
+                + i.z + vec4(i1.z, i2.z, i3.z, 1.0))
+                + i.y + vec4(i1.y, i2.y, i3.y, 1.0))
+                + i.x + vec4(i1.x, i2.x, i3.x, 1.0));
+      vec4 ip = vec4(1.0 / 294.0, 1.0 / 49.0, 1.0 / 7.0, 0.0);
+      vec4 p0 = grad4(j0, ip);
+      vec4 p1 = grad4(j1.x, ip);
+      vec4 p2 = grad4(j1.y, ip);
+      vec4 p3 = grad4(j1.z, ip);
+      vec4 p4 = grad4(j1.w, ip);
+      vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+      p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+      p4 *= taylorInvSqrt(dot(p4, p4));
+      vec3 m0 = max(0.6 - vec3(dot(x0, x0), dot(x1, x1), dot(x2, x2)), 0.0);
+      vec2 m1 = max(0.6 - vec2(dot(x3, x3), dot(x4, x4)), 0.0);
+      m0 = m0 * m0;
+      m1 = m1 * m1;
+      return 49.0 * (dot(m0 * m0, vec3(dot(p0, x0), dot(p1, x1), dot(p2, x2)))
+                   + dot(m1 * m1, vec2(dot(p3, x3), dot(p4, x4))));
+    }
+
+    // Time enters as a circle, walked a whole number of times, so the loop
+    // closes exactly
+    float loopNoise(vec2 p, float revs, float off) {
+      float a = 6.28318530718 * u_phase * revs;
+      off += u_seed * 17.3;
+      return snoise(vec4(p.x + off, p.y - off, cos(a) * LOOP_RADIUS, sin(a) * LOOP_RADIUS));
+    }
+
+    void main() {
+      vec2 p = (v_uv - 0.5) * vec2(u_res.x / u_res.y, 1.0);
+
+      vec2 w = vec2(
+        loopNoise(p * u_scale, 3.0, 0.0),
+        loopNoise(p * u_scale + 4.7, 1.0, 11.3)
+      );
+      vec2 pw = p + w * WARP;
+
+      float f = 0.5 + 0.5 * loopNoise(pw * u_scale * 0.62, 3.0, 3.1);
+      f = 0.5 + (f - 0.5) * TEXTURE;
+      // Sweep the ramp left to right
+      f += TILT_X * (v_uv.x - 0.5) * u_crop;
+      f = clamp(f, 0.0, 1.0);
+      // Darkness narrows the lit area as well as capping brightness
+      f = pow(f, 1.0 + 1.15 * u_darkness);
+
+      // Opening colour, dark crease at the middle, closing colour
+      vec3 c = mix(u_from, u_mid, smoothstep(0.3, 0.5, f));
+      c = mix(c, u_to, smoothstep(0.5, 0.7, f));
+      outColor = vec4(c, 1.0);
+    }`;
+
+  // Pass 2: chromatic smear, grade, grain, then a luminance ceiling
+  const FRAG_POST = `#version 300 es
+    precision highp float;
+    in vec2 v_uv;
+    out vec4 outColor;
+
+    uniform sampler2D u_tex;
+    uniform float u_frame;
+    uniform vec2 u_abDir;
+    uniform float u_exposure;
+    uniform float u_grain;
+    uniform float u_cell; // dither cell size in device pixels
+    uniform float u_ceiling;
+
+    const int TAPS = 32;
+    const float AB_AMOUNT = 0.03;
+    const float AB_BLUE = -0.3;
+    const float AB_SPREAD = 1.1;
+    const float CONTRAST = 0.95;
+    const float SATURATION = 0.95;
+    // Scales the grain setting so 0.3 matches the texture in the artwork
+    const float DITHER_GAIN = 0.46;
+    const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
+
+    // Integer hash for the dither. The sin() hash in the full tool loses
+    // precision at large coordinates and shows as diagonal lines.
+    float hash(uvec3 v) {
+      uint h = v.x * 1973u + v.y * 9277u + v.z * 26699u;
+      h = (h ^ (h >> 16u)) * 0x7feb352du;
+      h = (h ^ (h >> 15u)) * 0x846ca68bu;
+      h ^= h >> 16u;
+      return float(h) / 4294967295.0;
+    }
+
+    void main() {
+      // Red and blue pushed apart along an animated direction, green between
+      float spread = AB_AMOUNT * AB_SPREAD;
+      float cR = -AB_AMOUNT;
+      float cB = AB_AMOUNT * (1.0 + AB_BLUE);
+      float cG = mix(cR, cB, 0.5);
+      vec3 sum = vec3(0.0);
+      for (int i = 0; i < TAPS; i++) {
+        float base = float(i) / float(TAPS - 1) * 2.0 - 1.0;
+        sum.r += texture(u_tex, v_uv + u_abDir * (cR + spread * base)).r;
+        sum.g += texture(u_tex, v_uv + u_abDir * (cG + spread * base)).g;
+        sum.b += texture(u_tex, v_uv + u_abDir * (cB + spread * base)).b;
+      }
+      vec3 col = sum / float(TAPS);
+
+      col *= u_exposure;
+      col = (col - 0.5) * CONTRAST + 0.5;
+      col = mix(vec3(dot(col, LUMA)), col, SATURATION);
+
+      // CRT-style dither: one offset per square cell, the same on every
+      // channel. Where a channel is already past 0 or 1 it clips, so the
+      // offset shifts hue there, which gives the coloured speckle in the
+      // artwork. It goes in before the ceiling, so the knee flattens it in
+      // the highlights.
+      uvec3 cell = uvec3(uvec2(gl_FragCoord.xy / u_cell), uint(u_frame));
+      col += (hash(cell) - 0.5) * u_grain * DITHER_GAIN;
+
+      // Soft-knee cap on luminance, last, so the grade can't blow it out.
+      // Scaling by a luminance ratio keeps hue and saturation.
+      float L = dot(col, LUMA);
+      if (u_ceiling < 0.999 && L > 1e-4) {
+        float n = L / u_ceiling;
+        float knee = 0.55;
+        float cn = n <= knee ? n : knee + (1.0 - knee) * (1.0 - exp(-(n - knee) / (1.0 - knee)));
+        col *= (cn * u_ceiling) / L;
+      }
+
+      outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+    }`;
+
+  // Exactly periodic wobble for the smear direction
+  function loopOsc(phase: number, seed: number) {
+    return (
+      (Math.sin(TAU * (phase + seed * 0.37)) * 0.6 +
+        Math.sin(TAU * (2 * phase + seed * 0.71)) * 0.3 +
+        Math.sin(TAU * (3 * phase + seed * 0.13)) * 0.15) /
+      1.05
+    );
+  }
+
+  // Any CSS colour (tokens included) to sRGB 0..1, by letting canvas parse it
+  const swatch = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+  function toRgb(css: string): [number, number, number] {
+    swatch.clearRect(0, 0, 1, 1);
+    swatch.fillStyle = '#000';
+    swatch.fillStyle = css.trim();
+    swatch.fillRect(0, 0, 1, 1);
+    const [r, g, b] = swatch.getImageData(0, 0, 1, 1).data;
+    return [r / 255, g / 255, b / 255];
+  }
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const start = performance.now();
+
+  class LensFlare extends HTMLElement {
+    canvas!: HTMLCanvasElement;
+    gl!: WebGL2RenderingContext;
+    progField!: WebGLProgram;
+    progPost!: WebGLProgram;
+    fbo!: WebGLFramebuffer;
+    fboTex!: WebGLTexture;
+    fbW = 0;
+    fbH = 0;
+    uf: Record<string, WebGLUniformLocation | null> = {};
+    up: Record<string, WebGLUniformLocation | null> = {};
+    opts = { ...DEFAULTS, seed: 0 };
+    colours = { from: [0, 0, 0], mid: [0, 0, 0], to: [0, 0, 0] } as Record<string, number[]>;
+    rafId: number | null = null;
+    lastDraw = 0;
+    frame = 0;
+    visible = false;
+    needsRedraw = true;
+    io?: IntersectionObserver;
+    ro?: ResizeObserver;
+
+    connectedCallback() {
+      this.canvas = this.querySelector('canvas')!;
+      const gl = this.canvas.getContext('webgl2', { antialias: false, alpha: false });
+      if (!gl) return; // fallback stays in place
+
+      this.gl = gl;
+      for (const k of Object.keys(DEFAULTS) as (keyof typeof DEFAULTS)[]) {
+        const v = parseFloat(this.dataset[k] ?? '');
+        if (!Number.isNaN(v)) this.opts[k] = v;
+      }
+      this.opts.seed = parseFloat(this.dataset.seed ?? '0') || 0;
+      this.readColours();
+
+      this.canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+        this.pause();
+        this.removeAttribute('data-ready');
+      });
+      this.canvas.addEventListener('webglcontextrestored', () => {
+        this.init();
+        this.redraw();
+      });
+
+      this.init();
+
+      this.io = new IntersectionObserver(([entry]) => {
+        this.visible = entry.isIntersecting;
+        if (this.visible) this.play();
+        else this.pause();
+      });
+      this.io.observe(this);
+      this.ro = new ResizeObserver(() => this.redraw());
+      this.ro.observe(this);
+      reducedMotion.addEventListener('change', this.redraw);
+      document.addEventListener('visibilitychange', this.redraw);
+    }
+
+    disconnectedCallback() {
+      this.pause();
+      this.io?.disconnect();
+      this.ro?.disconnect();
+      reducedMotion.removeEventListener('change', this.redraw);
+      document.removeEventListener('visibilitychange', this.redraw);
+    }
+
+    readColours() {
+      const style = getComputedStyle(this);
+      for (const k of ['from', 'mid', 'to']) {
+        this.colours[k] = toRgb(style.getPropertyValue(`--lf-${k}`));
+      }
+    }
+
+    compile(type: number, src: string) {
+      const { gl } = this;
+      const s = gl.createShader(type)!;
+      gl.shaderSource(s, src.trim());
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) ?? '');
+      return s;
+    }
+
+    link(fs: string) {
+      const { gl } = this;
+      const p = gl.createProgram()!;
+      gl.attachShader(p, this.compile(gl.VERTEX_SHADER, VERT));
+      gl.attachShader(p, this.compile(gl.FRAGMENT_SHADER, fs));
+      gl.bindAttribLocation(p, 0, 'a_pos');
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) ?? '');
+      return p;
+    }
+
+    init() {
+      const { gl } = this;
+      this.progField = this.link(FRAG_FIELD);
+      this.progPost = this.link(FRAG_POST);
+      this.uf = {};
+      this.up = {};
+
+      // One oversized triangle covers the viewport
+      gl.bindVertexArray(gl.createVertexArray());
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+      this.fboTex = gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, this.fboTex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      this.fbo = gl.createFramebuffer()!;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.fboTex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+      this.canvas.width = 0; // forces resize() to allocate the field texture
+    }
+
+    resize() {
+      const { gl, canvas } = this;
+      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+      const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+      if (canvas.width === w && canvas.height === h) return;
+      canvas.width = w;
+      canvas.height = h;
+      this.fbW = Math.max(1, Math.round(w * FIELD_SCALE));
+      this.fbH = Math.max(1, Math.round(h * FIELD_SCALE));
+      gl.bindTexture(gl.TEXTURE_2D, this.fboTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, this.fbW, this.fbH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    }
+
+    draw(phase: number) {
+      const { gl, opts, colours } = this;
+      const uf = (n: string) => (n in this.uf ? this.uf[n] : (this.uf[n] = gl.getUniformLocation(this.progField, n)));
+      const up = (n: string) => (n in this.up ? this.up[n] : (this.up[n] = gl.getUniformLocation(this.progPost, n)));
+      this.resize();
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
+      gl.viewport(0, 0, this.fbW, this.fbH);
+      gl.useProgram(this.progField);
+      gl.uniform2f(uf('u_res'), this.fbW, this.fbH);
+      gl.uniform1f(uf('u_phase'), phase);
+      gl.uniform1f(uf('u_seed'), opts.seed);
+      gl.uniform1f(uf('u_scale'), opts.scale);
+      gl.uniform1f(uf('u_darkness'), opts.darkness);
+      const crop = Math.min(1, this.fbW / this.fbH / REF_ASPECT);
+      gl.uniform1f(uf('u_crop'), crop);
+      gl.uniform3fv(uf('u_from'), colours.from);
+      gl.uniform3fv(uf('u_mid'), colours.mid);
+      gl.uniform3fv(uf('u_to'), colours.to);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+      gl.useProgram(this.progPost);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.fboTex);
+      gl.uniform1i(up('u_tex'), 0);
+      gl.uniform1f(up('u_frame'), this.frame++ % 1024);
+      let dx = loopOsc(phase, 1);
+      // Red samples against the smear and blue with it, so the sign of x
+      // decides which side of the crease gets the warm edge
+      if (this.dataset.fringe === 'warm') dx = Math.abs(dx);
+      else if (this.dataset.fringe === 'cool') dx = -Math.abs(dx);
+      const dy = loopOsc(phase, 4);
+      const len = Math.hypot(dx, dy) || 1;
+      gl.uniform2f(up('u_abDir'), dx / len / crop, dy / len);
+      gl.uniform1f(up('u_exposure'), opts.intensity);
+      gl.uniform1f(up('u_grain'), opts.grain);
+      gl.uniform1f(up('u_cell'), Math.max(1, this.canvas.height / DITHER_ROWS));
+      // 0.17 keeps white text at 4.5:1 or better at full darkness
+      gl.uniform1f(up('u_ceiling'), 1 - (1 - 0.17) * opts.darkness);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      this.setAttribute('data-ready', '');
+    }
+
+    // Loop position. The seed also offsets time so neighbours stay out of step.
+    phase(now: number) {
+      return (((now - start) / 1000 / this.opts.period + this.opts.seed * 0.137) % 1 + 1) % 1;
+    }
+
+    tick = (now: number) => {
+      if (!this.visible || document.hidden) {
+        this.rafId = null;
+        return;
+      }
+      const still = reducedMotion.matches;
+      if (still && !this.needsRedraw) {
+        this.rafId = null;
+        return;
+      }
+      this.rafId = requestAnimationFrame(this.tick);
+      if (!still && !this.needsRedraw && now - this.lastDraw < 1000 / FPS_CAP - 1) return;
+      this.lastDraw = now;
+      this.needsRedraw = false;
+      // Reduced motion gets one still frame
+      this.draw(still ? this.phase(start) : this.phase(now));
+    };
+
+    play() {
+      if (this.rafId === null) this.rafId = requestAnimationFrame(this.tick);
+    }
+
+    pause() {
+      if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
+    redraw = () => {
+      this.needsRedraw = true;
+      if (this.visible) this.play();
+    };
+  }
+
+  customElements.define('lens-flare', LensFlare);
+</script>

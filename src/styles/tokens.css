@@ -30,6 +30,23 @@
   --chip-studia: oklch(91.98% 0.2599 126.92);      /* #c6ff33 */
   --chip-fertifa: oklch(30.67% 0.1479 298.87);     /* #371169 */
 
+  /* Colour: project gradients, opening → closing. Neutral/1000 is the crease.
+     Inputs to LensFlare, not what ends up on screen: the gradient brightens
+     and then caps them. Picked to reproduce the Figma tile artwork, as sRGB
+     because that's what the gradient renders in. */
+  --gradient-format-from: oklch(43.89% 0.1462 335.04);   /* #802a71 */
+  --gradient-format-to: oklch(67.41% 0.1796 36.51);      /* #ef653e */
+  --gradient-fertifa-from: oklch(75.82% 0.149 303.84);   /* #c597fd */
+  --gradient-fertifa-to: oklch(30.89% 0.1877 279.43);    /* #29008a */
+  --gradient-delli-from: oklch(92.49% 0.1944 102.89);    /* #ffea00, Figma Yellow/500 */
+  --gradient-delli-to: oklch(42.46% 0.1485 270.73);      /* #32439e */
+  --gradient-studia-from: oklch(67.78% 0.1169 185.32);   /* #12aea1 */
+  --gradient-studia-to: oklch(64.7% 0.2414 327.93);      /* #d644d6 */
+  --gradient-shuffle-from: oklch(49.5% 0.2275 328.36);   /* #a000a0 */
+  --gradient-shuffle-to: oklch(59.89% 0.1676 256.59);    /* #337ee1 */
+  --gradient-minimum-from: oklch(65.85% 0.138 102.21);   /* #a39400 */
+  --gradient-minimum-to: oklch(56.45% 0.1525 248.14);    /* #0079ca */
+
   /* Colour: roles */
   --bg-page: var(--neutral-050);
   --bg-work: var(--neutral-100);

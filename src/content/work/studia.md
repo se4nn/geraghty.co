@@ -7,4 +7,8 @@ tile:
   image: ../../assets/work/studia-tile.png
   logo: ../../assets/logos/studia.svg
   logoScale: 0.55
+  gradient:
+    from: var(--gradient-studia-from)
+    to: var(--gradient-studia-to)
+    seed: 4
 ---

@@ -7,5 +7,11 @@ tile:
   image: ../../assets/work/fertifa-tile.png
   logo: ../../assets/logos/fertifa.svg
   logoScale: 0.558
+  gradient:
+    from: var(--gradient-fertifa-from)
+    to: var(--gradient-fertifa-to)
+    seed: 2
+    # The Fertifa artwork was made lighter, so its lavender isn't capped
+    darkness: 0.34
 link: /fertifa.html
 ---
