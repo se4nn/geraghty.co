@@ -120,12 +120,20 @@ const {
   // does in Figma.
   const DITHER_ROWS = 540;
   // CRT mode is one big screen fixed behind the page, the size of the
-  // viewport. Every CRT tile is a window onto it: the cell grid, scanlines
-  // and beam are laid out in viewport pixels and share one clock, so they
-  // line up across tiles and the beam sweeps through them in turn.
-  const CRT_CELL = 4.5; // screen pixel pitch, CSS px
-  const BEAM_PERIOD = 7.6; // seconds per sweep, including a moment off screen
+  // viewport. Every CRT tile is a window onto it: the cell grid, scanlines,
+  // vignette and beam are laid out in viewport pixels, so they line up across
+  // tiles.
+  const CRT_CELL = 3; // screen pixel pitch, CSS px
   const SCREEN_FPS = 30; // flicker and row jitter step at the screen's rate
+  // The beam is a line across the middle of the viewport, so scrolling scans
+  // it down the page. Its phosphor trail stretches with scroll speed, on the
+  // side the content came from, and settles to a short glow at rest.
+  const BEAM_Y = 0.5; // down the viewport
+  const BEAM_REST = 0.45; // strength at rest, 1 when scrolling fast
+  const BEAM_TRAIL_REST = 0.03; // trail length at rest, share of the viewport
+  const BEAM_TRAIL_MAX = 0.25; // trail length at full speed
+  const BEAM_FULL_SPEED = 1; // viewports per second for the full effect
+  const BEAM_SETTLE = 300; // ms for the trail to settle after scrolling stops
   const TAU = Math.PI * 2;
 
   const VERT = `#version 300 es
@@ -271,6 +279,8 @@ const {
     uniform vec2 u_origin; // this canvas's top-left on the screen, device px
     uniform vec2 u_screen; // screen (viewport) size, device px
     uniform float u_scan; // beam position down the screen, 0 top to 1 bottom
+    uniform float u_trail; // signed trail length: + above the beam, - below
+    uniform float u_beamAmt; // beam strength, up with scroll speed
     uniform float u_screenFrame; // shared frame count, for flicker and jitter
     uniform float u_live; // 0 for reduced motion: no beam, no flicker
 
@@ -285,20 +295,25 @@ const {
     const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
     // CRT mode
     const float LEVELS = 8.0; // per channel, after quantising
-    const float MASK = 0.3; // RGB shadow mask strength
+    const float MASK = 0.18; // RGB shadow mask strength
     const float MASK_BORDER = 0.7; // how dark the gaps between slots get
-    const float SCANLINES = 0.18;
+    const float SCANLINES = 0.1;
+    // Softening. Cells sample partway between their centre and the pixel's
+    // own position, and the dithered result is blended back towards the
+    // smooth image, which blurs cell edges and dither steps for free.
+    const float CELL_SOFTEN = 0.35;
+    const float DITHER_MIX = 0.6;
     // The mask and scanlines only darken; this lifts the image first so CRT
     // tiles average out close to grain ones. Scanlines alone need a little,
     // the mask on top needs more.
-    const float CRT_GAIN_SCAN = 1.1;
-    const float CRT_GAIN_MASK = 1.3;
-    // The scan: a bright beam rolling down the screen with a phosphor trail
-    // behind it, rows jittering sideways as it passes, and a faint flicker
+    const float CRT_GAIN_SCAN = 1.05;
+    const float CRT_GAIN_MASK = 1.15;
+    // The beam: a bright line with a phosphor trail, rows jittering sideways
+    // at the line, and a faint flicker
     const float BEAM_GLOW = 0.22; // brightness added at the beam
     const float BEAM_LEAD = 0.012; // sharpness of the leading edge
-    const float BEAM_TRAIL = 0.14; // how long the trail glows behind it
     const float BEAM_JITTER = 1.5; // sideways row shift at the beam, in cells
+    const float VIGNETTE = 0.35; // darkening at the corners of the viewport
     const float FLICKER = 0.025;
     // Bloom: bright areas bleed a soft halo over the slot mask and the gaps
     // between scanlines, like phosphor glow on a real tube. Taken from the
@@ -336,21 +351,26 @@ const {
       vec2 cellId = floor(coord + cellOffset);
       vec2 cellCentre = (cellId - cellOffset + 0.5) * u_crtCell;
       vec2 local = cellCentre - u_origin;
-      vec2 uv = u_mode == 1 ? vec2(local.x, u_res.y - local.y) / u_res : v_uv;
-      // The RGB slots need about 6px per cell to read, so small tiles lose them
-      float maskFade = smoothstep(4.0, 7.0, u_crtCell);
+      vec2 uv = u_mode == 1 ? mix(vec2(local.x, u_res.y - local.y) / u_res, v_uv, CELL_SOFTEN) : v_uv;
+      // The RGB slots need a few pixels per cell to read, so they fade out
+      // on low-density screens
+      float maskFade = smoothstep(3.5, 6.0, u_crtCell);
 
       // Beam, measured per cell row on the screen so cells stay whole. d is
-      // how far the beam has passed this row: negative ahead, positive behind.
+      // the row's distance above the beam; the trail falls on the side the
+      // content came from, the other side gets a sharp edge.
       float beam = 0.0;
       if (u_mode == 1 && u_live > 0.5) {
         float d = u_scan - cellCentre.y / u_screen.y;
-        beam = d >= 0.0 ? exp(-d / BEAM_TRAIL) : exp(-(d * d) / (BEAM_LEAD * BEAM_LEAD));
+        float dd = u_trail >= 0.0 ? d : -d;
+        float trail = max(abs(u_trail), 1e-3);
+        beam = dd >= 0.0 ? exp(-dd / trail) : exp(-(dd * dd) / (BEAM_LEAD * BEAM_LEAD));
+        beam *= u_beamAmt;
         // Rows right at the beam slip sideways a little, fresh each frame,
         // and the same screen row slips the same way in every tile
         float edge = exp(-(d * d) / (4.0 * BEAM_LEAD * BEAM_LEAD));
         float shift = hash(uvec3(uint(max(cellId.y, 0.0)), uint(u_screenFrame), 7u)) - 0.5;
-        uv.x += shift * BEAM_JITTER * edge * u_crtCell / u_res.x;
+        uv.x += shift * BEAM_JITTER * edge * u_beamAmt * u_crtCell / u_res.x;
       }
 
       // Red and blue pushed apart along an animated direction, green between
@@ -388,8 +408,8 @@ const {
         // rather than scrambling with the column offset.
         col = clamp(col, 0.0, 1.0);
         float steps = LEVELS - 1.0;
-        col = floor((col + (bayer8(floor(coord)) - 0.5) / steps) * steps + 0.5) / steps;
-        col = clamp(col, 0.0, 1.0);
+        vec3 q = floor((col + (bayer8(floor(coord)) - 0.5) / steps) * steps + 0.5) / steps;
+        col = mix(col, clamp(q, 0.0, 1.0), DITHER_MIX);
 
         // RGB slots: each cell split into red, green and blue columns with
         // dark gaps between
@@ -420,6 +440,10 @@ const {
 
         // Faint frame-to-frame flicker
         col *= 1.0 + (hash(uvec3(0u, 0u, uint(u_screenFrame))) - 0.5) * FLICKER * u_live;
+
+        // Vignette on the whole screen, so tiles dim towards its edges
+        float r = length(screenPx / u_screen - 0.5);
+        col *= 1.0 - VIGNETTE * smoothstep(0.3, 0.72, r);
       }
 
       outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -447,7 +471,21 @@ const {
   }
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const start = performance.now();
+
+  // Shared scroll speed for the CRT beam, in px per second. Scrolling down is
+  // positive, which puts the trail above the beam.
+  const scrollState = { y: window.scrollY, t: performance.now(), vel: 0 };
+  window.addEventListener(
+    'scroll',
+    () => {
+      const t = performance.now();
+      const v = ((window.scrollY - scrollState.y) / Math.max(8, t - scrollState.t)) * 1000;
+      scrollState.vel = scrollState.vel * 0.6 + v * 0.4;
+      scrollState.y = window.scrollY;
+      scrollState.t = t;
+    },
+    { passive: true },
+  );
 
   class LensFlare extends HTMLElement {
     canvas!: HTMLCanvasElement;
@@ -464,6 +502,8 @@ const {
     colours = { from: [0, 0, 0], mid: [0, 0, 0], to: [0, 0, 0] } as Record<string, number[]>;
     rafId: number | null = null;
     lastDraw = 0;
+    lastTick = 0;
+    clock = 0; // ms this tile has spent animating on screen
     frame = 0;
     visible = false;
     needsRedraw = true;
@@ -637,7 +677,14 @@ const {
       gl.uniform1f(up('u_crtCell'), CRT_CELL * dpr);
       gl.uniform2f(up('u_origin'), rect.left * dpr, rect.top * dpr);
       gl.uniform2f(up('u_screen'), window.innerWidth * dpr, window.innerHeight * dpr);
-      gl.uniform1f(up('u_scan'), ((now / BEAM_PERIOD) % 1) * 1.4 - 0.2);
+      // Scroll speed eases off after the last scroll event, so the trail
+      // settles rather than snapping back
+      const speed = scrollState.vel * Math.exp(-(performance.now() - scrollState.t) / BEAM_SETTLE);
+      const pace = Math.min(1, Math.abs(speed) / (window.innerHeight * BEAM_FULL_SPEED));
+      const trail = BEAM_TRAIL_REST + (BEAM_TRAIL_MAX - BEAM_TRAIL_REST) * pace;
+      gl.uniform1f(up('u_scan'), BEAM_Y);
+      gl.uniform1f(up('u_trail'), speed < 0 ? -trail : trail);
+      gl.uniform1f(up('u_beamAmt'), BEAM_REST + (1 - BEAM_REST) * pace);
       gl.uniform1f(up('u_screenFrame'), Math.floor(now * SCREEN_FPS) % 1024);
       gl.uniform1f(up('u_live'), reducedMotion.matches ? 0 : 1);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -645,9 +692,11 @@ const {
       this.setAttribute('data-ready', '');
     }
 
-    // Loop position. The seed also offsets time so neighbours stay out of step.
-    phase(now: number) {
-      return (((now - start) / 1000 / this.opts.period + this.opts.seed * 0.137) % 1 + 1) % 1;
+    // Loop position from this tile's own clock, which only runs while it's
+    // on screen, so it picks up where it left off. The seed offsets it so
+    // neighbours stay out of step.
+    phase() {
+      return ((this.clock / 1000 / this.opts.period + this.opts.seed * 0.137) % 1 + 1) % 1;
     }
 
     tick = (now: number) => {
@@ -661,15 +710,22 @@ const {
         return;
       }
       this.rafId = requestAnimationFrame(this.tick);
+      // Advance the clock only while running; capped so a long gap (a
+      // throttled tab, a slow frame) can't jump the loop forward
+      if (!still) this.clock += this.lastTick ? Math.min(now - this.lastTick, 100) : 0;
+      this.lastTick = now;
       if (!still && !this.needsRedraw && now - this.lastDraw < 1000 / FPS_CAP - 1) return;
       this.lastDraw = now;
       this.needsRedraw = false;
       // Reduced motion gets one still frame
-      this.draw(still ? this.phase(start) : this.phase(now));
+      this.draw(this.phase());
     };
 
     play() {
-      if (this.rafId === null) this.rafId = requestAnimationFrame(this.tick);
+      if (this.rafId === null) {
+        this.lastTick = 0;
+        this.rafId = requestAnimationFrame(this.tick);
+      }
     }
 
     pause() {
