@@ -1,6 +1,7 @@
 ---
-// Lens flare lab. Each project's live gradient next to the still it
-// replaces, plus a scratch tile for trying colours. Not linked from the site.
+// Lens flare lab. Each project's live gradient, with grain and with the CRT
+// texture, next to the still it replaces, plus a scratch tile for trying
+// colours. Not linked from the site.
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
@@ -15,7 +16,7 @@ const projects = (await getCollection('work'))
   <meta name="robots" content="noindex" slot="head" />
   <main class="lab">
     <h1 class="t-h1">Lens flare</h1>
-    <p class="t-body lab__note">Live gradient on the left, the current still on the right.</p>
+    <p class="t-body lab__note">Grain, CRT, then the current still.</p>
 
     <section class="lab__try">
       <LensFlare id="try" class="lab__art" from="var(--gradient-format-from)" to="var(--gradient-format-to)" />
@@ -23,6 +24,13 @@ const projects = (await getCollection('work'))
         <label>Opening <input type="color" name="from" value="#802a71" /></label>
         <label>Closing <input type="color" name="to" value="#ef653e" /></label>
         <label>Seed <input type="number" name="seed" value="0" step="1" /></label>
+        <label>
+          Texture
+          <select name="dither">
+            <option value="grain">Grain</option>
+            <option value="crt">CRT</option>
+          </select>
+        </label>
         <output name="snippet" class="lab__snippet"></output>
       </form>
     </section>
@@ -39,6 +47,15 @@ const projects = (await getCollection('work'))
               seed={p.data.tile.gradient!.seed}
               darkness={p.data.tile.gradient!.darkness}
               fringe={p.data.tile.gradient!.fringe}
+            />
+            <LensFlare
+              class="lab__art"
+              from={p.data.tile.gradient!.from}
+              to={p.data.tile.gradient!.to}
+              seed={p.data.tile.gradient!.seed}
+              darkness={p.data.tile.gradient!.darkness}
+              fringe={p.data.tile.gradient!.fringe}
+              dither="crt"
             />
             <Image class="lab__art lab__still" src={p.data.tile.image} alt="" width={820} />
           </div>
@@ -64,7 +81,7 @@ const projects = (await getCollection('work'))
   .lab__try,
   .lab__pair {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: var(--space-l);
   }
 
@@ -113,13 +130,15 @@ const projects = (await getCollection('work'))
     const from = (form.elements.namedItem('from') as HTMLInputElement).value;
     const to = (form.elements.namedItem('to') as HTMLInputElement).value;
     const seed = parseFloat((form.elements.namedItem('seed') as HTMLInputElement).value) || 0;
+    const dither = (form.elements.namedItem('dither') as HTMLSelectElement).value;
     flare.style.setProperty('--lf-from', from);
     flare.style.setProperty('--lf-to', to);
     flare.opts.seed = seed;
+    flare.dataset.dither = dither;
     flare.readColours();
     flare.redraw();
     (form.elements.namedItem('snippet') as HTMLOutputElement).value =
-      `<LensFlare from="${from}" to="${to}" seed={${seed}} />`;
+      `<LensFlare from="${from}" to="${to}" seed={${seed}}${dither === 'crt' ? ' dither="crt"' : ''} />`;
   }
 
   form.addEventListener('input', update);

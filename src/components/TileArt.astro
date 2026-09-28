@@ -24,6 +24,7 @@ interface Props {
     seed: number;
     darkness?: number;
     fringe: 'auto' | 'warm' | 'cool';
+    dither: 'grain' | 'crt';
   };
   alt: string;
   sizes: string;
@@ -57,6 +58,7 @@ const grainImage = await getImage({ src: grain, width: 2000, format: 'webp', qua
         seed={gradient.seed}
         darkness={gradient.darkness}
         fringe={gradient.fringe}
+        dither={gradient.dither}
       >
         <Image class="tile-art__poster" src={image} alt="" widths={widths} sizes={sizes} />
       </LensFlare>

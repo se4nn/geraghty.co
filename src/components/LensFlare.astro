@@ -22,6 +22,10 @@ interface Props extends HTMLAttributes<'div'> {
   // cool one on the closing side, 'cool' the reverse. Pin it when one way
   // reads wrong, e.g. yellow turns lime when the fringe swings cool.
   fringe?: 'auto' | 'warm' | 'cool';
+  // Surface texture. 'grain' is the fine noise matched to the Figma artwork.
+  // 'crt' pixelates into cells with an RGB shadow mask, ordered (Bayer)
+  // dither, quantised colour and faint scanlines.
+  dither?: 'grain' | 'crt';
   // Core controls. Defaults are the tuned values, override sparingly.
   darkness?: number;
   period?: number;
@@ -36,6 +40,7 @@ const {
   mid = 'var(--neutral-1000)',
   seed = 0,
   fringe = 'auto',
+  dither = 'grain',
   darkness,
   period,
   intensity,
@@ -52,6 +57,7 @@ const {
   style={`--lf-from: ${from}; --lf-mid: ${mid}; --lf-to: ${to};`}
   data-seed={seed}
   data-fringe={fringe}
+  data-dither={dither}
   data-darkness={darkness}
   data-period={period}
   data-intensity={intensity}
@@ -112,6 +118,11 @@ const {
   // tall with one cell per pixel, so the texture scales with the tile as it
   // does in Figma.
   const DITHER_ROWS = 540;
+  // CRT cells down the height of the box, and the smallest cell in device
+  // pixels. Below about 6px the RGB slots in a cell stop reading, so the
+  // shader fades the mask out on small tiles.
+  const CRT_ROWS = 180;
+  const CRT_MIN_CELL = 3;
   const TAU = Math.PI * 2;
 
   const VERT = `#version 300 es
@@ -238,7 +249,7 @@ const {
       outColor = vec4(c, 1.0);
     }`;
 
-  // Pass 2: chromatic smear, grade, grain, then a luminance ceiling
+  // Pass 2: chromatic smear, grade, texture (grain or CRT), luminance ceiling
   const FRAG_POST = `#version 300 es
     precision highp float;
     in vec2 v_uv;
@@ -251,6 +262,9 @@ const {
     uniform float u_grain;
     uniform float u_cell; // dither cell size in device pixels
     uniform float u_ceiling;
+    uniform int u_mode; // 0 grain, 1 crt
+    uniform vec2 u_res;
+    uniform float u_crtCell; // CRT cell size in device pixels
 
     const int TAPS = 32;
     const float AB_AMOUNT = 0.03;
@@ -261,6 +275,17 @@ const {
     // Scales the grain setting so 0.3 matches the texture in the artwork
     const float DITHER_GAIN = 0.46;
     const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
+    // CRT mode
+    const float LEVELS = 8.0; // per channel, after quantising
+    const float MASK = 0.3; // RGB shadow mask strength
+    const float MASK_BORDER = 0.7; // how dark the gaps between slots get
+    const float SCANLINES = 0.18;
+    // The mask and scanlines only darken; this lifts the image first, before
+    // the ceiling, so CRT tiles average out close to grain ones. Tiles already
+    // at the ceiling stay a little darker. Scanlines alone need 1.1, the mask
+    // on top brings it to 1.3.
+    const float CRT_GAIN_SCAN = 1.1;
+    const float CRT_GAIN_MASK = 1.3;
 
     // Integer hash for the dither. The sin() hash in the full tool loses
     // precision at large coordinates and shows as diagonal lines.
@@ -272,7 +297,25 @@ const {
       return float(h) / 4294967295.0;
     }
 
+    // Ordered dither threshold, 8x8 Bayer, 0..1
+    float bayer2(vec2 a) {
+      a = floor(a);
+      return fract(dot(a, vec2(0.5, a.y * 0.75)));
+    }
+    float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+    float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
+
     void main() {
+      // CRT: every pixel in a cell samples the cell's centre, so the image
+      // itself is made of cells. Alternate columns drop half a cell, like a
+      // slot mask.
+      vec2 coord = gl_FragCoord.xy / u_crtCell;
+      vec2 cellOffset = vec2(0.0, mod(floor(coord.x), 2.0) * 0.5);
+      vec2 cellId = floor(coord + cellOffset);
+      vec2 uv = u_mode == 1 ? (cellId - cellOffset + 0.5) * u_crtCell / u_res : v_uv;
+      // The RGB slots need about 6px per cell to read, so small tiles lose them
+      float maskFade = smoothstep(4.0, 7.0, u_crtCell);
+
       // Red and blue pushed apart along an animated direction, green between
       float spread = AB_AMOUNT * AB_SPREAD;
       float cR = -AB_AMOUNT;
@@ -281,9 +324,9 @@ const {
       vec3 sum = vec3(0.0);
       for (int i = 0; i < TAPS; i++) {
         float base = float(i) / float(TAPS - 1) * 2.0 - 1.0;
-        sum.r += texture(u_tex, v_uv + u_abDir * (cR + spread * base)).r;
-        sum.g += texture(u_tex, v_uv + u_abDir * (cG + spread * base)).g;
-        sum.b += texture(u_tex, v_uv + u_abDir * (cB + spread * base)).b;
+        sum.r += texture(u_tex, uv + u_abDir * (cR + spread * base)).r;
+        sum.g += texture(u_tex, uv + u_abDir * (cG + spread * base)).g;
+        sum.b += texture(u_tex, uv + u_abDir * (cB + spread * base)).b;
       }
       vec3 col = sum / float(TAPS);
 
@@ -296,8 +339,12 @@ const {
       // offset shifts hue there, which gives the coloured speckle in the
       // artwork. It goes in before the ceiling, so the knee flattens it in
       // the highlights.
-      uvec3 cell = uvec3(uvec2(gl_FragCoord.xy / u_cell), uint(u_frame));
-      col += (hash(cell) - 0.5) * u_grain * DITHER_GAIN;
+      if (u_mode == 1) col *= mix(CRT_GAIN_SCAN, CRT_GAIN_MASK, maskFade);
+
+      if (u_mode == 0) {
+        uvec3 cell = uvec3(uvec2(gl_FragCoord.xy / u_cell), uint(u_frame));
+        col += (hash(cell) - 0.5) * u_grain * DITHER_GAIN;
+      }
 
       // Soft-knee cap on luminance, last, so the grade can't blow it out.
       // Scaling by a luminance ratio keeps hue and saturation.
@@ -307,6 +354,32 @@ const {
         float knee = 0.55;
         float cn = n <= knee ? n : knee + (1.0 - knee) * (1.0 - exp(-(n - knee) / (1.0 - knee)));
         col *= (cn * u_ceiling) / L;
+      }
+
+      if (u_mode == 1) {
+        // Ordered dither, then snap each channel to a few levels. This comes
+        // after the ceiling so the steps stay crisp; if rounding would lift a
+        // cell over the ceiling, round down instead.
+        col = clamp(col, 0.0, 1.0);
+        float steps = LEVELS - 1.0;
+        // Threshold from the unstaggered grid, so the pattern stays a clean
+        // cross-hatch rather than scrambling with the column offset
+        vec3 q = floor((col + (bayer8(floor(coord)) - 0.5) / steps) * steps + 0.5) / steps;
+        if (u_ceiling < 0.999 && dot(q, LUMA) > u_ceiling) q = floor(col * steps) / steps;
+        col = clamp(q, 0.0, 1.0);
+
+        // RGB slots: each cell split into red, green and blue columns with
+        // dark gaps between. It only ever darkens, so the ceiling holds.
+        vec2 sub = coord * vec2(3.0, 1.0);
+        float slot = mod(floor(sub.x), 3.0);
+        vec3 mask = vec3(slot == 0.0, slot == 1.0, slot == 2.0);
+        vec2 slotUv = fract(sub + cellOffset) * 2.0 - 1.0;
+        vec2 border = 1.0 - slotUv * slotUv * MASK_BORDER;
+        mask *= border.x * border.y;
+        col *= mix(vec3(1.0), 0.25 + 0.75 * mask, MASK * maskFade);
+
+        // One soft scanline per cell row
+        col *= 1.0 - SCANLINES * (0.5 - 0.5 * cos(6.28318530718 * fract(coord.y + cellOffset.y)));
       }
 
       outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -510,6 +583,9 @@ const {
       gl.uniform1f(up('u_exposure'), opts.intensity);
       gl.uniform1f(up('u_grain'), opts.grain);
       gl.uniform1f(up('u_cell'), Math.max(1, this.canvas.height / DITHER_ROWS));
+      gl.uniform1i(up('u_mode'), this.dataset.dither === 'crt' ? 1 : 0);
+      gl.uniform2f(up('u_res'), this.canvas.width, this.canvas.height);
+      gl.uniform1f(up('u_crtCell'), Math.max(CRT_MIN_CELL, this.canvas.height / CRT_ROWS));
       // 0.17 keeps white text at 4.5:1 or better at full darkness
       gl.uniform1f(up('u_ceiling'), 1 - (1 - 0.17) * opts.darkness);
       gl.drawArrays(gl.TRIANGLES, 0, 3);

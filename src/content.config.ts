@@ -30,6 +30,8 @@ const work = defineCollection({
             darkness: z.number().optional(),
             // Pin the colour fringe to the side it falls in the artwork
             fringe: z.enum(['auto', 'warm', 'cool']).default('auto'),
+            // Surface texture, see LensFlare
+            dither: z.enum(['grain', 'crt']).default('grain'),
           })
           .optional(),
       }),
