@@ -34,7 +34,12 @@ const { label, email } = Astro.props;
 </div>
 
 <script>
+  // How long "Copied" holds when the pointer stays on the pill (or on touch)
   const COPIED_FOR = 1800;
+  // Minimum time "Copied" shows before the pill follows a pointer that's left
+  const COPIED_MIN = 500;
+  // Matches the leave sequence, so the label only resets once it's hidden
+  const EXIT_TIME = 460;
   // Same bouncy spring as --bounce in the styles below
   const BOUNCE =
     'linear(0, 0.077, 0.269, 0.516, 0.767, 0.984, 1.144, 1.24, 1.275, 1.26, 1.21, 1.144, 1.074, 1.013, 0.966, 0.937, 0.925, 0.927, 0.94, 0.958, 0.977, 0.994, 1.008, 1.016, 1.02, 1.02, 1.017, 1.012, 1.007, 1.002, 0.998, 0.996, 0.994, 0.994, 0.995, 0.996, 1)';
@@ -61,7 +66,28 @@ const { label, email } = Astro.props;
   document.querySelectorAll<HTMLButtonElement>('.availability').forEach((button) => {
     const status = button.parentElement?.querySelector('[data-availability-status]');
     const email = button.dataset.email ?? '';
-    let reset: number | undefined;
+    let release: number | undefined;
+    let relabel: number | undefined;
+    let copiedAt = 0;
+    let lastPointer = '';
+    button.addEventListener('pointerdown', (event) => {
+      lastPointer = event.pointerType;
+    });
+
+    // Two flags: data-held keeps the pill open without hover, data-copied
+    // swaps the label. Releasing drops the hold first and resets the label
+    // once the pill has closed, so the text doesn't change mid-exit.
+    const releaseAfter = (delay: number) => {
+      window.clearTimeout(release);
+      release = window.setTimeout(() => {
+        delete button.dataset.held;
+        window.clearTimeout(relabel);
+        relabel = window.setTimeout(() => {
+          delete button.dataset.copied;
+          if (status) status.textContent = '';
+        }, EXIT_TIME);
+      }, delay);
+    };
 
     // The fill is a circle centred on the dot. Its radius is set to reach the
     // far corner of the pill exactly, so it moves from the very first frame.
@@ -98,13 +124,20 @@ const { label, email } = Astro.props;
         window.location.href = `mailto:${email}`;
         return;
       }
+      window.clearTimeout(relabel);
       button.dataset.copied = '';
+      button.dataset.held = '';
+      copiedAt = performance.now();
       if (status) status.textContent = 'Email address copied';
-      window.clearTimeout(reset);
-      reset = window.setTimeout(() => {
-        delete button.dataset.copied;
-        if (status) status.textContent = '';
-      }, COPIED_FOR);
+      // If a mouse has already left by the time the copy lands, don't hold
+      const mouseGone = lastPointer === 'mouse' && !button.matches(':hover');
+      releaseAfter(mouseGone ? COPIED_MIN : COPIED_FOR);
+    });
+
+    // A mouse leaving takes the pill with it, once "Copied" has had a moment
+    button.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'mouse' || !('held' in button.dataset)) return;
+      releaseAfter(Math.max(0, copiedAt + COPIED_MIN - performance.now()));
     });
   });
 </script>
@@ -231,23 +264,23 @@ const { label, email } = Astro.props;
     transform: none;
   }
 
-  /* Copied: holds the filled state (on touch screens this is the only time
-     it shows), then plays the leave sequence when the flag clears */
-  .availability[data-copied] {
+  /* Held after a copy: keeps the filled state without hover (on touch screens
+     this is the only time it shows), then plays the leave sequence */
+  .availability[data-held] {
     border-color: var(--brand-neon-edge);
   }
 
-  .availability[data-copied] .availability__fill {
+  .availability[data-held] .availability__fill {
     clip-path: circle(var(--cover-r, 125%) at calc(100% - var(--dot-x)) 50%);
     transition: clip-path 460ms var(--bloom);
   }
 
-  .availability[data-copied] .availability__dot {
+  .availability[data-held] .availability__dot {
     box-shadow: inset 0 0 0 var(--border-width) transparent;
     transition: box-shadow 120ms var(--ease-out);
   }
 
-  .availability[data-copied] .availability__rest {
+  .availability[data-held] .availability__rest {
     opacity: 0;
     transform: translateY(-55%);
     filter: blur(2px);
@@ -256,7 +289,7 @@ const { label, email } = Astro.props;
     transition-delay: 0ms;
   }
 
-  .availability[data-copied] .availability__hover {
+  .availability[data-held] .availability__hover {
     opacity: 1;
     transform: none;
     filter: none;
