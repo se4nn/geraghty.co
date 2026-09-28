@@ -38,24 +38,13 @@ export const intro = {
 };
 
 // `project` links a chip to that project in src/content/work (its case study,
-// or its homepage tile until the case study exists). `href` links anywhere else.
+// or its homepage tile until the case study exists) and gives it a hover card
+// with the project's thumbnail. `href` links anywhere else, with no card.
 const chip = {
   format: { name: 'Format', project: 'format', src: chipFormat, bg: 'var(--chip-format)', width: 20, height: 20 },
   delli: { name: 'DELLI', project: 'delli', src: chipDelli, bg: 'var(--chip-delli)', width: 20, height: 5.556 },
   studia: { name: 'Studia', project: 'studia', src: chipStudia, bg: 'var(--chip-studia)', width: 20, height: 6 },
-  fertifa: {
-    name: 'Fertifa',
-    project: 'fertifa',
-    src: chipFertifa,
-    bg: 'var(--chip-fertifa)',
-    width: 20,
-    height: 20,
-    // Trial: hover card with the project's thumbnail
-    preview: {
-      logoScale: 0.395,
-      ink: 'var(--chip-fertifa)',
-    },
-  },
+  fertifa: { name: 'Fertifa', project: 'fertifa', src: chipFertifa, bg: 'var(--chip-fertifa)', width: 20, height: 20 },
   shuffle: { name: 'Shuffle', project: 'shuffle', src: chipShuffle },
   steepClub: { name: 'The Steep Club', href: '/steepclub.html', src: chipSteepClub },
   minimum: { name: 'Minimum', project: 'minimum', src: chipMinimum },

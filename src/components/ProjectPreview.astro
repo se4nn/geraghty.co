@@ -5,34 +5,35 @@
 import type { ImageMetadata } from 'astro';
 import TileArt from './TileArt.astro';
 
-// Set per chip in src/data/home.ts
-export interface PreviewConfig {
-  // Logo width as a share of the card width
-  logoScale: number;
-  // Colour the skill label takes while the card is open
-  ink: string;
-}
-
 // Filled in from the project's work entry by the page
-export interface Preview extends PreviewConfig {
+export interface Preview {
   image: ImageMetadata;
   logo: ImageMetadata;
+  // The tile's logoScale: logo width as a share of a square tile's side
+  logoScale: number;
   grain: boolean;
+  // Colour the card's shadow picks up, usually the project's gradient
+  tint?: string;
   alt: string;
 }
 
 type Props = Preview;
 
-const { image, logo, logoScale, grain, alt } = Astro.props;
+const { image, logo, logoScale, grain, tint, alt } = Astro.props;
+
+// Matched to the tiles: the card is 400 × 280, so the logo is sized against
+// its short side, the same way a square tile's logo is sized against its side
+const CARD_RATIO = 280 / 400;
 ---
 
-<span class="preview" aria-hidden="true">
+<span class="preview" style={tint ? `--card-tint: ${tint};` : undefined} aria-hidden="true">
   <TileArt
     class="preview__art"
     image={image}
     logo={logo}
-    logoScale={logoScale}
+    logoScale={logoScale * CARD_RATIO}
     grain={grain}
+    live={false}
     alt={alt}
     sizes="400px"
     widths={[400, 800]}
@@ -54,9 +55,11 @@ const { image, logo, logoScale, grain, alt } = Astro.props;
     width: 12.1212em;
     height: 8.4848em;
     border-radius: var(--radius-s);
+    /* Figma's two-layer shadow, tinted with the project's colour */
+    --card-tint: var(--neutral-900);
     box-shadow:
-      0 24px 24px -12px oklch(from var(--neutral-900) l c h / 0.15),
-      0 4px 4px -4px oklch(from var(--neutral-900) l c h / 0.2);
+      0 24px 24px -12px oklch(from var(--card-tint) l c h / 0.3),
+      0 4px 4px -4px oklch(from var(--card-tint) l c h / 0.25);
     pointer-events: none;
     cursor: default;
     opacity: 0;

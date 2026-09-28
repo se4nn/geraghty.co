@@ -6,7 +6,7 @@
 // Hovering the parent Tag fans the chips out: they move from their loose
 // resting angles into an ordered fan, lift and spread slightly apart.
 import type { ImageMetadata } from 'astro';
-import ProjectPreview, { type Preview, type PreviewConfig } from './ProjectPreview.astro';
+import ProjectPreview, { type Preview } from './ProjectPreview.astro';
 
 export interface LogoChip {
   name: string;
@@ -14,9 +14,7 @@ export interface LogoChip {
   href?: string;
   // Project id in src/content/work, resolved to an href by the page
   project?: string;
-  // Hover card settings for this chip (see src/data/home.ts)
-  preview?: PreviewConfig;
-  // The hover card with its project artwork, resolved by the page
+  // Hover card with the project's thumbnail, resolved by the page
   card?: Preview;
   rotate: number;
   bg?: string;

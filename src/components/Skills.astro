@@ -9,11 +9,6 @@ interface Props {
 
 const { items } = Astro.props;
 
-// Colour the skill label takes while one of its chips shows a hover card
-const previewInk = (logos: LogoChip[]) => {
-  const ink = logos.find((logo) => logo.card)?.card?.ink;
-  return ink ? `--preview-ink: ${ink};` : undefined;
-};
 ---
 
 <div class="skills">
@@ -21,7 +16,7 @@ const previewInk = (logos: LogoChip[]) => {
   <ul class="skills__list" role="list">
     {
       items.map((item) => (
-        <li class="skills__item" style={previewInk(item.logos)}>
+        <li class="skills__item">
           <span class="skills__divider" aria-hidden="true"></span>
           <Tag variant="plain">
             {item.label}
@@ -91,7 +86,7 @@ const previewInk = (logos: LogoChip[]) => {
     }
 
     /* While a chip's hover card is open, lift its tag above the content
-       around it and take the project's colour */
+       around it */
     .skills__item:has(:global(a.chip--preview)) {
       position: relative;
       z-index: 0;
@@ -102,10 +97,6 @@ const previewInk = (logos: LogoChip[]) => {
     .skills__item:has(:global(a.chip--preview:hover)) {
       z-index: 30;
       transition-delay: 0s;
-    }
-
-    .skills__item:has(:global(a.chip--preview:hover)) :global(.tag) {
-      color: var(--preview-ink);
     }
   }
 </style>

@@ -14,6 +14,9 @@ interface Props {
   // Logo width as a share of the thumbnail width
   logoScale: number;
   grain?: boolean;
+  // Off where many thumbnails share a page (each live gradient is a WebGL
+  // canvas, and browsers cap how many can run): the still and grain show
+  live?: boolean;
   // Live gradient over the still, from the project's front matter
   gradient?: {
     from: string;
@@ -33,12 +36,14 @@ const {
   logo,
   logoScale,
   grain: showGrain = true,
-  gradient,
+  live = true,
+  gradient: projectGradient,
   alt,
   sizes,
   widths = [480, 820, 1640],
   class: className,
 } = Astro.props;
+const gradient = live ? projectGradient : undefined;
 const grainImage = await getImage({ src: grain, width: 2000, format: 'webp', quality: 70 });
 ---
 
