@@ -43,7 +43,19 @@ const chip = {
   format: { name: 'Format', project: 'format', src: chipFormat, bg: 'var(--chip-format)', width: 20, height: 20 },
   delli: { name: 'DELLI', project: 'delli', src: chipDelli, bg: 'var(--chip-delli)', width: 20, height: 5.556 },
   studia: { name: 'Studia', project: 'studia', src: chipStudia, bg: 'var(--chip-studia)', width: 20, height: 6 },
-  fertifa: { name: 'Fertifa', project: 'fertifa', src: chipFertifa, bg: 'var(--chip-fertifa)', width: 20, height: 20 },
+  fertifa: {
+    name: 'Fertifa',
+    project: 'fertifa',
+    src: chipFertifa,
+    bg: 'var(--chip-fertifa)',
+    width: 20,
+    height: 20,
+    // Trial: hover card with the project's thumbnail
+    preview: {
+      logoScale: 0.395,
+      ink: 'var(--chip-fertifa)',
+    },
+  },
   shuffle: { name: 'Shuffle', project: 'shuffle', src: chipShuffle },
   steepClub: { name: 'The Steep Club', href: '/steepclub.html', src: chipSteepClub },
   minimum: { name: 'Minimum', project: 'minimum', src: chipMinimum },
@@ -53,7 +65,7 @@ const chip = {
 // Rotations are from the Figma frame
 export const skills: { label: string; logos: LogoChip[] }[] = [
   {
-    label: 'Product design & strategy',
+    label: 'Product Design',
     logos: [
       { ...chip.format, rotate: -11 },
       { ...chip.delli, rotate: 12 },
@@ -67,10 +79,11 @@ export const skills: { label: string; logos: LogoChip[] }[] = [
       { ...chip.fertifa, rotate: 12 },
       { ...chip.steepClub, rotate: -8 },
       { ...chip.minimum, rotate: 4 },
+      { ...chip.shuffle, rotate: -4 },
     ],
   },
   {
-    label: 'Design & code',
+    label: 'Code',
     logos: [
       { ...chip.format, rotate: -11 },
       { ...chip.delli, rotate: 12 },

@@ -1,8 +1,8 @@
 ---
-// Bordered label used for skills and the availability pill.
-// Figma: "Tag" / "Availability"
+// Label used in the skills row. Figma: "Tag"
+// outline: bordered pill. surface: white pill. plain: text and logos only.
 interface Props {
-  variant?: 'outline' | 'surface';
+  variant?: 'outline' | 'surface' | 'plain';
 }
 
 const { variant = 'outline' } = Astro.props;
@@ -20,6 +20,12 @@ const { variant = 'outline' } = Astro.props;
     border-radius: var(--radius-l);
     color: var(--text-muted);
     white-space: nowrap;
+  }
+
+  .tag--plain {
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-s);
   }
 
   .tag--surface {

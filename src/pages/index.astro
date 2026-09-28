@@ -26,11 +26,19 @@ const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.d
 // Skill chips point at their project: the case study if there is one,
 // otherwise the project's tile further down the page.
 const projectHref = (id: string) => projects.find((p) => p.id === id)?.data.link ?? `#work-${id}`;
+// Chips with a hover card get their project's tile artwork.
+const cardFor = (logo: (typeof skills)[number]['logos'][number]) => {
+  const project = logo.preview && projects.find((p) => p.id === logo.project);
+  if (!logo.preview || !project) return undefined;
+  const { tile, title } = project.data;
+  return { ...logo.preview, image: tile.image, logo: tile.logo, grain: tile.grain, alt: title };
+};
 const skillsWithLinks = skills.map((skill) => ({
   ...skill,
   logos: skill.logos.map((logo) => ({
     ...logo,
     href: logo.href ?? (logo.project ? projectHref(logo.project) : undefined),
+    card: cardFor(logo),
   })),
 }));
 ---

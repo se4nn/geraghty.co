@@ -6,6 +6,7 @@
 // Hovering the parent Tag fans the chips out: they move from their loose
 // resting angles into an ordered fan, lift and spread slightly apart.
 import type { ImageMetadata } from 'astro';
+import ProjectPreview, { type Preview, type PreviewConfig } from './ProjectPreview.astro';
 
 export interface LogoChip {
   name: string;
@@ -13,6 +14,10 @@ export interface LogoChip {
   href?: string;
   // Project id in src/content/work, resolved to an href by the page
   project?: string;
+  // Hover card settings for this chip (see src/data/home.ts)
+  preview?: PreviewConfig;
+  // The hover card with its project artwork, resolved by the page
+  card?: Preview;
   rotate: number;
   bg?: string;
   // Logo size inside a coloured square, in px
@@ -27,11 +32,16 @@ interface Props {
 const { items } = Astro.props;
 const mid = (items.length - 1) / 2;
 
-// Fan geometry for the hover state
+// Chips are sized in em so they scale with the tag's type. Figma values
+// are px at 33px type, so em = px / 33.
+const em = (px: number) => `${+(px / 33).toFixed(4)}em`;
+const rad = (deg: number) => (deg * Math.PI) / 180;
+
+// Fan geometry for the hover state, in design px
 const FAN_STEP = 7; // deg between neighbouring chips
-const SPREAD = 5; // px added between neighbouring chips
-const LIFT = 5; // px the centre of the fan rises
-const ARC = 1.5; // px each step away from centre drops back down
+const SPREAD = 5; // added between neighbouring chips
+const LIFT = 5; // the centre of the fan rises
+const ARC = 1.5; // each step away from centre drops back down
 
 const chips = items.map((item, i) => {
   const offset = i - mid;
@@ -41,10 +51,14 @@ const chips = items.map((item, i) => {
       `--i: ${i}`,
       `--n: ${items.length}`,
       `--rest-rotate: ${item.rotate}deg`,
+      // Each chip's slot is the bounding box of its rotated square, as in Figma
+      `--slot: ${em(32 * (Math.abs(Math.cos(rad(item.rotate))) + Math.abs(Math.sin(rad(item.rotate)))))}`,
       `--fan-rotate: ${offset * FAN_STEP}deg`,
       // Spread is weighted to the right so the stack grows away from the label
-      `--fan-x: ${(i - mid / 2) * SPREAD}px`,
-      `--fan-y: ${-LIFT + Math.abs(offset) * ARC}px`,
+      `--fan-x: ${em((i - mid / 2) * SPREAD)}`,
+      `--fan-y: ${em(-LIFT + Math.abs(offset) * ARC)}`,
+      `--logo-w: ${em(item.width ?? 20)}`,
+      `--logo-h: ${em(item.height ?? 20)}`,
       `--z: ${items.length - i}`,
     ].join('; '),
   };
@@ -57,23 +71,28 @@ const chips = items.map((item, i) => {
       const Chip = chip.href ? 'a' : 'span';
       const external = chip.href?.startsWith('http');
       return (
-      <Chip
-        class="chip"
-        style={chip.style}
-        href={chip.href}
-        aria-label={chip.href ? chip.name : undefined}
-        aria-hidden={chip.href ? undefined : 'true'}
-        target={external ? '_blank' : undefined}
-        rel={external ? 'noopener' : undefined}
-      >
-        {chip.bg ? (
-          <span class="chip__square" style={`background-color: ${chip.bg};`}>
-            <img src={chip.src.src} alt="" width={chip.width ?? 20} height={chip.height ?? 20} />
+        <Chip
+          class:list={['chip', { 'chip--preview': chip.card }]}
+          style={chip.style}
+          href={chip.href}
+          aria-label={chip.href ? chip.name : undefined}
+          aria-hidden={chip.href ? undefined : 'true'}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener' : undefined}
+        >
+          {/* The body carries the transforms, so the hover card (a sibling)
+              stays upright and centred on the chip's slot */}
+          <span class="chip__body">
+            {chip.bg ? (
+              <span class="chip__square" style={`background-color: ${chip.bg};`}>
+                <img src={chip.src.src} alt="" width={chip.width ?? 20} height={chip.height ?? 20} />
+              </span>
+            ) : (
+              <img class="chip__built" src={chip.src.src} alt="" width="34" height="37" />
+            )}
           </span>
-        ) : (
-          <img class="chip__built" src={chip.src.src} alt="" width="34" height="37" />
-        )}
-      </Chip>
+          {chip.card && <ProjectPreview {...chip.card} />}
+        </Chip>
       );
     })
   }
@@ -83,34 +102,43 @@ const chips = items.map((item, i) => {
   .logo-stack {
     display: inline-flex;
     align-items: center;
-    isolation: isolate;
   }
 
   .chip {
     --spring: linear(0, 0.042, 0.145, 0.28, 0.425, 0.565, 0.691, 0.798, 0.884, 0.949, 0.996, 1.026, 1.044, 1.053, 1.054, 1.051, 1.044, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 0.998, 1);
 
+    /* Slot sized to the rotated chip; the 32px square (at 33px type) sits centred in it */
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--slot);
+    height: var(--slot);
+  }
+
+  .chip + .chip {
+    margin-left: -0.2424em;
+  }
+
+  .chip__body {
     position: relative;
     z-index: var(--z);
     display: block;
-    width: 32px;
-    height: 32px;
+    width: 0.9697em;
+    height: 0.9697em;
     transform: rotate(var(--rest-rotate));
     /* Leaving: quicker, no overshoot, last chip settles first */
     transition: transform 280ms var(--ease-out);
     transition-delay: calc((var(--n) - 1 - var(--i)) * 24ms);
   }
 
-  .chip + .chip {
-    margin-left: -8px;
-  }
-
   /* Extra shadow that fades in as a chip lifts, so it reads as leaving the surface */
-  .chip::before {
+  .chip__body::before {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
-    border-radius: var(--radius-m);
+    border-radius: 0.1818em;
     box-shadow: var(--shadow-chip-lifted);
     opacity: 0;
     transition: opacity 240ms var(--ease-out);
@@ -123,46 +151,55 @@ const chips = items.map((item, i) => {
     justify-content: center;
     width: 100%;
     height: 100%;
-    border-radius: var(--radius-m);
+    border-radius: 0.1818em;
     box-shadow: var(--shadow-chip);
     overflow: hidden;
+  }
+
+  .chip__square img {
+    width: var(--logo-w);
+    height: var(--logo-h);
   }
 
   /* Figma exports built chips with 1px either side and room for the shadow below */
   .chip__built {
     position: absolute;
     top: 0;
-    left: -1px;
-    width: 34px;
-    height: 37px;
+    left: -0.0303em;
+    width: 1.0303em;
+    height: 1.1212em;
     max-width: none;
   }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     /* Arriving: a soft spring (about 5% overshoot), fanning left to right */
-    :global(.tag:hover) .chip {
+    :global(.tag:hover) .chip__body {
       transform: translate(var(--fan-x), var(--fan-y)) rotate(var(--fan-rotate)) scale(1.04);
       transition: transform 560ms var(--spring);
       transition-delay: calc(var(--i) * 40ms);
     }
 
-    :global(.tag:hover) .chip::before {
+    :global(.tag:hover) .chip__body::before {
       opacity: 1;
     }
 
     /* The chip under the cursor rises a little further and comes to the front */
-    :global(.tag:hover) a.chip:hover {
+    :global(.tag:hover) a.chip:hover .chip__body {
       z-index: 10;
-      transform: translate(var(--fan-x), calc(var(--fan-y) - 3px)) rotate(var(--fan-rotate)) scale(1.1);
+      transform: translate(var(--fan-x), calc(var(--fan-y) - 0.0909em)) rotate(var(--fan-rotate)) scale(1.1);
       transition: transform 360ms var(--spring);
       transition-delay: 0ms;
     }
   }
 
   a.chip:focus-visible {
+    outline: none;
+  }
+
+  a.chip:focus-visible .chip__body {
     z-index: 10;
     outline: 2px solid var(--neutral-900);
     outline-offset: 2px;
-    border-radius: var(--radius-m);
+    border-radius: 0.1818em;
   }
 </style>

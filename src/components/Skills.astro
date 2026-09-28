@@ -8,6 +8,12 @@ interface Props {
 }
 
 const { items } = Astro.props;
+
+// Colour the skill label takes while one of its chips shows a hover card
+const previewInk = (logos: LogoChip[]) => {
+  const ink = logos.find((logo) => logo.card)?.card?.ink;
+  return ink ? `--preview-ink: ${ink};` : undefined;
+};
 ---
 
 <div class="skills">
@@ -15,8 +21,9 @@ const { items } = Astro.props;
   <ul class="skills__list" role="list">
     {
       items.map((item) => (
-        <li>
-          <Tag>
+        <li class="skills__item" style={previewInk(item.logos)}>
+          <span class="skills__divider" aria-hidden="true"></span>
+          <Tag variant="plain">
             {item.label}
             <LogoStack items={item.logos} />
           </Tag>
@@ -27,12 +34,14 @@ const { items } = Astro.props;
 </div>
 
 <style>
+  /* Figma: "Services". One row: Skills | tag | tag | tag */
   .skills {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: var(--space-l);
+    font-size: var(--h3-size);
   }
 
   .skills__label {
@@ -44,18 +53,59 @@ const { items } = Astro.props;
     list-style: none;
   }
 
+  .skills__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+  }
+
+  /* 1 × 24px rule at 33px type, centred in an 8px slot */
+  .skills__divider {
+    width: 1px;
+    height: 0.7273em;
+    margin-inline: 3.5px;
+    background-color: var(--neutral-300);
+  }
+
   /* The whole tag reacts on hover, so the whole tag gets the pointer */
   .skills__list :global(.tag) {
     cursor: pointer;
-    transition:
-      border-color var(--duration-s) var(--ease-out),
-      color var(--duration-s) var(--ease-out);
+    transition: color var(--duration-s) var(--ease-out);
+  }
+
+  /* Phones: stack the tags, no dividers */
+  @media (max-width: 700px) {
+    .skills {
+      flex-direction: column;
+      gap: var(--space-s);
+    }
+
+    .skills__divider {
+      display: none;
+    }
   }
 
   @media (hover: hover) {
     .skills__list :global(.tag:hover) {
-      border-color: var(--neutral-300);
       color: var(--text-strong);
+    }
+
+    /* While a chip's hover card is open, lift its tag above the content
+       around it and take the project's colour */
+    .skills__item:has(:global(a.chip--preview)) {
+      position: relative;
+      z-index: 0;
+      /* Stay raised until the card has finished leaving */
+      transition: z-index 0s linear 180ms;
+    }
+
+    .skills__item:has(:global(a.chip--preview:hover)) {
+      z-index: 30;
+      transition-delay: 0s;
+    }
+
+    .skills__item:has(:global(a.chip--preview:hover)) :global(.tag) {
+      color: var(--preview-ink);
     }
   }
 </style>

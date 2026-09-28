@@ -6,7 +6,9 @@
    sRGB screens get the browser's nearest match.
 
    Size: taken from the 1512px frame and scaled fluidly with vw, clamped so
-   nothing drops below a readable size or grows past the design. */
+   nothing drops below a readable size. Type ramps are anchored on the Figma
+   size at 1512, with a gentle slope so text holds its size on small screens
+   and keeps growing on large ones. */
 
 :root {
   /* Colour: core neutrals (Figma: Core/Neutral/*) */
@@ -50,23 +52,24 @@
 
   /* Type: Figma text styles (design px at 1512 → fluid) */
 
-  /* Display, unnamed in Figma. Hero and "Let's talk." 200 / 160, -1.6% */
-  --display-size: clamp(64px, 13.23vw, 200px);
+  /* Display, unnamed in Figma. Hero and "Let's talk." 200 / 160, -1.6%
+     64px at 375 (so the hero fits), 200 at 1512, up to 240 */
+  --display-size: clamp(56px, 12vw + 18.56px, 240px);
   --display-lh: 0.8;
   --display-track: -0.016em;
 
-  /* H1: Instrument Serif Regular 57 / 72, -1.2% */
-  --h1-size: clamp(30px, 3.77vw, 57px);
+  /* H1: Instrument Serif Regular 57 / 72, -1.2%. 32 → 57 at 1512 → 68 */
+  --h1-size: clamp(32px, 2.6vw + 17.69px, 68px);
   --h1-lh: 1.263;
   --h1-track: -0.012em;
 
-  /* H3, H3 (Bold), H3 (Emphasis): 33 / 40 */
-  --h3-size: clamp(20px, 2.18vw, 33px);
+  /* H3, H3 (Bold), H3 (Emphasis): 33 / 40. 24 → 33 at 1512 → 40 */
+  --h3-size: clamp(24px, 1.2vw + 14.86px, 40px);
   --h3-lh: 1.212;
   --h3-emphasis-track: -0.012em;
 
-  /* Body: Bricolage 21 / 24 */
-  --body-size: clamp(15px, 1.39vw, 21px);
+  /* Body: Bricolage 21 / 24. 16 → 21 at 1512 → 26 */
+  --body-size: clamp(16px, 0.6vw + 11.93px, 26px);
   --body-lh: 1.143;
 
   /* Space (design px at 1512 → fluid) */
