@@ -76,9 +76,41 @@ const Wrapper = link ? 'a' : 'div';
     white-space: nowrap;
   }
 
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    a.tile:hover :global(.tile-art__image) {
-      transform: scale(1.03);
+  /* Hover: the tile rounds into a CRT screen, corners pulled in with a soft
+     glass edge, rather than zooming. Eases in, and back out a little quicker. */
+  .tile :global(.tile__art)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 0 1px oklch(from var(--neutral-1000) l c h / 0.2),
+      inset 0 0 2.5em oklch(from var(--neutral-1000) l c h / 0.4);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    a.tile:hover :global(.tile__art) {
+      border-radius: 9%;
+    }
+
+    a.tile:hover :global(.tile__art)::after {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tile :global(.tile__art),
+    .tile :global(.tile__art)::after {
+      transition:
+        border-radius var(--duration-m) var(--ease-out),
+        opacity var(--duration-m) var(--ease-out);
+    }
+
+    a.tile:hover :global(.tile__art),
+    a.tile:hover :global(.tile__art)::after {
+      transition-duration: var(--duration-l);
     }
   }
 

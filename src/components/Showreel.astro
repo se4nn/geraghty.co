@@ -1,7 +1,9 @@
 ---
-// Figma: "Video". Shows the poster until a video file is supplied.
+// Figma: "Video". The showreel from the original site, muted and looping.
+// It only starts once it's scrolled into view and pauses when it leaves.
+// The Figma still is the poster, since the video opens on a blank frame.
 import type { ImageMetadata } from 'astro';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 
 interface Props {
   poster: ImageMetadata;
@@ -10,12 +12,23 @@ interface Props {
 }
 
 const { poster, alt, video } = Astro.props;
+const posterImage = await getImage({ src: poster, width: 2000, format: 'webp' });
 ---
 
 <div class="showreel">
   {
     video ? (
-      <video class="showreel__media" src={video} poster={poster.src} autoplay muted loop playsinline />
+      <video
+        class="showreel__media"
+        poster={posterImage.src}
+        aria-label={alt}
+        muted
+        loop
+        playsinline
+        preload="metadata"
+      >
+        <source src={video} type="video/mp4" />
+      </video>
     ) : (
       <Image class="showreel__media" src={poster} alt={alt} widths={[750, 1416, 2832]} sizes="94vw" loading="eager" />
     )
@@ -31,8 +44,30 @@ const { poster, alt, video } = Astro.props;
   }
 
   .showreel__media {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 </style>
+
+<script>
+  // Play while at least a third is on screen. Reduced motion keeps the poster.
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  for (const video of document.querySelectorAll<HTMLVideoElement>('.showreel__media')) {
+    if (video.tagName !== 'VIDEO') continue;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !reducedMotion.matches) {
+          // Muted, so browsers allow it; ignore the rare refusal
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.33 },
+    );
+    io.observe(video);
+  }
+</script>

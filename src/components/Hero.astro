@@ -1,18 +1,34 @@
 ---
 // Figma: "Hero"
 import circle from '../assets/home/hero-circle.svg';
+
+// The scribble around "miss" is drawn in, like a marker circling the word.
+// In Figma it's one line (node 2244:10807) with a brush stroke. The brush
+// outline (hero-circle.svg) is revealed through a mask that traces that same
+// line, placed where Figma's export puts it inside the outline's box.
+const PEN_PATH =
+  'M 60.903 22.636 C -154.249 182.703 266.069 270.756 313.699 128.434 C 360.153 -10.374 137.246 -22.313 54.016 25.2';
+const PEN_OFFSET = 'translate(6.144 14.5)';
 ---
 
 <header class="hero">
   <h1 class="t-display hero__title">
     I <em class="italic">solve problems</em><br />
-    others <span class="hero__mark">miss<img
+    others <span class="hero__mark">miss<svg
         class="hero__circle"
-        src={circle.src}
-        alt=""
+        viewBox="0 0 338.802 223.207"
         width={circle.width}
         height={circle.height}
-      /></span>
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <mask id="hero-circle-pen" maskUnits="userSpaceOnUse" x="-20" y="-20" width="380" height="265">
+            <path class="hero__pen" d={PEN_PATH} transform={PEN_OFFSET} pathLength="1" />
+          </mask>
+        </defs>
+        <use href={`${circle.src}#mark`} mask="url(#hero-circle-pen)" />
+      </svg></span>
   </h1>
   <p class="t-h3 hero__sub">Leading design at startups<br />where product is built, not briefed.</p>
 </header>
@@ -48,11 +64,65 @@ import circle from '../assets/home/hero-circle.svg';
     width: 1.694em;
     height: auto;
     max-width: none;
+    overflow: visible;
     mix-blend-mode: darken;
     pointer-events: none;
+  }
+
+  /* The pen: wider than the 32px brush so it covers the bristle streaks,
+     round-capped so the blunt start and the lifted tail are both inked */
+  .hero__pen {
+    fill: none;
+    stroke: white;
+    stroke-width: 48;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1 2;
+  }
+
+  /* Hidden until drawn, but only when there's script to draw it and motion
+     is welcome; otherwise the circle is simply there */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .hero__pen {
+      stroke-dashoffset: 1.02;
+    }
+
+    .hero__circle.is-drawing .hero__pen {
+      animation: hero-pen 950ms 250ms forwards;
+      /* Pace from the two-thirds power law of hand movement, worked out
+         from the line's own curvature: the pen slows round the tight ends of
+         the ellipse and speeds along the flatter top and bottom. It lands
+         already moving and eases off as it lifts. */
+      animation-timing-function: linear(
+        0, 0.011, 0.026, 0.049, 0.076, 0.1, 0.121, 0.141, 0.162, 0.184, 0.208, 0.236, 0.267, 0.3, 0.335, 0.37,
+        0.405, 0.438, 0.469, 0.497, 0.523, 0.547, 0.57, 0.594, 0.619, 0.642, 0.664, 0.686, 0.71, 0.736, 0.764,
+        0.796, 0.829, 0.865, 0.897, 0.924, 0.946, 0.964, 0.978, 0.99, 1
+      );
+    }
+  }
+
+  @keyframes hero-pen {
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   .hero__sub {
     color: var(--text-muted);
   }
 </style>
+
+<script>
+  // Draw the circle once the hero is on screen, so it isn't missed when the
+  // page opens part-way down
+  const circle = document.querySelector('.hero__circle');
+  if (circle) {
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        circle.classList.add('is-drawing');
+        io.disconnect();
+      }
+    });
+    io.observe(circle);
+  }
+</script>
