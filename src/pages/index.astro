@@ -36,7 +36,9 @@ const cardFor = (id?: string) => {
     logo: tile.logo,
     logoScale: tile.logoScale,
     grain: tile.grain,
-    tint: tile.gradient?.to,
+    // Brand colour, not the gradient: gradient colours are inputs tuned
+    // for the shader and read dull on their own
+    tint: `var(--chip-${id})`,
     alt: title,
   };
 };

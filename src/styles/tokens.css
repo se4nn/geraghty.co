@@ -29,6 +29,10 @@
   --chip-delli: oklch(90.88% 0.2233 110.84);       /* #eaec25 */
   --chip-studia: oklch(91.98% 0.2599 126.92);      /* #c6ff33 */
   --chip-fertifa: oklch(30.67% 0.1479 298.87);     /* #371169 */
+  /* Shuffle and Minimum chips carry their own artwork; these are the brand
+     colours from it, used to tint their hover cards */
+  --chip-shuffle: oklch(92.39% 0.2248 102.74);     /* #ffea00 */
+  --chip-minimum: oklch(92.23% 0.2559 120.29);     /* #d9fa00 */
 
   /* Colour: project gradients, opening → closing. Neutral/1000 is the crease.
      Inputs to LensFlare, not what ends up on screen: the gradient brightens
