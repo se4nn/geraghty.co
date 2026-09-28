@@ -1,0 +1,29 @@
+---
+// Bordered label used for skills and the availability pill.
+// Figma: "Tag" / "Availability"
+interface Props {
+  variant?: 'outline' | 'surface';
+}
+
+const { variant = 'outline' } = Astro.props;
+---
+
+<span class:list={['tag', `tag--${variant}`, 't-h3']}><slot /></span>
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-m);
+    border: var(--border-width) solid var(--border-subtle);
+    border-radius: var(--radius-l);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .tag--surface {
+    background-color: var(--neutral-000);
+    gap: var(--space-s);
+  }
+</style>

@@ -1,0 +1,168 @@
+---
+// Overlapping, slightly rotated logo chips. Figma: "Logos" inside a skill Tag.
+// A chip is either a logo on a coloured square (bg set) or a
+// pre-built chip SVG from Figma that already carries its square and shadow.
+//
+// Hovering the parent Tag fans the chips out: they move from their loose
+// resting angles into an ordered fan, lift and spread slightly apart.
+import type { ImageMetadata } from 'astro';
+
+export interface LogoChip {
+  name: string;
+  src: ImageMetadata;
+  href?: string;
+  // Project id in src/content/work, resolved to an href by the page
+  project?: string;
+  rotate: number;
+  bg?: string;
+  // Logo size inside a coloured square, in px
+  width?: number;
+  height?: number;
+}
+
+interface Props {
+  items: LogoChip[];
+}
+
+const { items } = Astro.props;
+const mid = (items.length - 1) / 2;
+
+// Fan geometry for the hover state
+const FAN_STEP = 7; // deg between neighbouring chips
+const SPREAD = 5; // px added between neighbouring chips
+const LIFT = 5; // px the centre of the fan rises
+const ARC = 1.5; // px each step away from centre drops back down
+
+const chips = items.map((item, i) => {
+  const offset = i - mid;
+  return {
+    ...item,
+    style: [
+      `--i: ${i}`,
+      `--n: ${items.length}`,
+      `--rest-rotate: ${item.rotate}deg`,
+      `--fan-rotate: ${offset * FAN_STEP}deg`,
+      // Spread is weighted to the right so the stack grows away from the label
+      `--fan-x: ${(i - mid / 2) * SPREAD}px`,
+      `--fan-y: ${-LIFT + Math.abs(offset) * ARC}px`,
+      `--z: ${items.length - i}`,
+    ].join('; '),
+  };
+});
+---
+
+<span class="logo-stack">
+  {
+    chips.map((chip) => {
+      const Chip = chip.href ? 'a' : 'span';
+      const external = chip.href?.startsWith('http');
+      return (
+      <Chip
+        class="chip"
+        style={chip.style}
+        href={chip.href}
+        aria-label={chip.href ? chip.name : undefined}
+        aria-hidden={chip.href ? undefined : 'true'}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noopener' : undefined}
+      >
+        {chip.bg ? (
+          <span class="chip__square" style={`background-color: ${chip.bg};`}>
+            <img src={chip.src.src} alt="" width={chip.width ?? 20} height={chip.height ?? 20} />
+          </span>
+        ) : (
+          <img class="chip__built" src={chip.src.src} alt="" width="34" height="37" />
+        )}
+      </Chip>
+      );
+    })
+  }
+</span>
+
+<style>
+  .logo-stack {
+    display: inline-flex;
+    align-items: center;
+    isolation: isolate;
+  }
+
+  .chip {
+    --spring: linear(0, 0.042, 0.145, 0.28, 0.425, 0.565, 0.691, 0.798, 0.884, 0.949, 0.996, 1.026, 1.044, 1.053, 1.054, 1.051, 1.044, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 0.998, 1);
+
+    position: relative;
+    z-index: var(--z);
+    display: block;
+    width: 32px;
+    height: 32px;
+    transform: rotate(var(--rest-rotate));
+    /* Leaving: quicker, no overshoot, last chip settles first */
+    transition: transform 280ms var(--ease-out);
+    transition-delay: calc((var(--n) - 1 - var(--i)) * 24ms);
+  }
+
+  .chip + .chip {
+    margin-left: -8px;
+  }
+
+  /* Extra shadow that fades in as a chip lifts, so it reads as leaving the surface */
+  .chip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-chip-lifted);
+    opacity: 0;
+    transition: opacity 240ms var(--ease-out);
+    transition-delay: inherit;
+  }
+
+  .chip__square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-chip);
+    overflow: hidden;
+  }
+
+  /* Figma exports built chips with 1px either side and room for the shadow below */
+  .chip__built {
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 34px;
+    height: 37px;
+    max-width: none;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    /* Arriving: a soft spring (about 5% overshoot), fanning left to right */
+    :global(.tag:hover) .chip {
+      transform: translate(var(--fan-x), var(--fan-y)) rotate(var(--fan-rotate)) scale(1.04);
+      transition: transform 560ms var(--spring);
+      transition-delay: calc(var(--i) * 40ms);
+    }
+
+    :global(.tag:hover) .chip::before {
+      opacity: 1;
+    }
+
+    /* The chip under the cursor rises a little further and comes to the front */
+    :global(.tag:hover) a.chip:hover {
+      z-index: 10;
+      transform: translate(var(--fan-x), calc(var(--fan-y) - 3px)) rotate(var(--fan-rotate)) scale(1.1);
+      transition: transform 360ms var(--spring);
+      transition-delay: 0ms;
+    }
+  }
+
+  a.chip:focus-visible {
+    z-index: 10;
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 2px;
+    border-radius: var(--radius-m);
+  }
+</style>

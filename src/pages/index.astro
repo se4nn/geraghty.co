@@ -1,0 +1,134 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Availability from '../components/Availability.astro';
+import Showreel from '../components/Showreel.astro';
+import IntroLine from '../components/IntroLine.astro';
+import Skills from '../components/Skills.astro';
+import WorkGrid from '../components/WorkGrid.astro';
+import LogoStrip from '../components/LogoStrip.astro';
+import Testimonial from '../components/Testimonial.astro';
+import LetsTalk from '../components/LetsTalk.astro';
+import showreelPoster from '../assets/home/video-placeholder.jpg';
+import {
+  availability,
+  contactEmail,
+  intro,
+  skills,
+  workIntro,
+  previous,
+  testimonial,
+} from '../data/home';
+
+const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+
+// Skill chips point at their project: the case study if there is one,
+// otherwise the project's tile further down the page.
+const projectHref = (id: string) => projects.find((p) => p.id === id)?.data.link ?? `#work-${id}`;
+const skillsWithLinks = skills.map((skill) => ({
+  ...skill,
+  logos: skill.logos.map((logo) => ({
+    ...logo,
+    href: logo.href ?? (logo.project ? projectHref(logo.project) : undefined),
+  })),
+}));
+---
+
+<Base
+  title="Sean Geraghty, product designer"
+  description="Sean Geraghty leads design at startups where product is built, not briefed. Product design, brand and code."
+>
+  <main>
+    <!-- Everything before the footer. The availability pill parks at its end. -->
+    <div class="home-body">
+      <section class="home-intro container">
+        <Hero />
+      </section>
+
+      <section class="home-about container">
+        <Showreel poster={showreelPoster} alt="Shuffle logo" />
+        <IntroLine lead={intro.lead} links={intro.links} />
+        <Skills items={skillsWithLinks} />
+      </section>
+
+      <section class="home-work" id="work" aria-labelledby="work-heading">
+        <div class="container home-work__inner">
+          <h2 id="work-heading" class="visually-hidden">Work</h2>
+          <p class="home-work__intro t-h3">
+            {workIntro.text}<br />
+            {workIntro.text2} <strong class="t-h3-bold">{workIntro.emphasis}</strong>.
+          </p>
+          <WorkGrid projects={projects} />
+          <LogoStrip heading={previous.heading} logos={previous.logos} />
+        </div>
+      </section>
+
+      <Availability label={availability} email={contactEmail} />
+    </div>
+
+    <section class="home-close" aria-label="Testimonial and contact">
+      <div class="container home-close__inner">
+        <Testimonial {...testimonial} />
+        <LetsTalk email={contactEmail} />
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .home-intro {
+    padding-top: var(--space-3xl);
+  }
+
+  .home-about {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+    margin-top: var(--space-2xl);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .home-work {
+    background-color: var(--bg-work);
+  }
+
+  .home-work__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+    padding-block: var(--space-3xl);
+  }
+
+  .home-work__intro {
+    max-width: 25em;
+    margin-inline: auto;
+    text-align: center;
+    color: var(--text-muted);
+    text-wrap: balance;
+  }
+
+  .home-work__intro strong {
+    color: var(--text-strong);
+  }
+
+  .home-close {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    padding-top: clamp(80px, 10.58vw, 160px);
+  }
+
+  /* The quote spans the middle three grid columns. "Let's talk." is sized
+     from the same width so the two always line up. */
+  .home-close__inner {
+    container-type: inline-size;
+    --quote-width: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
+  }
+
+  @media (max-width: 700px) {
+    .home-close__inner {
+      --quote-width: 100cqi;
+    }
+  }
+</style>

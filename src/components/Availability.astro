@@ -1,0 +1,359 @@
+---
+// Availability pill. Figma: "Currently" / "Availability (hover)"
+// Floats bottom right, then parks above the footer: render it as the last
+// child of the content that scrolls before the footer.
+//
+// Click copies the email address. Hover: the lime dot blooms into the neon
+// fill, "Open to work" lifts away and "Copy email" springs in from below.
+// Leaving runs the other way: the labels hand back first, then the fill
+// settles into the dot. Pressing gives a small bounce.
+interface Props {
+  label: string;
+  email: string;
+}
+
+const { label, email } = Astro.props;
+---
+
+<div class="availability-rail">
+  <button
+    class="availability t-h3"
+    type="button"
+    data-email={email}
+    aria-label={`${label}. Copy email address ${email}`}
+  >
+    <span class="availability__fill" aria-hidden="true"></span>
+    <span class="availability__rest" aria-hidden="true">{label}</span>
+    <span class="availability__dot" aria-hidden="true"></span>
+    <span class="availability__hover" aria-hidden="true">
+      <span class="availability__action">Copy email</span>
+      <span class="availability__done">Copied</span>
+    </span>
+  </button>
+  <span class="visually-hidden" role="status" aria-live="polite" data-availability-status></span>
+</div>
+
+<script>
+  const COPIED_FOR = 1800;
+  // Same bouncy spring as --bounce in the styles below
+  const BOUNCE =
+    'linear(0, 0.077, 0.269, 0.516, 0.767, 0.984, 1.144, 1.24, 1.275, 1.26, 1.21, 1.144, 1.074, 1.013, 0.966, 0.937, 0.925, 0.927, 0.94, 0.958, 0.977, 0.994, 1.008, 1.016, 1.02, 1.02, 1.017, 1.012, 1.007, 1.002, 0.998, 0.996, 0.994, 0.994, 0.995, 0.996, 1)';
+
+  // Clipboard API first, then the older selection-based copy for browsers
+  // or embeds that block it
+  async function copy(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const field = document.createElement('textarea');
+      field.value = text;
+      field.setAttribute('readonly', '');
+      field.style.cssText = 'position: fixed; opacity: 0; pointer-events: none;';
+      document.body.append(field);
+      field.select();
+      const copied = document.execCommand('copy');
+      field.remove();
+      return copied;
+    }
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.availability').forEach((button) => {
+    const status = button.parentElement?.querySelector('[data-availability-status]');
+    const email = button.dataset.email ?? '';
+    let reset: number | undefined;
+
+    // The fill is a circle centred on the dot. Its radius is set to reach the
+    // far corner of the pill exactly, so it moves from the very first frame.
+    const measure = () => {
+      const dot = button.querySelector('.availability__dot');
+      if (!dot) return;
+      const pill = button.getBoundingClientRect();
+      const d = dot.getBoundingClientRect();
+      const cx = d.left + d.width / 2 - pill.left;
+      const cy = d.top + d.height / 2 - pill.top;
+      const r = Math.hypot(Math.max(cx, pill.width - cx), Math.max(cy, pill.height - cy));
+      button.style.setProperty('--cover-r', `${Math.ceil(r)}px`);
+    };
+    new ResizeObserver(measure).observe(button);
+    document.fonts?.ready.then(measure);
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    button.addEventListener('click', async () => {
+      // Press bounce: a quick dip, then a spring back with a little rebound.
+      // Played on click so a fast tap gets the same feel as a held press.
+      if (!reducedMotion.matches) {
+        button.animate(
+          [
+            { scale: 0.94, offset: 0.14, easing: BOUNCE },
+            { scale: 1 },
+          ],
+          { duration: 640, easing: 'linear' },
+        );
+      }
+
+      if (!(await copy(email))) {
+        // Nothing could copy: open the mail app instead
+        window.location.href = `mailto:${email}`;
+        return;
+      }
+      button.dataset.copied = '';
+      if (status) status.textContent = 'Email address copied';
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        delete button.dataset.copied;
+        if (status) status.textContent = '';
+      }, COPIED_FOR);
+    });
+  });
+</script>
+
+<style>
+  /* Zero-height sticky rail at the end of the scrolling content. It holds the
+     pill to the bottom of the viewport until the footer arrives, then stays
+     put so the footer takes over. */
+  .availability-rail {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    height: 0;
+  }
+
+  .availability {
+    /* Soft spring, about 5% overshoot */
+    --spring: linear(0, 0.042, 0.145, 0.28, 0.425, 0.565, 0.691, 0.798, 0.884, 0.949, 0.996, 1.026, 1.044, 1.053, 1.054, 1.051, 1.044, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 0.998, 1);
+    /* Bouncier spring for the press release */
+    --bounce: linear(0, 0.077, 0.269, 0.516, 0.767, 0.984, 1.144, 1.24, 1.275, 1.26, 1.21, 1.144, 1.074, 1.013, 0.966, 0.937, 0.925, 0.927, 0.94, 0.958, 0.977, 0.994, 1.008, 1.016, 1.02, 1.02, 1.017, 1.012, 1.007, 1.002, 0.998, 0.996, 0.994, 0.994, 0.995, 0.996, 1);
+    --bloom: cubic-bezier(0.32, 0.72, 0, 1);
+    --settle: cubic-bezier(0.25, 0.8, 0.3, 1);
+    --accelerate: cubic-bezier(0.4, 0, 1, 1);
+    /* Dot centre, measured from the pill's right edge */
+    --dot-x: calc(var(--space-m) + 6px);
+
+    position: absolute;
+    right: var(--page-gutter);
+    bottom: var(--page-gutter);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s);
+    /* 200 × 56 at 33px type. Figma strokes sit inside the box, so the
+       border is taken out of the padding. */
+    min-width: 6.06em;
+    padding: calc(var(--space-xs) - var(--border-width)) calc(var(--space-m) - var(--border-width));
+    overflow: hidden;
+    isolation: isolate;
+    border: var(--border-width) solid var(--border-subtle);
+    border-radius: var(--radius-l);
+    background-color: var(--neutral-000);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: var(--h3-size);
+    line-height: var(--h3-lh);
+    white-space: nowrap;
+    cursor: pointer;
+    /* Leaving: border fades back in step with the retreating fill */
+    transition:
+      border-color 300ms var(--settle) 60ms,
+      scale 620ms var(--bounce);
+  }
+
+  /* Neon fill: a circle clipped out of a full-size layer, centred on the dot.
+     At rest it's exactly the dot; on hover it grows to the far corner. */
+  .availability__fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--brand-neon);
+    clip-path: circle(6px at calc(100% - var(--dot-x)) 50%);
+    /* Leaving: starts straight away and eases softly into the dot */
+    transition: clip-path 380ms var(--settle) 60ms;
+  }
+
+  .availability__dot {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--brand-neon);
+    box-shadow: inset 0 0 0 var(--border-width) var(--brand-neon-edge);
+    /* Leaving: the edge only returns once the fill has landed */
+    transition: box-shadow 160ms var(--ease-out) 360ms;
+  }
+
+  .availability__rest,
+  .availability__hover {
+    transition-property: transform, opacity, filter;
+  }
+
+  /* Leaving: "Open to work" comes back down once the hover label has cleared */
+  .availability__rest {
+    transition-duration: 340ms, 220ms, 220ms;
+    transition-timing-function: var(--settle);
+    transition-delay: 110ms;
+  }
+
+  .availability__hover {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: translateY(55%);
+    filter: blur(2px);
+    /* Leaving: slips back down, quick and quiet */
+    transition-duration: 140ms;
+    transition-timing-function: var(--accelerate);
+  }
+
+  /* "Copy email" and "Copied" share a cell and swap vertically */
+  .availability__action,
+  .availability__done {
+    grid-area: 1 / 1;
+    transition:
+      transform 420ms var(--spring),
+      opacity 180ms var(--ease-out);
+  }
+
+  .availability__done {
+    opacity: 0;
+    transform: translateY(60%);
+  }
+
+  .availability[data-copied] .availability__action {
+    opacity: 0;
+    transform: translateY(-60%);
+  }
+
+  .availability[data-copied] .availability__done {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Copied: holds the filled state (on touch screens this is the only time
+     it shows), then plays the leave sequence when the flag clears */
+  .availability[data-copied] {
+    border-color: var(--brand-neon-edge);
+  }
+
+  .availability[data-copied] .availability__fill {
+    clip-path: circle(var(--cover-r, 125%) at calc(100% - var(--dot-x)) 50%);
+    transition: clip-path 460ms var(--bloom);
+  }
+
+  .availability[data-copied] .availability__dot {
+    box-shadow: inset 0 0 0 var(--border-width) transparent;
+    transition: box-shadow 120ms var(--ease-out);
+  }
+
+  .availability[data-copied] .availability__rest {
+    opacity: 0;
+    transform: translateY(-55%);
+    filter: blur(2px);
+    transition-duration: 200ms;
+    transition-timing-function: var(--accelerate);
+    transition-delay: 0ms;
+  }
+
+  .availability[data-copied] .availability__hover {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition-duration: 560ms, 240ms, 240ms;
+    transition-timing-function: var(--spring), var(--ease-out), var(--ease-out);
+    transition-delay: 90ms;
+  }
+
+  @media (hover: hover) {
+    .availability:hover,
+    .availability:focus-visible {
+      border-color: var(--brand-neon-edge);
+      transition:
+        border-color 240ms var(--ease-out),
+        scale 620ms var(--bounce);
+    }
+
+    /* Arriving: the dot blooms into the fill */
+    .availability:hover .availability__fill,
+    .availability:focus-visible .availability__fill {
+      clip-path: circle(var(--cover-r, 125%) at calc(100% - var(--dot-x)) 50%);
+      transition: clip-path 460ms var(--bloom);
+    }
+
+    .availability:hover .availability__dot,
+    .availability:focus-visible .availability__dot {
+      box-shadow: inset 0 0 0 var(--border-width) transparent;
+      transition: box-shadow 120ms var(--ease-out);
+    }
+
+    /* "Open to work" accelerates up and away, with a touch of motion blur */
+    .availability:hover .availability__rest,
+    .availability:focus-visible .availability__rest {
+      opacity: 0;
+      transform: translateY(-55%);
+      filter: blur(2px);
+      transition-duration: 200ms;
+      transition-timing-function: var(--accelerate);
+      transition-delay: 0ms;
+    }
+
+    /* "Copy email" follows just behind on a soft spring */
+    .availability:hover .availability__hover,
+    .availability:focus-visible .availability__hover {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition-duration: 560ms, 240ms, 240ms;
+      transition-timing-function: var(--spring), var(--ease-out), var(--ease-out);
+      transition-delay: 90ms;
+    }
+  }
+
+  /* Press: dips quickly, then releases on the bouncy spring */
+  .availability:active {
+    scale: 0.94;
+    transition:
+      border-color 240ms var(--ease-out),
+      scale 90ms var(--ease-out);
+  }
+
+  .availability:focus-visible {
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .availability,
+    .availability:active {
+      scale: none;
+    }
+
+    .availability *,
+    .availability *::before {
+      transform: none !important;
+      filter: none !important;
+    }
+
+    .availability__fill {
+      clip-path: none;
+      opacity: 0;
+      transition: opacity 200ms linear;
+    }
+
+    .availability:hover .availability__fill,
+    .availability:focus-visible .availability__fill {
+      clip-path: none;
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .availability {
+      --dot-x: calc(var(--space-s) + 6px);
+      font-size: var(--body-size);
+      line-height: var(--body-lh);
+      padding-inline: calc(var(--space-s) - var(--border-width));
+    }
+  }
+</style>

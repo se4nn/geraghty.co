@@ -1,0 +1,58 @@
+---
+// Figma: "Hero"
+import circle from '../assets/home/hero-circle.svg';
+---
+
+<header class="hero">
+  <h1 class="t-display hero__title">
+    I <em class="italic">solve problems</em><br />
+    others <span class="hero__mark">miss<img
+        class="hero__circle"
+        src={circle.src}
+        alt=""
+        width={circle.width}
+        height={circle.height}
+      /></span>
+  </h1>
+  <p class="t-h3 hero__sub">Leading design at startups<br />where product is built, not briefed.</p>
+</header>
+
+<style>
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xl);
+    padding-bottom: var(--space-xl);
+    text-align: center;
+  }
+
+  .hero__title {
+    color: var(--text-display);
+  }
+
+  .hero__title em {
+    font-style: italic;
+  }
+
+  .hero__mark {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Hand-drawn circle sits behind the word: darken lets the black type show through */
+  .hero__circle {
+    position: absolute;
+    left: -0.04em;
+    top: -0.1125em;
+    width: 1.694em;
+    height: auto;
+    max-width: none;
+    mix-blend-mode: darken;
+    pointer-events: none;
+  }
+
+  .hero__sub {
+    color: var(--text-muted);
+  }
+</style>

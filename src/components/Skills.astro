@@ -1,0 +1,61 @@
+---
+// Figma: "Services"
+import Tag from './Tag.astro';
+import LogoStack, { type LogoChip } from './LogoStack.astro';
+
+interface Props {
+  items: { label: string; logos: LogoChip[] }[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="skills">
+  <h2 class="skills__label t-h3-emphasis">Skills</h2>
+  <ul class="skills__list" role="list">
+    {
+      items.map((item) => (
+        <li>
+          <Tag>
+            {item.label}
+            <LogoStack items={item.logos} />
+          </Tag>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-l);
+  }
+
+  .skills__label {
+    color: var(--text-strong);
+  }
+
+  .skills__list {
+    display: contents;
+    list-style: none;
+  }
+
+  /* The whole tag reacts on hover, so the whole tag gets the pointer */
+  .skills__list :global(.tag) {
+    cursor: pointer;
+    transition:
+      border-color var(--duration-s) var(--ease-out),
+      color var(--duration-s) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .skills__list :global(.tag:hover) {
+      border-color: var(--neutral-300);
+      color: var(--text-strong);
+    }
+  }
+</style>

@@ -1,0 +1,50 @@
+---
+// Figma: "Intro". Serif line with underlined links that never break mid-phrase.
+interface Props {
+  lead: string;
+  links: { label: string; href?: string }[];
+}
+
+const { lead, links } = Astro.props;
+const last = links.length - 1;
+---
+
+<p class="intro-line t-h1">
+  {lead}{' '}
+  {
+    links.map((link, i) => (
+      <>
+        {i === last && <>&amp; </>}
+        {link.href ? (
+          <a class="intro-line__link" href={link.href}>{link.label}</a>
+        ) : (
+          <span class="intro-line__link">{link.label}</span>
+        )}{' '}
+      </>
+    ))
+  }
+</p>
+
+<style>
+  .intro-line {
+    max-width: 23em;
+    margin-inline: auto;
+    text-align: center;
+    color: var(--text-strong);
+  }
+
+  /* Underline sits on the line box edge, below the descenders, as in Figma */
+  .intro-line__link {
+    display: inline-block;
+    border-bottom: var(--underline-width) solid currentColor;
+    white-space: nowrap;
+  }
+
+  a.intro-line__link {
+    transition: color var(--duration-s) var(--ease-out);
+  }
+
+  a.intro-line__link:hover {
+    color: var(--text-muted);
+  }
+</style>

@@ -1,0 +1,56 @@
+---
+// Figma: "Let's talk." The word is cropped by the bottom of the page
+// and lit from below by a blurred neon ellipse.
+interface Props {
+  email: string;
+}
+
+const { email } = Astro.props;
+---
+
+<div class="lets-talk">
+  <div class="lets-talk__glow" aria-hidden="true"></div>
+  <a class="lets-talk__link" href={`mailto:${email}`}>Let’s talk.</a>
+</div>
+
+<style>
+  .lets-talk {
+    position: relative;
+    /* "Let's talk." is 3.195em wide. Size it to fill 95% of the quote above,
+       never larger than the 200px in Figma. */
+    font-size: min(200px, var(--quote-width, 100%) * 0.95 / 3.195);
+    /* 120px gap above, 120px of the 160px line visible, at 200px type */
+    margin-top: 0.6em;
+    height: 0.6em;
+  }
+
+  .lets-talk__glow {
+    position: absolute;
+    left: 50%;
+    top: -0.24em;
+    width: 100vw;
+    height: 3.2em;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--brand-neon), var(--neutral-1000));
+    filter: blur(1em);
+    pointer-events: none;
+  }
+
+  .lets-talk__link {
+    position: relative;
+    display: block;
+    font-family: var(--font-sans);
+    font-variation-settings: var(--sans-axes);
+    font-weight: var(--weight-bold);
+    line-height: var(--display-lh);
+    text-align: center;
+    color: var(--brand-neon);
+    white-space: nowrap;
+  }
+
+  .lets-talk__link:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: 8px;
+  }
+</style>

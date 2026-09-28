@@ -1,0 +1,43 @@
+---
+// Link styled as a button. Figma: "Button"
+interface Props {
+  href: string;
+  variant?: 'neon';
+  label?: string;
+}
+
+const { href, variant = 'neon', label } = Astro.props;
+---
+
+<a class:list={['button', `button--${variant}`, 't-h3']} href={href} aria-label={label}><slot /></a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xs) var(--space-m);
+    border-radius: var(--radius-l);
+    white-space: nowrap;
+    transition:
+      background-color var(--duration-s) var(--ease-out),
+      color var(--duration-s) var(--ease-out);
+  }
+
+  .button--neon {
+    background-color: oklch(from var(--neutral-1000) l c h / 0.16);
+    border: var(--border-width-strong) solid var(--brand-neon);
+    color: var(--brand-neon);
+  }
+
+  .button--neon:hover,
+  .button--neon:focus-visible {
+    background-color: var(--brand-neon);
+    color: var(--neutral-1000);
+  }
+
+  .button:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: 3px;
+  }
+</style>

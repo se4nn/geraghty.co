@@ -1,0 +1,99 @@
+---
+// Figma: "Art" section, quote and attribution row
+import type { ImageMetadata } from 'astro';
+import Button from './Button.astro';
+
+interface Props {
+  quote: string;
+  name: string;
+  role: string;
+  photo: ImageMetadata;
+  company: string;
+  companyLogo: ImageMetadata;
+  link: string;
+}
+
+const { quote, name, role, photo, company, companyLogo, link } = Astro.props;
+---
+
+<figure class="testimonial">
+  <blockquote class="testimonial__quote t-h1">
+    <p>“{quote}”</p>
+  </blockquote>
+  <figcaption class="testimonial__row">
+    <div class="testimonial__who">
+      <img class="testimonial__photo" src={photo.src} alt="" width="64" height="64" loading="lazy" />
+      <div class="testimonial__meta">
+        <p class="t-body">{name}<span class="testimonial__sep" aria-hidden="true">|</span>{role}</p>
+        <img
+          class="testimonial__company"
+          src={companyLogo.src}
+          alt={company}
+          width={companyLogo.width}
+          height={companyLogo.height}
+        />
+      </div>
+    </div>
+    <Button href={link} label={`View the ${company} case study`}>View</Button>
+  </figcaption>
+</figure>
+
+<style>
+  .testimonial {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+    max-width: var(--quote-width, 100%);
+    margin-inline: auto;
+  }
+
+  /* Hang the opening quote mark so the text block reads centred */
+  .testimonial__quote {
+    color: var(--text-on-dark);
+    text-align: center;
+    text-indent: -0.45em;
+  }
+
+  .testimonial__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-l);
+  }
+
+  .testimonial__who {
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+  }
+
+  .testimonial__photo {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-l);
+    object-fit: cover;
+  }
+
+  .testimonial__meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    color: var(--text-on-dark-muted);
+  }
+
+  .testimonial__sep {
+    margin-inline: 0.5em;
+  }
+
+  .testimonial__company {
+    width: 107px;
+    height: auto;
+  }
+
+  @media (max-width: 700px) {
+    .testimonial__row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
