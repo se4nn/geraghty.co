@@ -300,6 +300,13 @@ const {
     const float BEAM_TRAIL = 0.14; // how long the trail glows behind it
     const float BEAM_JITTER = 1.5; // sideways row shift at the beam, in cells
     const float FLICKER = 0.025;
+    // Bloom: bright areas bleed a soft halo over the slot mask and the gaps
+    // between scanlines, like phosphor glow on a real tube. Taken from the
+    // smooth image, not the cells, so the halo stays soft.
+    const float BLOOM = 0.45; // strength
+    const float BLOOM_THRESHOLD = 0.5; // per channel, after the grade
+    const float BLOOM_RADIUS = 4.0; // in cells, outer ring; inner ring is half
+    const float BLOOM_BEAM = 1.5; // extra bloom under the beam
 
     // Integer hash for the dither. The sin() hash in the full tool loses
     // precision at large coordinates and shows as diagonal lines.
@@ -397,6 +404,19 @@ const {
         // One soft scanline per cell row, washed out under the beam
         float line = 0.5 - 0.5 * cos(6.28318530718 * fract(coord.y + cellOffset.y));
         col *= 1.0 - SCANLINES * line * (1.0 - 0.6 * beam);
+
+        // Bloom, added after the mask so it fills the gaps. Two rings of
+        // eight taps around the pixel, graded like the image, then only the
+        // part above the threshold is kept, so it keeps its colour.
+        vec3 glow = vec3(0.0);
+        for (int i = 0; i < 8; i++) {
+          float a = 6.28318530718 * (float(i) + 0.5) / 8.0;
+          vec2 dir = vec2(cos(a), sin(a)) * BLOOM_RADIUS * u_crtCell / u_res;
+          glow += texture(u_tex, v_uv + dir).rgb;
+          glow += texture(u_tex, v_uv + dir * 0.5).rgb;
+        }
+        glow = (glow / 16.0 * u_exposure - 0.5) * CONTRAST + 0.5;
+        col += max(glow - BLOOM_THRESHOLD, 0.0) * BLOOM * (1.0 + BLOOM_BEAM * beam);
 
         // Faint frame-to-frame flicker
         col *= 1.0 + (hash(uvec3(0u, 0u, uint(u_screenFrame))) - 0.5) * FLICKER * u_live;
