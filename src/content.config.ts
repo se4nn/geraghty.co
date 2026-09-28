@@ -21,7 +21,17 @@ const work = defineCollection({
         grain: z.boolean().default(true),
       }),
       // Where the tile links to. Empty until the case study exists.
+      // Projects with a caseStudy block live at /work/<file name>/.
       link: z.string().optional(),
+      // Case study header. Setting it builds the page from the Markdown body.
+      caseStudy: z
+        .object({
+          summary: z.string(),
+          role: z.string(),
+          scope: z.array(z.string()),
+          links: z.array(z.object({ label: z.string(), href: z.url() })).default([]),
+        })
+        .optional(),
     }),
 });
 

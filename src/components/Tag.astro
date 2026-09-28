@@ -1,14 +1,23 @@
 ---
-// Label used in the skills row. Figma: "Tag"
+// Label used in the skills row and the case study back link. Figma: "Tag"
 // outline: bordered pill. surface: white pill. plain: text and logos only.
+// Given an href it becomes a link.
 interface Props {
   variant?: 'outline' | 'surface' | 'plain';
+  href?: string;
 }
 
-const { variant = 'outline' } = Astro.props;
+const { variant = 'outline', href } = Astro.props;
+const El = href ? 'a' : 'span';
+const external = href?.startsWith('http');
 ---
 
-<span class:list={['tag', `tag--${variant}`, 't-h3']}><slot /></span>
+<El
+  class:list={['tag', `tag--${variant}`, 't-h3']}
+  href={href}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener' : undefined}
+><slot /></El>
 
 <style>
   .tag {
@@ -31,5 +40,23 @@ const { variant = 'outline' } = Astro.props;
   .tag--surface {
     background-color: var(--neutral-000);
     gap: var(--space-s);
+  }
+
+  a.tag {
+    transition:
+      border-color var(--duration-s) var(--ease-out),
+      color var(--duration-s) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    a.tag:hover {
+      border-color: var(--neutral-300);
+      color: var(--text-strong);
+    }
+  }
+
+  a.tag:focus-visible {
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 3px;
   }
 </style>

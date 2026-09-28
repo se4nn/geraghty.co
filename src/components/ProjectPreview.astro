@@ -41,7 +41,6 @@ const { image, logo, logoScale, grain, alt } = Astro.props;
 
 <style>
   .preview {
-    --spring: linear(0, 0.042, 0.145, 0.28, 0.425, 0.565, 0.691, 0.798, 0.884, 0.949, 0.996, 1.026, 1.044, 1.053, 1.054, 1.051, 1.044, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 0.998, 1);
     /* Short intent delay so sweeping across the fan doesn't flash the card */
     --intent: 100ms;
 
@@ -83,7 +82,7 @@ const { image, logo, logoScale, grain, alt } = Astro.props;
       visibility: visible;
       transform: translate(-50%, 0) scale(1);
       transition:
-        transform 560ms var(--spring) var(--intent),
+        transform 560ms var(--ease-spring) var(--intent),
         opacity 200ms var(--ease-out) var(--intent),
         visibility 0s linear var(--intent);
     }

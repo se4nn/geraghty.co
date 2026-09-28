@@ -1,7 +1,12 @@
 ---
 // Project thumbnail: gradient artwork, grain overlay and a centred logo.
-// Shared by the work grid tiles and the skill chip hover card.
-// Size and shape come from the parent; this fills whatever box it's given.
+// Shared by the work grid tiles, the skill chip hover card and the case
+// study hero. Size and shape come from the parent; this fills whatever box
+// it's given.
+//
+// transitionName ties the art and logo to the same project elsewhere, so a
+// homepage tile morphs into its case study hero (view transitions). Give it
+// to one TileArt per project per page only: the hover card leaves it off.
 import type { ImageMetadata } from 'astro';
 import { Image, getImage } from 'astro:assets';
 import grain from '../assets/work/grain.jpg';
@@ -15,23 +20,53 @@ interface Props {
   alt: string;
   sizes: string;
   widths?: number[];
+  eager?: boolean;
+  transitionName?: string;
   class?: string;
 }
 
-const { image, logo, logoScale, grain: showGrain = true, alt, sizes, widths = [480, 820, 1640], class: className } = Astro.props;
+const {
+  image,
+  logo,
+  logoScale,
+  grain: showGrain = true,
+  alt,
+  sizes,
+  widths = [480, 820, 1640],
+  eager = false,
+  transitionName,
+  class: className,
+} = Astro.props;
 const grainImage = await getImage({ src: grain, width: 2000, format: 'webp', quality: 70 });
+const loading = eager ? 'eager' : 'lazy';
 ---
 
-<div class:list={['tile-art', className]}>
-  <Image class="tile-art__image" src={image} alt="" widths={widths} sizes={sizes} />
-  {showGrain && <img class="tile-art__grain" src={grainImage.src} alt="" loading="lazy" />}
+<div
+  class:list={['tile-art', className]}
+  style={[
+    `--logo-scale: ${logoScale};`,
+    transitionName && `view-transition-name: art-${transitionName}; view-transition-class: art;`,
+  ]
+    .filter(Boolean)
+    .join(' ')}
+>
+  <Image
+    class="tile-art__image"
+    src={image}
+    alt=""
+    widths={widths}
+    sizes={sizes}
+    loading={loading}
+    fetchpriority={eager ? 'high' : undefined}
+  />
+  {showGrain && <img class="tile-art__grain" src={grainImage.src} alt="" loading={loading} />}
   <img
     class="tile-art__logo"
     src={logo.src}
     alt={alt}
     width={logo.width}
     height={logo.height}
-    style={`width: ${logoScale * 100}%;`}
+    style={transitionName ? `view-transition-name: logo-${transitionName}; view-transition-class: logo;` : undefined}
   />
 </div>
 
@@ -69,6 +104,7 @@ const grainImage = await getImage({ src: grain, width: 2000, format: 'webp', qua
     position: absolute;
     top: 50%;
     left: 50%;
+    width: calc(var(--logo-scale) * 100%);
     height: auto;
     transform: translate(-50%, -50%);
   }

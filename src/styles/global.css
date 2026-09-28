@@ -111,3 +111,44 @@ a {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Motion */
+
+/* Moving between pages: a project's art and logo morph from the homepage
+   tile into the case study hero and back, on the soft spring. Everything
+   else crossfades. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-old(root) {
+  animation-duration: var(--duration-s);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-new(root) {
+  animation-duration: var(--duration-m);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-group(.art),
+::view-transition-group(.logo) {
+  animation-duration: 720ms;
+  animation-timing-function: var(--ease-spring);
+}
+
+/* The art changes shape on the way (square tile to wide hero), so crop
+   the snapshots rather than stretch them */
+::view-transition-image-pair(.art) {
+  overflow: hidden;
+  border-radius: var(--radius-s);
+}
+
+::view-transition-old(.art),
+::view-transition-new(.art) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

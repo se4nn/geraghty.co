@@ -1,0 +1,198 @@
+---
+// Case study body, rendered from a project's Markdown. Text sits in the middle
+// three grid columns, like the homepage quote; images take the full width.
+// See the comment at the top of src/content/work/shuffle.md for the conventions.
+---
+
+<div class="prose">
+  <slot />
+</div>
+
+<style>
+  .prose {
+    container-type: inline-size;
+    --measure: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: var(--h3-size);
+    line-height: var(--h3-lh);
+  }
+
+  .prose > :global(*) {
+    width: min(100%, var(--measure));
+  }
+
+  /* Rhythm: tight inside a section, a full grid gap around media and cards,
+     and a bigger pause before each new section */
+  .prose > :global(* + *) {
+    margin-top: var(--space-l);
+  }
+
+  .prose > :global(h2) {
+    margin-top: var(--space-3xl);
+  }
+
+  .prose > :global(h3) {
+    margin-top: var(--space-2xl);
+  }
+
+  .prose > :global(:is(h2, h3) + *) {
+    margin-top: var(--space-l);
+  }
+
+  .prose > :global(:is(p:has(> img), video, blockquote)),
+  .prose > :global(* + :is(p:has(> img), video, blockquote)) {
+    margin-top: var(--space-2xl);
+  }
+
+  .prose > :global(:first-child) {
+    margin-top: 0;
+  }
+
+  /* Type, using the Figma text styles */
+  .prose :global(h2) {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: var(--h1-size);
+    line-height: var(--h1-lh);
+    letter-spacing: var(--h1-track);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  .prose :global(h3) {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: var(--h3-size);
+    line-height: var(--h3-lh);
+    letter-spacing: var(--h3-emphasis-track);
+    color: var(--text-strong);
+  }
+
+  .prose :global(p) {
+    text-wrap: pretty;
+  }
+
+  /* Bold reads as the strong colour, as in the homepage work intro */
+  .prose :global(strong) {
+    font-weight: var(--weight-bold);
+    color: var(--text-strong);
+  }
+
+  .prose :global(a) {
+    color: var(--text-strong);
+    border-bottom: var(--underline-width) solid currentColor;
+    transition: color var(--duration-s) var(--ease-out);
+  }
+
+  .prose :global(a:hover) {
+    color: var(--text-muted);
+  }
+
+  /* Media: a paragraph holding only images fills the container. Two images
+     sit side by side, stacking on phones. */
+  .prose > :global(:is(p:has(> img), video)) {
+    width: 100%;
+  }
+
+  .prose > :global(p:has(> img)) {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: var(--grid-gap);
+  }
+
+  .prose :global(p > img),
+  .prose :global(video) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-s);
+  }
+
+  /* Learning: a surface card with the availability pill's neon dot */
+  .prose > :global(blockquote) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-xl);
+    border: var(--border-width) solid var(--border-subtle);
+    border-radius: var(--radius-l);
+    background-color: var(--neutral-000);
+  }
+
+  .prose :global(blockquote > p:first-child) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    color: var(--text-muted);
+  }
+
+  .prose :global(blockquote > p:first-child strong) {
+    font-weight: var(--weight-regular);
+    color: inherit;
+  }
+
+  .prose :global(blockquote > p:first-child::before) {
+    content: '';
+    flex: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--brand-neon);
+    box-shadow: inset 0 0 0 var(--border-width) var(--brand-neon-edge);
+  }
+
+  .prose :global(blockquote > p + p) {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: var(--h1-size);
+    line-height: var(--h1-lh);
+    letter-spacing: var(--h1-track);
+    color: var(--text-strong);
+    text-wrap: balance;
+  }
+
+  /* Motion: the words stay put, the images arrive. Each one opens like a
+     window as it scrolls in, while the picture inside settles back from a
+     slight zoom. Tied to scroll, so it moves at the reader's pace. The
+     second of a pair trails the first. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .prose :global(p > img),
+      .prose > :global(video) {
+        animation: media-open var(--ease-out) both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 35%;
+      }
+
+      .prose :global(p > img + img) {
+        animation-range: entry 15% cover 45%;
+      }
+    }
+  }
+
+  @keyframes media-open {
+    from {
+      clip-path: inset(18% 8% 0 8% round var(--radius-l));
+      scale: 1.12;
+    }
+    to {
+      clip-path: inset(0 round var(--radius-s));
+      scale: 1;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .prose {
+      --measure: 100cqi;
+    }
+
+    .prose > :global(p:has(> img)) {
+      grid-auto-flow: row;
+      gap: var(--space-l);
+    }
+  }
+</style>
