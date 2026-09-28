@@ -11,7 +11,7 @@ tile:
     from: var(--gradient-delli-from)
     to: var(--gradient-delli-to)
     seed: 3
-    # The DELLI artwork was made lighter, so its yellow isn't capped
+    # The DELLI artwork was made at a lower darkness: a wider crease
     darkness: 0.2
     # Warm edge on the yellow, as in the artwork. Swung cool, it goes lime.
     fringe: warm

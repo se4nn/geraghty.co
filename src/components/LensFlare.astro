@@ -123,6 +123,9 @@ const {
   // shader fades the mask out on small tiles.
   const CRT_ROWS = 180;
   const CRT_MIN_CELL = 3;
+  // Beam passes per loop. At the 61s loop that's one roll every ~7.6s, with
+  // the beam off screen for a moment between rolls.
+  const BEAM_ROLLS = 8;
   const TAU = Math.PI * 2;
 
   const VERT = `#version 300 es
@@ -240,7 +243,8 @@ const {
       // Sweep the ramp left to right
       f += TILT_X * (v_uv.x - 0.5) * u_crop;
       f = clamp(f, 0.0, 1.0);
-      // Darkness narrows the lit area as well as capping brightness
+      // Darkness narrows the lit area, so more of the frame sits in the
+      // opening colour and the crease tightens
       f = pow(f, 1.0 + 1.15 * u_darkness);
 
       // Opening colour, dark crease at the middle, closing colour
@@ -249,7 +253,7 @@ const {
       outColor = vec4(c, 1.0);
     }`;
 
-  // Pass 2: chromatic smear, grade, texture (grain or CRT), luminance ceiling
+  // Pass 2: chromatic smear, grade, then texture (grain or CRT)
   const FRAG_POST = `#version 300 es
     precision highp float;
     in vec2 v_uv;
@@ -261,10 +265,11 @@ const {
     uniform float u_exposure;
     uniform float u_grain;
     uniform float u_cell; // dither cell size in device pixels
-    uniform float u_ceiling;
     uniform int u_mode; // 0 grain, 1 crt
     uniform vec2 u_res;
     uniform float u_crtCell; // CRT cell size in device pixels
+    uniform float u_scan; // beam position down the box, 0 top to 1 bottom
+    uniform float u_live; // 0 for reduced motion: no beam, no flicker
 
     const int TAPS = 32;
     const float AB_AMOUNT = 0.03;
@@ -280,12 +285,18 @@ const {
     const float MASK = 0.3; // RGB shadow mask strength
     const float MASK_BORDER = 0.7; // how dark the gaps between slots get
     const float SCANLINES = 0.18;
-    // The mask and scanlines only darken; this lifts the image first, before
-    // the ceiling, so CRT tiles average out close to grain ones. Tiles already
-    // at the ceiling stay a little darker. Scanlines alone need 1.1, the mask
-    // on top brings it to 1.3.
+    // The mask and scanlines only darken; this lifts the image first so CRT
+    // tiles average out close to grain ones. Scanlines alone need a little,
+    // the mask on top needs more.
     const float CRT_GAIN_SCAN = 1.1;
     const float CRT_GAIN_MASK = 1.3;
+    // The scan: a bright beam rolling down the screen with a phosphor trail
+    // behind it, rows jittering sideways as it passes, and a faint flicker
+    const float BEAM_GLOW = 0.22; // brightness added at the beam
+    const float BEAM_LEAD = 0.012; // sharpness of the leading edge
+    const float BEAM_TRAIL = 0.14; // how long the trail glows behind it
+    const float BEAM_JITTER = 1.5; // sideways row shift at the beam, in cells
+    const float FLICKER = 0.025;
 
     // Integer hash for the dither. The sin() hash in the full tool loses
     // precision at large coordinates and shows as diagonal lines.
@@ -316,6 +327,18 @@ const {
       // The RGB slots need about 6px per cell to read, so small tiles lose them
       float maskFade = smoothstep(4.0, 7.0, u_crtCell);
 
+      // Beam, measured per cell row so cells stay whole. d is how far the
+      // beam has passed this row: negative ahead of it, positive behind.
+      float beam = 0.0;
+      if (u_mode == 1 && u_live > 0.5) {
+        float d = u_scan - (1.0 - uv.y);
+        beam = d >= 0.0 ? exp(-d / BEAM_TRAIL) : exp(-(d * d) / (BEAM_LEAD * BEAM_LEAD));
+        // Rows right at the beam slip sideways a little, fresh each frame
+        float edge = exp(-(d * d) / (4.0 * BEAM_LEAD * BEAM_LEAD));
+        float shift = hash(uvec3(uint(cellId.y), uint(u_frame), 7u)) - 0.5;
+        uv.x += shift * BEAM_JITTER * edge * u_crtCell / u_res.x;
+      }
+
       // Red and blue pushed apart along an animated direction, green between
       float spread = AB_AMOUNT * AB_SPREAD;
       float cR = -AB_AMOUNT;
@@ -334,42 +357,28 @@ const {
       col = (col - 0.5) * CONTRAST + 0.5;
       col = mix(vec3(dot(col, LUMA)), col, SATURATION);
 
-      // CRT-style dither: one offset per square cell, the same on every
-      // channel. Where a channel is already past 0 or 1 it clips, so the
-      // offset shifts hue there, which gives the coloured speckle in the
-      // artwork. It goes in before the ceiling, so the knee flattens it in
-      // the highlights.
-      if (u_mode == 1) col *= mix(CRT_GAIN_SCAN, CRT_GAIN_MASK, maskFade);
-
       if (u_mode == 0) {
+        // Grain: one offset per square cell, the same on every channel.
+        // Where a channel is already past 0 or 1 it clips, so the offset
+        // shifts hue there, which gives the coloured speckle in the artwork.
         uvec3 cell = uvec3(uvec2(gl_FragCoord.xy / u_cell), uint(u_frame));
         col += (hash(cell) - 0.5) * u_grain * DITHER_GAIN;
-      }
+      } else {
+        col *= mix(CRT_GAIN_SCAN, CRT_GAIN_MASK, maskFade);
+        // The beam lifts the image before quantising, so it passes through
+        // the dither levels rather than washing over them
+        col *= 1.0 + BEAM_GLOW * beam;
 
-      // Soft-knee cap on luminance, last, so the grade can't blow it out.
-      // Scaling by a luminance ratio keeps hue and saturation.
-      float L = dot(col, LUMA);
-      if (u_ceiling < 0.999 && L > 1e-4) {
-        float n = L / u_ceiling;
-        float knee = 0.55;
-        float cn = n <= knee ? n : knee + (1.0 - knee) * (1.0 - exp(-(n - knee) / (1.0 - knee)));
-        col *= (cn * u_ceiling) / L;
-      }
-
-      if (u_mode == 1) {
-        // Ordered dither, then snap each channel to a few levels. This comes
-        // after the ceiling so the steps stay crisp; if rounding would lift a
-        // cell over the ceiling, round down instead.
+        // Ordered dither, then snap each channel to a few levels. Threshold
+        // from the unstaggered grid, so the pattern stays a clean cross-hatch
+        // rather than scrambling with the column offset.
         col = clamp(col, 0.0, 1.0);
         float steps = LEVELS - 1.0;
-        // Threshold from the unstaggered grid, so the pattern stays a clean
-        // cross-hatch rather than scrambling with the column offset
-        vec3 q = floor((col + (bayer8(floor(coord)) - 0.5) / steps) * steps + 0.5) / steps;
-        if (u_ceiling < 0.999 && dot(q, LUMA) > u_ceiling) q = floor(col * steps) / steps;
-        col = clamp(q, 0.0, 1.0);
+        col = floor((col + (bayer8(floor(coord)) - 0.5) / steps) * steps + 0.5) / steps;
+        col = clamp(col, 0.0, 1.0);
 
         // RGB slots: each cell split into red, green and blue columns with
-        // dark gaps between. It only ever darkens, so the ceiling holds.
+        // dark gaps between
         vec2 sub = coord * vec2(3.0, 1.0);
         float slot = mod(floor(sub.x), 3.0);
         vec3 mask = vec3(slot == 0.0, slot == 1.0, slot == 2.0);
@@ -378,8 +387,12 @@ const {
         mask *= border.x * border.y;
         col *= mix(vec3(1.0), 0.25 + 0.75 * mask, MASK * maskFade);
 
-        // One soft scanline per cell row
-        col *= 1.0 - SCANLINES * (0.5 - 0.5 * cos(6.28318530718 * fract(coord.y + cellOffset.y)));
+        // One soft scanline per cell row, washed out under the beam
+        float line = 0.5 - 0.5 * cos(6.28318530718 * fract(coord.y + cellOffset.y));
+        col *= 1.0 - SCANLINES * line * (1.0 - 0.6 * beam);
+
+        // Faint frame-to-frame flicker
+        col *= 1.0 + (hash(uvec3(0u, 0u, uint(u_frame))) - 0.5) * FLICKER * u_live;
       }
 
       outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -586,8 +599,9 @@ const {
       gl.uniform1i(up('u_mode'), this.dataset.dither === 'crt' ? 1 : 0);
       gl.uniform2f(up('u_res'), this.canvas.width, this.canvas.height);
       gl.uniform1f(up('u_crtCell'), Math.max(CRT_MIN_CELL, this.canvas.height / CRT_ROWS));
-      // 0.17 keeps white text at 4.5:1 or better at full darkness
-      gl.uniform1f(up('u_ceiling'), 1 - (1 - 0.17) * opts.darkness);
+      // A whole number of rolls per loop keeps the loop seamless
+      gl.uniform1f(up('u_scan'), ((phase * BEAM_ROLLS) % 1) * 1.4 - 0.2);
+      gl.uniform1f(up('u_live'), reducedMotion.matches ? 0 : 1);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
       this.setAttribute('data-ready', '');
