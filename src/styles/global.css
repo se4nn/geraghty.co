@@ -14,6 +14,31 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* The root's own background is what shows when the page is pulled past
+     its ends (overscroll). Giving it one stops the body's light colour
+     spilling out there. */
+  background-color: var(--bg-page);
+}
+
+/* Overscroll matches the edge it's pulled from: light above the hero, dark
+   below the footer. The root background swaps halfway down the scroll, so
+   whichever end you bounce off shows its own colour. */
+@supports (animation-timeline: scroll()) {
+  html {
+    animation: overscroll-edge linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes overscroll-edge {
+  0%,
+  49.9% {
+    background-color: var(--bg-page);
+  }
+  50%,
+  100% {
+    background-color: var(--bg-dark);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

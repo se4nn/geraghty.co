@@ -34,6 +34,8 @@ const Wrapper = link ? 'a' : 'div';
 
 <style>
   .tile {
+    /* A container so the hover corners can be sized off the tile's width */
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);
@@ -65,8 +67,10 @@ const Wrapper = link ? 'a' : 'div';
   }
 
   @media (hover: hover) {
+    /* 9% of the width, as a length so the tall tile's corners stay round
+       rather than stretching into ellipses */
     a.tile:hover :global(.tile__art) {
-      border-radius: 9%;
+      border-radius: 9cqi;
     }
 
     a.tile:hover :global(.tile__art)::after {

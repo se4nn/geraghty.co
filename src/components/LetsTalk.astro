@@ -37,6 +37,94 @@ const { email } = Astro.props;
     pointer-events: none;
   }
 
+  /* A hotter core that answers the pointer: the light warms up under
+     "Let's talk." on hover, then keeps pulsing on an uneven beat, like
+     someone talking, until it's left. Cools a little quicker than it warms. */
+  .lets-talk__glow::after {
+    /* Centred on the visible band of the word, not the whole glow, most
+       of which sits below the page */
+    content: '';
+    position: absolute;
+    top: -5%;
+    left: 22%;
+    width: 56%;
+    height: 50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--brand-neon), transparent);
+    opacity: 0;
+    transition: opacity var(--duration-m) var(--ease-out);
+  }
+
+  .lets-talk:has(.lets-talk__link:hover, .lets-talk__link:focus-visible) .lets-talk__glow::after {
+    opacity: 0.75;
+    transition-duration: var(--duration-l);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lets-talk:has(.lets-talk__link:hover, .lets-talk__link:focus-visible) .lets-talk__glow::after {
+      /* Waits for the core to warm up, then starts on a slow breath in */
+      animation: lets-talk-pulse 4.8s var(--ease-in-out) 600ms infinite;
+    }
+
+    /* Last in the footer's arrival sequence (Footer sets data-arrival):
+       the word rises from below the page edge that crops it, and the light
+       swells up behind it */
+    .lets-talk[data-arrival='waiting'] .lets-talk__link {
+      translate: 0 0.8em;
+    }
+
+    .lets-talk[data-arrival='arrived'] .lets-talk__link {
+      animation: lets-talk-word 1800ms var(--ease-drift) both;
+    }
+
+    .lets-talk[data-arrival='waiting'] .lets-talk__glow {
+      opacity: 0.1;
+      translate: 0 12%;
+    }
+
+    .lets-talk[data-arrival='arrived'] .lets-talk__glow {
+      animation: lets-talk-rise 2200ms var(--ease-drift) both;
+    }
+  }
+
+  @keyframes lets-talk-word {
+    from {
+      translate: 0 0.8em;
+    }
+  }
+
+  @keyframes lets-talk-rise {
+    from {
+      opacity: 0.1;
+      translate: 0 12%;
+    }
+  }
+
+  /* Phrases, not a metronome: a slow swell in, a short answer, a rest,
+     then a longer one. Every move takes at least half a second, so it reads
+     as breathing and talking rather than a flicker. */
+  @keyframes lets-talk-pulse {
+    0%,
+    100% {
+      scale: 1;
+    }
+    22% {
+      scale: 1.1;
+    }
+    34% {
+      scale: 1.03;
+    }
+    46% {
+      scale: 1.08;
+    }
+    60% {
+      scale: 1;
+    }
+    82% {
+      scale: 1.12;
+    }
+  }
+
   .lets-talk__link {
     position: relative;
     display: block;

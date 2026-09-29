@@ -21,7 +21,19 @@ const { href, variant = 'neon', label } = Astro.props;
     white-space: nowrap;
     transition:
       background-color var(--duration-s) var(--ease-out),
-      color var(--duration-s) var(--ease-out);
+      color var(--duration-s) var(--ease-out),
+      scale 620ms var(--ease-bounce);
+  }
+
+  /* Press: the same dip and bounce back as the availability pill */
+  @media (prefers-reduced-motion: no-preference) {
+    .button:active {
+      scale: 0.94;
+      transition:
+        background-color var(--duration-s) var(--ease-out),
+        color var(--duration-s) var(--ease-out),
+        scale 90ms var(--ease-out);
+    }
   }
 
   .button--neon {
@@ -30,10 +42,17 @@ const { href, variant = 'neon', label } = Astro.props;
     color: var(--brand-neon);
   }
 
-  .button--neon:hover,
   .button--neon:focus-visible {
     background-color: var(--brand-neon);
     color: var(--neutral-1000);
+  }
+
+  /* Hover only where there's a pointer, so a tap doesn't leave it filled */
+  @media (hover: hover) {
+    .button--neon:hover {
+      background-color: var(--brand-neon);
+      color: var(--neutral-1000);
+    }
   }
 
   .button:focus-visible {

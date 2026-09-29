@@ -26,16 +26,91 @@ const { email, label } = Astro.props;
     padding-top: clamp(80px, 10.58vw, 160px);
   }
 
-  /* The quote spans the middle three grid columns. "Let's talk." is sized
-     from the same width so the two always line up. */
+  /* The quote and its attribution span the middle three grid columns.
+     "Let's talk." is sized from the quote's width so the two always line up. */
   .footer__inner {
     container-type: inline-size;
-    --quote-width: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
+    --three-columns: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
+    --quote-width: var(--three-columns);
+    --attribution-width: var(--three-columns);
   }
 
-  @media (max-width: 700px) {
+  /* Sequence: once the footer is reached, the quote drifts slowly up from
+     the base of the page, then its attribution, then "Let's talk." rises
+     from below the page edge with its light (see LetsTalk). Played once, and
+     only for what wasn't already on screen (src/scripts/arrival.ts). */
+  @media (prefers-reduced-motion: no-preference) {
+    .footer :global(.testimonial[data-arrival='waiting'] .testimonial__quote),
+    .footer :global(.testimonial[data-arrival='waiting'] .testimonial__row) {
+      opacity: 0;
+    }
+
+    .footer :global(.testimonial[data-arrival='arrived'] .testimonial__quote) {
+      --drift: 4rem;
+      animation: footer-drift 2200ms var(--ease-drift) both;
+    }
+
+    .footer :global(.testimonial[data-arrival='arrived'] .testimonial__row) {
+      --drift: 2rem;
+      animation: footer-drift 1800ms var(--ease-drift) 550ms both;
+    }
+  }
+
+  /* Fully there well before it has finished settling */
+  @keyframes footer-drift {
+    from {
+      opacity: 0;
+      translate: 0 var(--drift);
+    }
+    55% {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Tablets and phones: the quote takes the full five columns, while the
+     attribution keeps its desktop measure until phones */
+  @media (max-width: 1100px) {
     .footer__inner {
       --quote-width: 100cqi;
     }
   }
+
+  @media (max-width: 700px) {
+    .footer__inner {
+      --attribution-width: 100cqi;
+    }
+  }
 </style>
+
+<script>
+  import { whenSeen, arrive } from '../scripts/arrival';
+
+  // "Let's talk." follows the quote: if both come into view together (a jump
+  // to the end), it still waits for the quote and its attribution to start
+  const TALK_AFTER_QUOTE = 1300;
+  const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+  for (const footer of document.querySelectorAll<HTMLElement>('.footer')) {
+    const quote = footer.querySelector<HTMLElement>('.testimonial');
+    const talk = footer.querySelector<HTMLElement>('.lets-talk');
+
+    const quoteIn = quote
+      ? whenSeen(quote, 0.4).then((waited) => {
+          if (waited) arrive(quote);
+          return waited;
+        })
+      : Promise.resolve(false);
+
+    if (talk) {
+      Promise.all([whenSeen(talk, 0.5), quoteIn.then((waited) => waited && sleep(TALK_AFTER_QUOTE))]).then(
+        ([waited]) => {
+          if (waited) arrive(talk);
+        },
+      );
+    }
+  }
+</script>

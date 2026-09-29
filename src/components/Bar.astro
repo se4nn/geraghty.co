@@ -72,8 +72,10 @@ const { lead, trail } = Astro.props;
     transition: color var(--duration-s) var(--ease-out);
   }
 
-  .bar__link:hover {
-    color: var(--text-strong);
+  @media (hover: hover) {
+    .bar__link:hover {
+      color: var(--text-strong);
+    }
   }
 
   .bar__link:focus-visible {

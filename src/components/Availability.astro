@@ -63,6 +63,48 @@ const { label, email } = Astro.props;
     }
   }
 
+  // Entrance: the pill waits for the hero. It rises in just after the
+  // scribble lifts off "miss", so the opening reads headline, scribble, then
+  // "Open to work". It comes in straight away if the hero isn't on screen,
+  // or as soon as the reader scrolls it away.
+  //
+  // Held at the bottom of the screen, it rises up from below the edge. If
+  // it's already parked above the footer (a jump to the end), a rise from
+  // below would pass over the footer, so it settles in from just below its
+  // spot instead.
+  const ENTER_AFTER_SCRIBBLE = 150;
+  const ENTER_AT_MOST = 4000;
+  const heroCircle = document.querySelector('.hero__circle');
+  const heroOnScreen = (() => {
+    if (!heroCircle) return false;
+    const { top, bottom } = heroCircle.getBoundingClientRect();
+    return bottom > 0 && top < window.innerHeight;
+  })();
+
+  document.querySelectorAll<HTMLElement>('.availability-rail').forEach((rail) => {
+    let entered = false;
+    const enter = () => {
+      if (entered) return;
+      entered = true;
+      const held = rail.getBoundingClientRect().bottom >= window.innerHeight - 1;
+      rail.dataset.in = held ? 'rise' : 'settle';
+    };
+    if (!heroOnScreen || !heroCircle || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      enter();
+      return;
+    }
+    document.addEventListener('hero:drawn', () => window.setTimeout(enter, ENTER_AFTER_SCRIBBLE), { once: true });
+    const heroGone = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) {
+        heroGone.disconnect();
+        enter();
+      }
+    });
+    heroGone.observe(heroCircle);
+    // Never later than this, in case the scribble doesn't play
+    window.setTimeout(enter, ENTER_AT_MOST);
+  });
+
   document.querySelectorAll<HTMLButtonElement>('.availability').forEach((button) => {
     const status = button.parentElement?.querySelector('[data-availability-status]');
     const email = button.dataset.email ?? '';
@@ -151,6 +193,54 @@ const { label, email } = Astro.props;
     bottom: 0;
     z-index: 10;
     height: 0;
+  }
+
+  /* Whatever the rail parks in is clipped to its own box, so the pill never
+     draws over the footer below it, even mid-entrance. clip (unlike hidden)
+     isn't a scroll container, so the rail still sticks. */
+  :global(:has(> .availability-rail)) {
+    overflow: clip;
+  }
+
+  /* Entrance (timed by the script): hidden until the hero's scribble is
+     done, then rises in from below the fold on the soft spring */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .availability-rail:not([data-in]) {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    .availability-rail[data-in='rise'] {
+      animation:
+        availability-rise 800ms var(--ease-spring) both,
+        availability-fade 240ms var(--ease-out) both;
+    }
+
+    .availability-rail[data-in='settle'] {
+      animation:
+        availability-settle 600ms var(--ease-spring) both,
+        availability-fade 240ms var(--ease-out) both;
+    }
+  }
+
+  /* Parked above the footer: a short way up into place, so it never passes
+     over the footer below it */
+  @keyframes availability-settle {
+    from {
+      translate: 0 0.4em;
+    }
+  }
+
+  @keyframes availability-rise {
+    from {
+      translate: 0 calc(100% + 1.5 * var(--page-gutter) + 3em);
+    }
+  }
+
+  @keyframes availability-fade {
+    from {
+      opacity: 0;
+    }
   }
 
   .availability {
