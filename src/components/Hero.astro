@@ -88,15 +88,17 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
     }
 
     .hero__circle.is-drawing .hero__pen {
-      animation: hero-pen 950ms 250ms forwards;
-      /* Pace from the two-thirds power law of hand movement, worked out
-         from the line's own curvature: the pen slows round the tight ends of
-         the ellipse and speeds along the flatter top and bottom. It lands
-         already moving and eases off as it lifts. */
+      /* Waits long enough to read "I solve problems others", then circles
+         "miss" */
+      animation: hero-pen 1.1s 1.4s forwards;
+      /* The pen lands slowly, builds to full pace through the middle and
+         lifts off still at speed. On top of that, a softened two-thirds
+         power law from the line's own curvature eases it round the tight
+         ends of the ellipse, as a hand does. */
       animation-timing-function: linear(
-        0, 0.011, 0.026, 0.049, 0.076, 0.1, 0.121, 0.141, 0.162, 0.184, 0.208, 0.236, 0.267, 0.3, 0.335, 0.37,
-        0.405, 0.438, 0.469, 0.497, 0.523, 0.547, 0.57, 0.594, 0.619, 0.642, 0.664, 0.686, 0.71, 0.736, 0.764,
-        0.796, 0.829, 0.865, 0.897, 0.924, 0.946, 0.964, 0.978, 0.99, 1
+        0, 0.008, 0.015, 0.023, 0.031, 0.039, 0.048, 0.057, 0.066, 0.076, 0.087, 0.099, 0.111, 0.124, 0.138, 0.155,
+        0.173, 0.195, 0.221, 0.252, 0.287, 0.325, 0.364, 0.402, 0.439, 0.474, 0.507, 0.538, 0.568, 0.599, 0.63,
+        0.659, 0.688, 0.718, 0.751, 0.786, 0.823, 0.864, 0.908, 0.954, 1
       );
     }
   }
