@@ -18,6 +18,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <script is:inline>
+      // Flags a page that arrived through a view transition, so its own
+      // entrance can step aside for the morph. Registered in the head so it
+      // is in place before the first render.
+      addEventListener('pagereveal', (event) => {
+        document.documentElement.toggleAttribute('data-morphed', Boolean(event.viewTransition));
+      });
+    </script>
     <link rel="icon" href="/img/favicon.png" type="image/png" />
 
     <meta property="og:type" content="website" />
@@ -36,5 +44,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <slot />
+
   </body>
 </html>

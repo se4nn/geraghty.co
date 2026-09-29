@@ -1,0 +1,84 @@
+---
+// Figma: "Bar". A bold run of labels split by bars on the left, lighter
+// detail pushed to the right. Under every project tile and case study hero.
+interface Props {
+  lead: string[];
+  trail: { label: string; href?: string }[];
+}
+
+const { lead, trail } = Astro.props;
+---
+
+<p class="bar t-h3">
+  <span class="bar__lead t-h3-bold">
+    {lead.map((item, i) => (
+      <>{i > 0 && <><span class="bar__sep" aria-hidden="true">|</span><wbr /></>}<span class="bar__item">{item}</span></>
+    ))}
+  </span>
+  <span class="bar__trail">
+    {
+      trail.map((item, i) => {
+        const external = item.href?.startsWith('http');
+        return (
+          <>
+            {i > 0 && <span class="bar__sep" aria-hidden="true">|</span>}
+            {item.href ? (
+              <a
+                class="bar__link"
+                href={item.href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener' : undefined}
+              >
+                {item.label}
+                <span aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              item.label
+            )}
+          </>
+        );
+      })
+    }
+  </span>
+</p>
+
+<style>
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 var(--space-m);
+  }
+
+  .bar__lead {
+    color: var(--text-strong);
+  }
+
+  /* Lines break at the bars, never inside a label */
+  .bar__item {
+    white-space: nowrap;
+  }
+
+  .bar__sep {
+    margin-inline: 0.5em;
+  }
+
+  .bar__trail {
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .bar__link {
+    transition: color var(--duration-s) var(--ease-out);
+  }
+
+  .bar__link:hover {
+    color: var(--text-strong);
+  }
+
+  .bar__link:focus-visible {
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 3px;
+    border-radius: var(--radius-s);
+  }
+</style>

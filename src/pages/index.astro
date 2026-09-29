@@ -9,7 +9,7 @@ import Skills from '../components/Skills.astro';
 import WorkGrid from '../components/WorkGrid.astro';
 import LogoStrip from '../components/LogoStrip.astro';
 import Testimonial from '../components/Testimonial.astro';
-import LetsTalk from '../components/LetsTalk.astro';
+import Footer from '../components/Footer.astro';
 import showreelPoster from '../assets/home/video-placeholder.jpg';
 import {
   availability,
@@ -84,12 +84,9 @@ const skillsWithLinks = skills.map((skill) => ({
       <Availability label={availability} email={contactEmail} />
     </div>
 
-    <section class="home-close" aria-label="Testimonial and contact">
-      <div class="container home-close__inner">
-        <Testimonial {...testimonial} />
-        <LetsTalk email={contactEmail} />
-      </div>
-    </section>
+    <Footer email={contactEmail} label="Testimonial and contact">
+      <Testimonial {...testimonial} />
+    </Footer>
   </main>
 </Base>
 
@@ -127,25 +124,5 @@ const skillsWithLinks = skills.map((skill) => ({
 
   .home-work__intro strong {
     color: var(--text-strong);
-  }
-
-  .home-close {
-    position: relative;
-    overflow: hidden;
-    background-color: var(--bg-dark);
-    padding-top: clamp(80px, 10.58vw, 160px);
-  }
-
-  /* The quote spans the middle three grid columns. "Let's talk." is sized
-     from the same width so the two always line up. */
-  .home-close__inner {
-    container-type: inline-size;
-    --quote-width: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
-  }
-
-  @media (max-width: 700px) {
-    .home-close__inner {
-      --quote-width: 100cqi;
-    }
   }
 </style>

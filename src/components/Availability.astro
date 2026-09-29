@@ -40,9 +40,9 @@ const { label, email } = Astro.props;
   const COPIED_MIN = 500;
   // Matches the leave sequence, so the label only resets once it's hidden
   const EXIT_TIME = 460;
-  // Same bouncy spring as --bounce in the styles below
+  // The bouncy spring from tokens.css
   const BOUNCE =
-    'linear(0, 0.077, 0.269, 0.516, 0.767, 0.984, 1.144, 1.24, 1.275, 1.26, 1.21, 1.144, 1.074, 1.013, 0.966, 0.937, 0.925, 0.927, 0.94, 0.958, 0.977, 0.994, 1.008, 1.016, 1.02, 1.02, 1.017, 1.012, 1.007, 1.002, 0.998, 0.996, 0.994, 0.994, 0.995, 0.996, 1)';
+    getComputedStyle(document.documentElement).getPropertyValue('--ease-bounce').trim() || 'ease-out';
 
   // Clipboard API first, then the older selection-based copy for browsers
   // or embeds that block it
@@ -154,10 +154,6 @@ const { label, email } = Astro.props;
   }
 
   .availability {
-    /* Soft spring, about 5% overshoot */
-    --spring: linear(0, 0.042, 0.145, 0.28, 0.425, 0.565, 0.691, 0.798, 0.884, 0.949, 0.996, 1.026, 1.044, 1.053, 1.054, 1.051, 1.044, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 0.998, 1);
-    /* Bouncier spring for the press release */
-    --bounce: linear(0, 0.077, 0.269, 0.516, 0.767, 0.984, 1.144, 1.24, 1.275, 1.26, 1.21, 1.144, 1.074, 1.013, 0.966, 0.937, 0.925, 0.927, 0.94, 0.958, 0.977, 0.994, 1.008, 1.016, 1.02, 1.02, 1.017, 1.012, 1.007, 1.002, 0.998, 0.996, 0.994, 0.994, 0.995, 0.996, 1);
     --bloom: cubic-bezier(0.32, 0.72, 0, 1);
     --settle: cubic-bezier(0.25, 0.8, 0.3, 1);
     --accelerate: cubic-bezier(0.4, 0, 1, 1);
@@ -189,7 +185,7 @@ const { label, email } = Astro.props;
     /* Leaving: border fades back in step with the retreating fill */
     transition:
       border-color 300ms var(--settle) 60ms,
-      scale 620ms var(--bounce);
+      scale 620ms var(--ease-bounce);
   }
 
   /* Neon fill: a circle clipped out of a full-size layer, centred on the dot.
@@ -245,7 +241,7 @@ const { label, email } = Astro.props;
   .availability__done {
     grid-area: 1 / 1;
     transition:
-      transform 420ms var(--spring),
+      transform 420ms var(--ease-spring),
       opacity 180ms var(--ease-out);
   }
 
@@ -294,7 +290,7 @@ const { label, email } = Astro.props;
     transform: none;
     filter: none;
     transition-duration: 560ms, 240ms, 240ms;
-    transition-timing-function: var(--spring), var(--ease-out), var(--ease-out);
+    transition-timing-function: var(--ease-spring), var(--ease-out), var(--ease-out);
     transition-delay: 90ms;
   }
 
@@ -304,7 +300,7 @@ const { label, email } = Astro.props;
       border-color: var(--brand-neon-edge);
       transition:
         border-color 240ms var(--ease-out),
-        scale 620ms var(--bounce);
+        scale 620ms var(--ease-bounce);
     }
 
     /* Arriving: the dot blooms into the fill */
@@ -338,7 +334,7 @@ const { label, email } = Astro.props;
       transform: none;
       filter: none;
       transition-duration: 560ms, 240ms, 240ms;
-      transition-timing-function: var(--spring), var(--ease-out), var(--ease-out);
+      transition-timing-function: var(--ease-spring), var(--ease-out), var(--ease-out);
       transition-delay: 90ms;
     }
   }

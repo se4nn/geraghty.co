@@ -103,8 +103,6 @@ const chips = items.map((item, i) => {
   }
 
   .chip {
-    --spring: linear(0, 0.042, 0.145, 0.28, 0.425, 0.565, 0.691, 0.798, 0.884, 0.949, 0.996, 1.026, 1.044, 1.053, 1.054, 1.051, 1.044, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.997, 0.997, 0.997, 0.998, 0.998, 1);
-
     /* Slot sized to the rotated chip; the 32px square (at 33px type) sits centred in it */
     position: relative;
     display: grid;
@@ -173,7 +171,7 @@ const chips = items.map((item, i) => {
     /* Arriving: a soft spring (about 5% overshoot), fanning left to right */
     :global(.tag:hover) .chip__body {
       transform: translate(var(--fan-x), var(--fan-y)) rotate(var(--fan-rotate)) scale(1.04);
-      transition: transform 560ms var(--spring);
+      transition: transform 560ms var(--ease-spring);
       transition-delay: calc(var(--i) * 40ms);
     }
 
@@ -185,7 +183,7 @@ const chips = items.map((item, i) => {
     :global(.tag:hover) a.chip:hover .chip__body {
       z-index: 10;
       transform: translate(var(--fan-x), calc(var(--fan-y) - 0.0909em)) rotate(var(--fan-rotate)) scale(1.1);
-      transition: transform 360ms var(--spring);
+      transition: transform 360ms var(--ease-spring);
       transition-delay: 0ms;
     }
   }

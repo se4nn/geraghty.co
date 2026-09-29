@@ -1,0 +1,277 @@
+---
+// Case study. One page per project in src/content/work that has a
+// caseStudy block: its details up top, then the Markdown body.
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Tag from '../../components/Tag.astro';
+import Bar from '../../components/Bar.astro';
+import TileArt from '../../components/TileArt.astro';
+import ProjectTile from '../../components/ProjectTile.astro';
+import Prose from '../../components/Prose.astro';
+import Availability from '../../components/Availability.astro';
+import Footer from '../../components/Footer.astro';
+import { availability, contactEmail } from '../../data/home';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+  return projects
+    .filter((project) => project.data.caseStudy)
+    .map((project) => {
+      // Next project down the homepage grid that has somewhere to go,
+      // wrapping back to the top
+      const i = projects.indexOf(project);
+      const next = [...projects.slice(i + 1), ...projects.slice(0, i)].find((p) => p.data.link);
+      return { params: { id: project.id }, props: { project, next } };
+    });
+}
+
+interface Props {
+  project: CollectionEntry<'work'>;
+  next?: CollectionEntry<'work'>;
+}
+
+const { project, next } = Astro.props;
+const { title, tile } = project.data;
+const study = project.data.caseStudy!;
+const { Content } = await render(project);
+---
+
+<Base title={`${title}, a case study by Sean Geraghty`} description={study.summary}>
+  <main>
+    <!-- Everything before the footer. The availability pill parks at its end. -->
+    <div class="study-body">
+      <nav class="study-nav container" aria-label="Back">
+        <Tag href="/#work"><span aria-hidden="true">←</span> All work</Tag>
+      </nav>
+
+      <header class="study-hero container">
+        <h1 class="visually-hidden">{title}</h1>
+        <div class="study-hero__art" style={`--art-aspect: ${tile.image.width} / ${tile.image.height};`}>
+          <TileArt
+            image={tile.image}
+            logo={tile.logo}
+            logoScale={tile.logoScale}
+            grain={tile.grain}
+            alt={title}
+            sizes="(max-width: 1512px) 94vw, 1416px"
+            widths={[820, 1640, 2832]}
+            eager
+            transitionName={project.id}
+          />
+        </div>
+        <Bar lead={[study.role, ...study.scope]} trail={study.links} />
+      </header>
+
+      <article class="study-article container">
+        <Prose>
+          <Content />
+        </Prose>
+      </article>
+
+      {
+        next && (
+          <section class="study-next" aria-labelledby="next-heading">
+            <div class="study-next__inner container">
+              <h2 id="next-heading" class="study-next__heading t-h3">
+                Next up, <strong class="t-h3-bold">{next.data.title}</strong>
+              </h2>
+              <div class="study-next__tile">
+                <ProjectTile project={next} shape="square" />
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      <Availability label={availability} email={contactEmail} />
+    </div>
+
+    <Footer email={contactEmail} label="Contact" />
+  </main>
+</Base>
+
+<style>
+  .study-nav {
+    display: flex;
+    padding-top: var(--space-xl);
+  }
+
+  /* Laid out like a homepage tile: the art, then its Bar */
+  .study-hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    padding-top: var(--space-xl);
+  }
+
+  .study-hero__art :global(.tile-art) {
+    aspect-ratio: var(--art-aspect);
+    /* logoScale is a share of the square tile. Measuring from the shorter
+       side keeps the logo the size it is on the tile, not the hero's width. */
+    container-type: size;
+  }
+
+  .study-hero__art :global(.tile-art__logo) {
+    width: calc(var(--logo-scale) * 100cqmin);
+  }
+
+  .study-article {
+    padding-block: var(--space-3xl);
+  }
+
+  .study-next {
+    background-color: var(--bg-work);
+  }
+
+  .study-next__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xl);
+    padding-block: var(--space-3xl);
+    container-type: inline-size;
+  }
+
+  .study-next__heading {
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .study-next__heading strong {
+    color: var(--text-strong);
+  }
+
+  /* Three of the five grid columns, as on the homepage */
+  .study-next__tile {
+    width: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
+  }
+
+  /* Motion, images only.
+     Intro: the art opens out from a smaller rounded window while the
+     gradient inside pulls back from a close zoom, then the logo focuses in
+     on the spring. Skipped (zero duration) when the page arrived through
+     the view transition morph, which is its intro instead.
+     Scroll: as the hero leaves, the gradient drifts slower than the page and
+     the logo faster, so the two separate into depth. */
+  @media (prefers-reduced-motion: no-preference) {
+    .study-hero__art :global(.tile-art) {
+      animation: hero-open 1300ms var(--ease-out-expo) both;
+    }
+
+    .study-hero__art :global(.tile-art__image) {
+      animation: hero-pull-back 1700ms var(--ease-out-expo) both;
+    }
+
+    .study-hero__art :global(.tile-art__logo) {
+      animation:
+        hero-logo-focus 700ms var(--ease-out) 450ms both,
+        hero-logo-settle 1000ms var(--ease-spring) 450ms both;
+    }
+
+    @supports (animation-timeline: view()) {
+      .study-hero__art {
+        view-timeline-name: --hero;
+      }
+
+      /* Taller than the frame, so the drift never shows an edge */
+      .study-hero__art :global(.tile-art__image) {
+        top: -12%;
+        height: 112%;
+        animation:
+          hero-pull-back 1700ms var(--ease-out-expo) both,
+          hero-drift linear both;
+        animation-timeline: auto, --hero;
+        animation-range: normal, exit 0% exit 100%;
+      }
+
+      .study-hero__art :global(.tile-art__logo) {
+        animation:
+          hero-logo-focus 700ms var(--ease-out) 450ms both,
+          hero-logo-settle 1000ms var(--ease-spring) 450ms both,
+          hero-logo-rise linear both;
+        animation-timeline: auto, auto, --hero;
+        animation-range: normal, normal, exit 0% exit 100%;
+      }
+
+      /* The next project's art opens like the images above it */
+      .study-next__tile :global(.tile-art) {
+        animation: media-open var(--ease-out) both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 35%;
+      }
+    }
+
+    :root[data-morphed] .study-hero__art :global(.tile-art) {
+      animation-duration: 0s;
+    }
+
+    :root[data-morphed] .study-hero__art :global(.tile-art__image) {
+      animation-duration: 0s, auto;
+    }
+
+    :root[data-morphed] .study-hero__art :global(.tile-art__logo) {
+      animation-duration: 0s, 0s, auto;
+      animation-delay: 0s;
+    }
+  }
+
+  @keyframes hero-open {
+    from {
+      clip-path: inset(9% 14% round 40px);
+    }
+    to {
+      clip-path: inset(0 round var(--radius-s));
+    }
+  }
+
+  @keyframes hero-pull-back {
+    from {
+      scale: 1.35;
+    }
+    to {
+      scale: 1;
+    }
+  }
+
+  @keyframes hero-logo-focus {
+    from {
+      opacity: 0;
+      filter: blur(14px);
+    }
+    to {
+      opacity: 1;
+      filter: none;
+    }
+  }
+
+  @keyframes hero-logo-settle {
+    from {
+      scale: 0.82;
+    }
+    to {
+      scale: 1;
+    }
+  }
+
+  @keyframes hero-drift {
+    to {
+      translate: 0 12%;
+    }
+  }
+
+  @keyframes hero-logo-rise {
+    to {
+      translate: 0 -60%;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .study-hero__art {
+      --art-aspect: 1 !important;
+    }
+
+    .study-next__tile {
+      width: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+// Dark close to every page: whatever's slotted in (the testimonial on the
+// homepage), then "Let's talk." cropped by the bottom of the page.
+import LetsTalk from './LetsTalk.astro';
+
+interface Props {
+  email: string;
+  label: string;
+}
+
+const { email, label } = Astro.props;
+---
+
+<section class="footer" aria-label={label}>
+  <div class="container footer__inner">
+    <slot />
+    <LetsTalk email={email} />
+  </div>
+</section>
+
+<style>
+  .footer {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    padding-top: clamp(80px, 10.58vw, 160px);
+  }
+
+  /* The quote spans the middle three grid columns. "Let's talk." is sized
+     from the same width so the two always line up. */
+  .footer__inner {
+    container-type: inline-size;
+    --quote-width: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
+  }
+
+  @media (max-width: 700px) {
+    .footer__inner {
+      --quote-width: 100cqi;
+    }
+  }
+</style>
