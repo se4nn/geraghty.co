@@ -28,6 +28,39 @@ const { items } = Astro.props;
   </ul>
 </div>
 
+<script>
+  // Warm-up for the chip hover cards: after the first card has shown, the
+  // row stays warm while the pointer moves between chips, and the next card
+  // cuts straight in over the last one (data-swap). Cools a moment after the
+  // last chip is left.
+  const INTENT = 100; // matches --intent in ProjectPreview
+  const COOL = 300;
+
+  for (const row of document.querySelectorAll<HTMLElement>('.skills')) {
+    let warmUp: number | undefined;
+    let coolDown: number | undefined;
+
+    for (const chip of row.querySelectorAll<HTMLElement>('a.chip--preview')) {
+      chip.addEventListener('pointerenter', () => {
+        window.clearTimeout(coolDown);
+        // Already warm: this card cuts straight in over the last one
+        if ('warm' in row.dataset) {
+          chip.dataset.swap = '';
+          return;
+        }
+        window.clearTimeout(warmUp);
+        warmUp = window.setTimeout(() => (row.dataset.warm = ''), INTENT);
+      });
+      chip.addEventListener('pointerleave', () => {
+        delete chip.dataset.swap;
+        window.clearTimeout(warmUp);
+        window.clearTimeout(coolDown);
+        coolDown = window.setTimeout(() => delete row.dataset.warm, COOL);
+      });
+    }
+  }
+</script>
+
 <style>
   /* Figma: "Services". One row: Skills | tag | tag | tag */
   .skills {

@@ -19,6 +19,11 @@ import florence from '../assets/logos/previous/florence.svg';
 import nested from '../assets/logos/previous/nested.svg';
 import burberry from '../assets/logos/previous/burberry.svg';
 
+import steepClubTile from '../assets/work/steepclub-tile.png';
+import steepClubLogo from '../assets/logos/steepclub.svg';
+import fewVenturesTile from '../assets/work/fewventures-tile.png';
+import fewVenturesLogo from '../assets/logos/few-ventures.svg';
+
 import martin from '../assets/home/martin-dreymann.png';
 import formatWordmark from '../assets/logos/format-wordmark.svg';
 
@@ -39,16 +44,47 @@ export const intro = {
 
 // `project` links a chip to that project in src/content/work (its case study,
 // or its homepage tile until the case study exists) and gives it a hover card
-// with the project's thumbnail. `href` links anywhere else, with no card.
+// with the project's thumbnail. `href` links anywhere else; give it a `card`
+// too for work that has no homepage tile. Card gradients are stills rendered
+// from the tile shader (LensFlare), in the brand's colours.
 const chip = {
   format: { name: 'Format', project: 'format', src: chipFormat, bg: 'var(--chip-format)', width: 20, height: 20 },
   delli: { name: 'DELLI', project: 'delli', src: chipDelli, bg: 'var(--chip-delli)', width: 20, height: 5.556 },
   studia: { name: 'Studia', project: 'studia', src: chipStudia, bg: 'var(--chip-studia)', width: 20, height: 6 },
   fertifa: { name: 'Fertifa', project: 'fertifa', src: chipFertifa, bg: 'var(--chip-fertifa)', width: 20, height: 20 },
   shuffle: { name: 'Shuffle', project: 'shuffle', src: chipShuffle },
-  steepClub: { name: 'The Steep Club', href: '/steepclub.html', src: chipSteepClub },
+  steepClub: {
+    name: 'The Steep Club',
+    href: '/steepclub.html',
+    src: chipSteepClub,
+    // Still rendered in the lens flare lab: from oklch(62% 0.16 118) to
+    // oklch(45% 0.2 305), seed 7, warm fringe, phase 0.35
+    card: {
+      image: steepClubTile,
+      logo: steepClubLogo,
+      logoScale: 0.3,
+      grain: true,
+      tint: 'var(--chip-steepclub)',
+      alt: 'The Steep Club',
+    },
+  },
   minimum: { name: 'Minimum', project: 'minimum', src: chipMinimum },
-  fewVentures: { name: 'Few Ventures', href: 'https://fewww.vc', src: chipFewVentures },
+  fewVentures: {
+    name: 'Few Ventures',
+    href: 'https://fewww.vc',
+    src: chipFewVentures,
+    // Still rendered in the lens flare lab: from #1f9c14 to #0b130b (these
+    // come out as the brand's #3fff2f and #192518), seed 21, phase 0.82 (keeps
+    // the dark crease clear of the logo)
+    card: {
+      image: fewVenturesTile,
+      logo: fewVenturesLogo,
+      logoScale: 0.5,
+      grain: true,
+      tint: 'var(--chip-fewventures)',
+      alt: 'Few Ventures',
+    },
+  },
 };
 
 // Rotations are from the Figma frame

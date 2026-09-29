@@ -47,7 +47,7 @@ const skillsWithLinks = skills.map((skill) => ({
   logos: skill.logos.map((logo) => ({
     ...logo,
     href: logo.href ?? (logo.project ? projectHref(logo.project) : undefined),
-    card: cardFor(logo.project),
+    card: logo.card ?? cardFor(logo.project),
   })),
 }));
 ---
@@ -96,6 +96,10 @@ const skillsWithLinks = skills.map((skill) => ({
   }
 
   .home-about {
+    /* Skill chip hover cards can reach past the sides on narrow windows;
+       clip them sideways (they still rise above the row) so the page
+       never scrolls horizontally */
+    overflow-x: clip;
     display: flex;
     flex-direction: column;
     gap: var(--space-2xl);

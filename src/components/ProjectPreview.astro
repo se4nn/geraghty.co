@@ -91,6 +91,34 @@ const CARD_RATIO = 280 / 400;
     }
   }
 
+  /* Touch screens never hover, so the card never shows. Take it out of the
+     layout there, or the hidden cards push the page wider than the screen. */
+  @media (hover: none) {
+    .preview {
+      display: none;
+    }
+  }
+
+  /* Warm: once one card is open, moving along the chips swaps cards in
+     place with no intent delay and no second rise, as a tooltip group does.
+     The skills row sets data-warm while a card is showing. The swap is a hard
+     cut, the old card gone and the new one there in the same frame, so the
+     page never shows through a crossfade. Only chips entered while warm
+     (data-swap) cut in, so the first card's rise isn't interrupted, and a
+     card only cuts out when another is taking over; leaving the row still
+     plays the quiet exit. */
+  @media (hover: hover) {
+    :global([data-warm]) .preview {
+      --intent: 0ms;
+      transform: translate(-50%, 0) scale(1);
+    }
+
+    :global([data-warm] a.chip[data-swap]:hover) > .preview,
+    :global([data-warm]:has(a.chip[data-swap]:hover) a.chip:not(:hover)) > .preview {
+      transition: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .preview,
     :global(a.chip:hover) > .preview {
