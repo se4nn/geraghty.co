@@ -47,11 +47,11 @@ const { primary, secondary, columns, label } = Astro.props;
 </div>
 
 <style>
-  /* The primary ramp takes a third, the grid the rest, at 1416 × 560 */
+  /* Two halves, spaced like a Pair of images, at 1416 × 560 */
   .palette {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: var(--space-m);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xl);
     aspect-ratio: 1416 / 560;
   }
 
@@ -100,6 +100,7 @@ const { primary, secondary, columns, label } = Astro.props;
   @media (max-width: 700px) {
     .palette {
       grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-l);
       aspect-ratio: auto;
     }
 
