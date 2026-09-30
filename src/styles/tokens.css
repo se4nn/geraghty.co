@@ -55,6 +55,15 @@
   --gradient-minimum-from: oklch(48% 0.1006 102.3);     /* #695f00 */
   --gradient-minimum-to: oklch(47.32% 0.126 247.55);    /* #005f9e */
 
+  /* Colour: case study brand palettes, shown as the brand's own swatches.
+     Fertifa 2022 Brand Guide, Primary colour (an sRGB file) */
+  --fertifa-100: oklch(97.47% 0.0107 280.48);  /* #f5f6fe */
+  --fertifa-200: oklch(95.27% 0.0201 282.96);  /* #edeefd */
+  --fertifa-300: oklch(88.08% 0.0471 296.2);   /* #dad2f4 */
+  --fertifa-500: oklch(49.24% 0.2682 291.43);  /* #6e11e8 */
+  --fertifa-700: oklch(34.58% 0.1863 295.85);  /* #47038c */
+  --fertifa-900: oklch(22.14% 0.0918 302.66);  /* #240a3d */
+
   /* Colour: roles */
   --bg-page: var(--neutral-050);
   --bg-work: var(--neutral-100);
