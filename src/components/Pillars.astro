@@ -1,0 +1,84 @@
+---
+// A brand's pillars as three cards across the grid: a number, the pillar in
+// the serif, and the lines under it from the brand guide, each on its own
+// rule. Stacked on phones.
+interface Props {
+  items: { title: string; lines: string[] }[];
+  label: string;
+}
+
+const { items, label } = Astro.props;
+---
+
+<ol class="pillars" role="list" aria-label={label}>
+  {
+    items.map((item, i) => (
+      <li class="pillar">
+        <span class="pillar__number t-label">{String(i + 1).padStart(2, '0')}</span>
+        <h3 class="pillar__title t-h1">{item.title}</h3>
+        <ul class="pillar__lines t-body" role="list">
+          {item.lines.map((line) => (
+            <li>{line}</li>
+          ))}
+        </ul>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .pillars {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl);
+  }
+
+  .pillar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    padding: var(--space-xl);
+    border-radius: var(--radius-s);
+    background-color: var(--neutral-000);
+  }
+
+  .pillar__number {
+    color: var(--text-label);
+  }
+
+  .pillar__title {
+    /* Room for two lines, so the lists below start level */
+    min-height: 2lh;
+    color: var(--text-display);
+    text-wrap: balance;
+  }
+
+  .pillar__lines {
+    list-style: none;
+    padding: 0;
+    color: var(--text-muted);
+  }
+
+  .pillar__lines li {
+    padding-block: var(--space-s);
+    border-top: var(--border-width) solid var(--border-subtle);
+    text-wrap: pretty;
+  }
+
+  .pillar__lines li:last-child {
+    padding-bottom: 0;
+  }
+
+  @media (max-width: 1100px) {
+    .pillars {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-l);
+    }
+
+    .pillar__title {
+      min-height: 0;
+    }
+  }
+</style>

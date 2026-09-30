@@ -18,6 +18,12 @@ const { project, logo } = Astro.props;
 const { title, tags, dates, tile, link } = project.data;
 // No case study yet: go to the project's tile on the homepage
 const href = link ?? `/#work-${project.id}`;
+
+// Logos carry the same visual weight whatever their shape: each covers the
+// area of the Format stacked logo in the Figma tile (240 tall, 186 wide, at
+// 1416), so a wide wordmark sits lower and longer instead of 240 tall
+const LOGO_AREA = 240 * (240 * 217) / 280;
+const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height)));
 ---
 
 <section class="next" aria-label="Next project">
@@ -37,7 +43,7 @@ const href = link ?? `/#work-${project.id}`;
         showLogo={false}
       />
       <div class="next__content">
-        <img class="next__logo" src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
+        <img class="next__logo" style={`--logo-h: ${logoHeight.toFixed(1)}`} src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
         <div class="next__side">
           <Button variant="light">Next Project</Button>
           <div class="next__info t-h3">
@@ -101,9 +107,10 @@ const href = link ?? `/#work-${project.id}`;
     padding: clamp(24px, calc(64 / 1416 * 100cqi), 64px);
   }
 
+  /* Scales with the tile, from half size up to its Figma size */
   .next__logo {
     width: auto;
-    height: clamp(120px, calc(240 / 1416 * 100cqi), 240px);
+    height: clamp(calc(var(--logo-h) * 0.5px), calc(var(--logo-h) / 1416 * 100cqi), calc(var(--logo-h) * 1px));
   }
 
   .next__side {

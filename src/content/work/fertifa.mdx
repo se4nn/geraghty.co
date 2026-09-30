@@ -17,18 +17,19 @@ tile:
 link: /work/fertifa/
 caseStudy:
   summary: A calm, confident brand for reproductive health benefits at work.
-  role: Brand Director, FARE
+  role: Brand Lead
   next: minimum
   links:
     - label: Website
       href: https://www.fertifa.com
 ---
 
+import annualReport from '../../assets/work/fertifa/annual-report.jpg';
+import logoConstruction from '../../assets/work/fertifa/logo-construction.png';
 import menopausePosters from '../../assets/work/fertifa/menopause-posters.jpg';
 import posterValues01 from '../../assets/work/fertifa/poster-values-01.jpg';
 import posterValues02 from '../../assets/work/fertifa/poster-values-02.jpg';
 import routeAPosters from '../../assets/work/fertifa/route-a-posters.jpg';
-import routeBBanner from '../../assets/work/fertifa/route-b-banner.jpg';
 import appStore from '../../assets/work/fertifa/app-store.jpg';
 import businessCards from '../../assets/work/fertifa/business-cards.jpg';
 import posterFuture from '../../assets/work/fertifa/poster-future.jpg';
@@ -40,13 +41,13 @@ import website from '../../assets/work/fertifa/website.jpg';
 import designSystem from '../../assets/work/fertifa/design-system.jpg';
 import stationery from '../../assets/work/fertifa/stationery.jpg';
 
-<CaseIntro title="A brand for the benefit nobody talks about at work">
-  <Fragment slot="lead">In 2022, as Brand Director at FARE, I led Fertifa’s rebrand ahead of their relaunch. They offer reproductive health support as a workplace benefit, to employers of every size. It’s a subject most people never bring up at work. Could one brand win over the person signing off the benefit and the person who needs it?</Fragment>
+<CaseIntro title="Building a brand for the work benefit nobody talks about">
+  <Fragment slot="lead">In 2022 I led Fertifa’s rebrand ahead of their relaunch. They offer reproductive health support as a workplace benefit, to employers of every size. It’s a subject most people never bring up at work. Could one brand win over the person signing off the benefit and the person who needs it?</Fragment>
 
   <Stats>
-    <Stat value="3 pillars" label="behind every decision">Family, Life & <strong>Trust</strong></Stat>
-    <Stat value="2 routes" label="presented to Fertifa"><strong>Route A</strong> chosen</Stat>
-    <Stat value="42 pages" label="of brand guidelines">From logo to <strong>interfaces</strong></Stat>
+    <Stat value="3 pillars" label="behind every decision" />
+    <Stat value="2 routes" label="presented to Fertifa" />
+    <Stat value="42 pages" label="of brand guidelines" />
   </Stats>
 
   <Skills items={[
@@ -59,7 +60,7 @@ import stationery from '../../assets/work/fertifa/stationery.jpg';
 
 <Chapter label="The story" flush>
 
-<Crop window={[1416, 956]} src={menopausePosters} rect={[-41.5, 0, 1499, 956]} eager alt="Two Fertifa posters on a stone building: “We’re here to talk about the menopause.”, with a portrait in an arched crop" />
+<Crop window={[1416, 956]} src={annualReport} rect={[-9, 0, 1434, 956]} eager alt="Fertifa’s 2022 annual report in a purple box file: a line illustration of a couple on the cover, beside a photo of hands around a mug" />
 
 <Section title="A Blank Slate">
 <Column>
@@ -89,11 +90,11 @@ The pillars didn’t stay in a deck. “From start to finish and beyond” and �
 </Column>
 </Section>
 
-<Stats>
-  <Stat value="A foundation for family" label="Putting families first" />
-  <Stat value="Building support for life" label="Celebrating unique journeys" />
-  <Stat value="Ensuring trust for all" label="Professional and accredited" />
-</Stats>
+<Pillars label="Fertifa’s brand pillars" items={[
+  { title: 'A foundation for family', lines: ['Regardless of gender or sexuality.', 'To form new life and relationships.', 'Supporting people’s biological and sexual differences.', 'Putting families first.'] },
+  { title: 'Building support for life', lines: ['For all reproductive health queries.', 'Supporting people through meaningful relationships.', 'Celebrating unique journeys.', 'The first chapter in the book of family.'] },
+  { title: 'Ensuring trust for all', lines: ['Clear, precise, honest.', 'White glove service, ultimate care.', 'From start to finish, and beyond.', 'Professional and accredited.'] },
+]} />
 
 <Pair>
   <Crop window={[684, 812]} src={posterValues01} rect={[-400, -84, 1500, 1000]} alt="A framed Fertifa values poster leaning against a wall: “From start to finish & beyond.”" />
@@ -110,14 +111,14 @@ We presented two directions. The first, *Facing reproductive health issues toget
 
 **Outcome:**
 
-Fertifa chose the first, and we brought the warmth of the second along with it. The glass went after their feedback. It hinted there was something to hide, the opposite of what we wanted to say.
+Fertifa chose the first, and we brought the warmth of the second along with it. The glass went after their feedback. It hinted there was something to hide, the opposite of what we wanted to say, so the faces came out from behind it.
 
 </Column>
 </Section>
 
 <Pair>
-  <Crop window={[684, 812]} src={routeAPosters} rect={[-485, -125, 1671, 940]} alt="Route A: a poster reading “I’m worried about the menopause.”, the portrait half hidden behind reeded glass" />
-  <Crop window={[684, 812]} src={routeBBanner} rect={[-803, -55, 1671, 940]} alt="Route B: a banner with a leaf logo and a portrait: “I’m worried about my erectile dysfunction”" />
+  <Crop window={[684, 812]} src={routeAPosters} rect={[-485, -125, 1671, 940]} alt="As presented: a poster reading “I’m worried about the menopause.”, the portrait half hidden behind reeded glass" />
+  <Crop window={[684, 812]} src={menopausePosters} rect={[-391, -83, 1474, 940]} alt="As launched: “We’re here to talk about the menopause.”, the portrait clear in an arched crop" />
 </Pair>
 
 <Section title="The Mark">
@@ -136,8 +137,8 @@ On its own it’s a stamp for app icons, letters and the corner of a poster. On 
 <MarkBuild />
 
 <Pair>
-  <Crop window={[684, 812]} src={appStore} rect={[-483, -144, 1650, 1100]} alt="Fertifa’s App Store listing on an iPhone, with the purple logomark as its icon" />
-  <Crop window={[684, 812]} src={businessCards} rect={[-547, -81, 1778, 1000]} alt="Two purple Fertifa business cards: the wordmark on the front, the CEO’s details on the back" />
+  <Crop window={[684, 812]} src={appStore} rect={[-267, 0, 1218, 812]} alt="Fertifa’s App Store listing on an iPhone, with the purple logomark as its icon" />
+  <Crop window={[684, 812]} src={businessCards} rect={[-380, 0, 1444, 812]} alt="Two purple Fertifa business cards: the wordmark on the front, the CEO’s details on the back" />
 </Pair>
 
 <Section title="One Colour, Not Ten">
@@ -209,6 +210,8 @@ The whole brand, guide and all, landed in time for Fertifa’s relaunch.
   <Crop window={[684, 456]} src={stationery} rect={[0, 0, 684, 456]} alt="Fertifa stationery: a letterhead, a mint compliments slip and purple business cards" />
 </Pair>
 
+<Crop window={[1416, 812]} src={logoConstruction} rect={[0, -66, 1416, 944]} alt="The Fertifa logo on its construction grid, the F of the logomark marking the clear space at each corner" />
+
 </Chapter>
 
 <Chapter label="Four years later" glow>
@@ -229,8 +232,8 @@ In 2026 Fertifa came back to me, personally this time, to take the brand on to w
 </Section>
 
 <Stats>
-  <Stat value="250,000+" label="patients supported">Across <strong>150</strong> healthcare areas</Stat>
-  <Stat value="100+" label="countries with active cover">Clinical or <strong>reimbursement</strong></Stat>
+  <Stat value="250,000+" label="patients supported" />
+  <Stat value="100+" label="countries with active cover" />
   <Stat value="£10m+" label="of reimbursements covered" />
 </Stats>
 
