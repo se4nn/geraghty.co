@@ -16,6 +16,7 @@
   --neutral-050: oklch(98.33% 0.002 325.87);       /* #faf9fa */
   --neutral-100: oklch(93.08% 0.0061 43.64);       /* #ebe7e5 */
   --neutral-300: oklch(83.85% 0.0071 54.61);       /* #cdc9c6 */
+  --neutral-600: oklch(47.6% 0.0119 51.34);        /* #615b57 */
   --neutral-700: oklch(36% 0.0158 44.18);          /* #433b37 */
   --neutral-900: oklch(21.64% 0.0073 51.53);       /* #1c1917 */
   --neutral-1000: oklch(13.38% 0.0028 106.93);     /* #080807 */
@@ -61,9 +62,13 @@
   --text-strong: var(--neutral-900);
   --text-display: var(--neutral-1000);
   --text-muted: var(--neutral-700);
+  /* Labels and chips (Figma "Label" frames) */
+  --text-label: var(--neutral-600);
   --text-on-dark: var(--neutral-000);
   --text-on-dark-muted: var(--neutral-300);
   --border-subtle: var(--neutral-100);
+  /* Stat dividers, label outlines */
+  --border-default: var(--neutral-300);
 
   /* Type: families */
   --font-serif: 'Instrument Serif', Georgia, serif;
@@ -92,9 +97,13 @@
   --h3-lh: 1.212;
   --h3-emphasis-track: -0.012em;
 
-  /* Body: Bricolage 21 / 24. 16 → 21 at 1512 → 26 */
-  --body-size: clamp(16px, 0.6vw + 11.93px, 26px);
-  --body-lh: 1.143;
+  /* Body, Body (Bold): Bricolage 23 / 32. 18 → 23 at 1512 → 28 */
+  --body-size: clamp(18px, 0.75vw + 11.66px, 28px);
+  --body-lh: 1.391;
+
+  /* Label: Bricolage 19 / 24. Badges, testimonial attribution. 15 → 19 at 1512 → 22 */
+  --label-size: clamp(15px, 0.5vw + 11.44px, 22px);
+  --label-lh: 1.263;
 
   /* Space (design px at 1512 → fluid) */
   --space-2xs: 4px;

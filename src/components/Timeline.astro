@@ -1,0 +1,166 @@
+---
+// Figma: the Re-Shuffle timeline. The original plan, struck through and
+// faded, above the plan that happened. Each row: a Label, then its steps
+// with arrows between. On phones the two plans sit side by side, reading
+// down.
+interface Step {
+  title: string;
+  date: string;
+}
+
+interface Props {
+  original: Step[];
+  updated: Step[];
+}
+
+const { original, updated } = Astro.props;
+const rows = [
+  { name: 'Original Timeline', steps: original, kind: 'original' },
+  { name: 'Updated Timeline', steps: updated, kind: 'updated' },
+] as const;
+---
+
+<div class="timeline">
+  {
+    rows.map(({ name, steps, kind }) => (
+      <div class:list={['timeline__row', `timeline__row--${kind}`]}>
+        <p class="timeline__name t-body">{name}</p>
+        <ol class="timeline__steps" role="list" aria-label={name}>
+          {steps.map((step, i) => (
+            <li class="timeline__step">
+              {i > 0 && (
+                <svg class="timeline__arrow" viewBox="0 0 33 14.7279" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M32.7071 8.07107C33.0976 7.68054 33.0976 7.04738 32.7071 6.65685L26.3431 0.292893C25.9526 -0.097631 25.3195 -0.097631 24.9289 0.292893C24.5384 0.683418 24.5384 1.31658 24.9289 1.70711L30.5858 7.36396L24.9289 13.0208C24.5384 13.4113 24.5384 14.0445 24.9289 14.435C25.3195 14.8256 25.9526 14.8256 26.3431 14.435L32.7071 8.07107ZM0 7.36396V8.36396H32V7.36396V6.36396H0V7.36396Z"
+                  />
+                </svg>
+              )}
+              {kind === 'original' ? (
+                <p class="timeline__text">
+                  <span class="t-body">{step.title}</span>
+                  <s class="t-h3">{step.date}</s>
+                </p>
+              ) : (
+                <p class="timeline__text">
+                  <span class="t-h3-bold">{step.date}</span>
+                  <span class="t-body">{step.title}</span>
+                </p>
+              )}
+            </li>
+          ))}
+        </ol>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* Label, step, arrow, step…: six equal columns with 32px arrows between,
+     16px gaps all round (Figma) */
+  .timeline__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  .timeline__name {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: var(--space-xs) var(--space-s);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-l);
+    color: var(--text-label);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .timeline__steps {
+    display: contents;
+    list-style: none;
+  }
+
+  .timeline__step {
+    display: contents;
+  }
+
+  .timeline__arrow {
+    flex: none;
+    width: 32px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .timeline__text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .timeline__row--original {
+    color: var(--border-default);
+  }
+
+  .timeline__row--original s {
+    text-decoration-thickness: from-font;
+  }
+
+  .timeline__row--updated .timeline__name {
+    border-color: var(--text-muted);
+    color: var(--text-strong);
+    font-weight: var(--weight-bold);
+  }
+
+  .timeline__row--updated .timeline__text {
+    color: var(--text-muted);
+  }
+
+  .timeline__row--updated .t-h3-bold {
+    color: var(--text-strong);
+  }
+
+  .timeline__row--updated .timeline__arrow {
+    color: var(--text-muted);
+  }
+
+  /* Tablet and phones: the two plans side by side, each reading down,
+     arrows pointing down */
+  @media (max-width: 1100px) {
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-l);
+    }
+
+    .timeline__row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-s);
+    }
+
+    .timeline__name {
+      flex: none;
+      margin-bottom: var(--space-xs);
+      white-space: normal;
+    }
+
+    .timeline__text {
+      flex: none;
+    }
+
+    .timeline__arrow {
+      align-self: center;
+      width: 24px;
+      rotate: 90deg;
+      margin-block: var(--space-xs);
+    }
+  }
+</style>

@@ -20,7 +20,7 @@ const { items } = Astro.props;
           <span class="skills__divider" aria-hidden="true"></span>
           <Tag variant="plain">
             {item.label}
-            <LogoStack items={item.logos} />
+            {item.logos.length > 0 && <LogoStack items={item.logos} />}
           </Tag>
         </li>
       ))
@@ -95,8 +95,9 @@ const { items } = Astro.props;
     background-color: var(--neutral-300);
   }
 
-  /* The whole tag reacts on hover, so the whole tag gets the pointer */
-  .skills__list :global(.tag) {
+  /* The whole tag reacts on hover, so the whole tag gets the pointer.
+     Plain labels (a case study's skills) have nothing to open. */
+  .skills__list :global(.tag:has(a)) {
     cursor: pointer;
     transition: color var(--duration-s) var(--ease-out);
   }

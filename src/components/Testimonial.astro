@@ -24,7 +24,7 @@ const { quote, name, role, photo, company, companyLogo, link } = Astro.props;
     <div class="testimonial__who">
       <img class="testimonial__photo" src={photo.src} alt="" width="64" height="64" loading="lazy" />
       <div class="testimonial__meta">
-        <p class="t-body">{name}<span class="testimonial__sep" aria-hidden="true">|</span>{role}</p>
+        <p class="t-label">{name}<span class="testimonial__sep" aria-hidden="true">|</span>{role}</p>
         <img
           class="testimonial__company"
           src={companyLogo.src}

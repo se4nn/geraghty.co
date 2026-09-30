@@ -2,10 +2,11 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-// One Markdown file per project. Front matter drives the homepage tile,
-// the body becomes the case study once those pages are rebuilt.
+// One Markdown (or MDX) file per project. Front matter drives the homepage
+// tile. A project with a caseStudy block gets a page built from its body,
+// which is MDX so it can use the case study components.
 const work = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/work' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/work' }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -38,13 +39,18 @@ const work = defineCollection({
       // Where the tile links to. Empty until the case study exists.
       // Projects with a caseStudy block live at /work/<file name>/.
       link: z.string().optional(),
-      // Case study header. Setting it builds the page from the Markdown body.
+      // Case study hero. Setting it builds /work/<id>/ from the body.
       caseStudy: z
         .object({
+          // Meta description
           summary: z.string(),
+          // Middle of the hero bar, between the tags and the dates
           role: z.string(),
-          scope: z.array(z.string()),
+          // Top right of the hero, e.g. App Store and Website
           links: z.array(z.object({ label: z.string(), href: z.url() })).default([]),
+          // The project the Next Project tile shows (a file name in this
+          // folder). Defaults to the next one down the homepage grid.
+          next: z.string().optional(),
         })
         .optional(),
     }),

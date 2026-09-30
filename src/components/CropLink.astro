@@ -1,0 +1,40 @@
+---
+// A link laid over words that are part of an image inside a Crop (the
+// chart's source credit), placed by its Figma box relative to the window.
+// The words stay in the image; the link carries them as its text too.
+interface Props {
+  href: string;
+  rect: [number, number, number, number];
+}
+
+const { href, rect } = Astro.props;
+const [x, y, w, h] = rect;
+---
+
+<a
+  class="crop-link"
+  href={href}
+  target="_blank"
+  rel="noopener"
+  style={`--x: ${x}; --y: ${y}; --iw: ${w}; --ih: ${h};`}
+><span class="visually-hidden"><slot /></span></a>
+
+<style>
+  .crop-link {
+    position: absolute;
+    left: calc((var(--x) - var(--fx, 0) * var(--anchor)) * var(--s) + 50cqi * var(--anchor));
+    top: calc(var(--y) * var(--s));
+    width: calc(var(--iw) * var(--s));
+    height: calc(var(--ih) * var(--s));
+    /* A comfortable target even when the words are small */
+    min-width: 24px;
+    min-height: 24px;
+    translate: 0 calc(min(0px, var(--ih) * var(--s) - 24px) / 2);
+    border-radius: var(--radius-s);
+  }
+
+  .crop-link:focus-visible {
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 2px;
+  }
+</style>

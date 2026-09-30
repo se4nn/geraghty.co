@@ -1,0 +1,29 @@
+---
+// One column of copy inside a Section. Written as Markdown in the MDX; a
+// line on its own in bold ("**Outcome:**") reads as the column's heading.
+---
+
+<div class="column t-body"><slot /></div>
+
+<style>
+  .column {
+    color: var(--text-muted);
+  }
+
+  .column > :global(* + *) {
+    margin-top: var(--space-xs);
+  }
+
+  .column :global(p) {
+    text-wrap: pretty;
+  }
+
+  .column :global(strong) {
+    font-weight: var(--weight-bold);
+  }
+
+  .column :global(a) {
+    color: var(--text-strong);
+    border-bottom: var(--border-width) solid currentColor;
+  }
+</style>

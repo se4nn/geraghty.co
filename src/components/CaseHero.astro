@@ -1,0 +1,148 @@
+---
+// Figma: "Project - X" at the top of a case study. The project's tile art
+// full bleed (the same live gradient, so the homepage tile morphs into it),
+// Close top left, the project's links top right, and a Bar along the foot:
+// tags, role, dates.
+import type { CollectionEntry } from 'astro:content';
+import TileArt from './TileArt.astro';
+import Button from './Button.astro';
+import Bar from './Bar.astro';
+
+interface Props {
+  project: CollectionEntry<'work'>;
+}
+
+const { project } = Astro.props;
+const { title, tags, dates, tile } = project.data;
+const study = project.data.caseStudy!;
+---
+
+<header class="case-hero">
+  <h1 class="visually-hidden">{title}</h1>
+  <TileArt
+    class="case-hero__art"
+    image={tile.image}
+    logo={tile.logo}
+    logoScale={tile.logoScale}
+    grain={tile.grain}
+    gradient={tile.gradient}
+    alt={title}
+    sizes="100vw"
+    widths={[820, 1640, 2832]}
+    eager
+    transitionName={project.id}
+  />
+  <div class="case-hero__overlay">
+    <nav class="case-hero__nav" aria-label="Case study">
+      <span class="case-hero__close">
+        <Button href={`/#work-${project.id}`} variant="light" label="Close, back to all work">Close</Button>
+      </span>
+      {
+        study.links.length > 0 && (
+          <ul class="case-hero__links" role="list">
+            {study.links.map((link) => (
+              <li>
+                <Button href={link.href} variant="glass">{link.label}</Button>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </nav>
+    <Bar lead={tags} middle={study.role} trail={[{ label: dates }]} />
+  </div>
+</header>
+
+<style>
+  .case-hero {
+    position: relative;
+    display: grid;
+    /* 80% of the screen's height (Figma: 720 of a 900 tall window), with a
+       floor so the logo and bar keep their room on short windows */
+    width: 100%;
+    height: 80svh;
+    min-height: 440px;
+    color: var(--text-on-dark);
+  }
+
+  .case-hero > :global(*) {
+    grid-area: 1 / 1;
+  }
+
+  .case-hero :global(.case-hero__art) {
+    border-radius: 0;
+  }
+
+  /* The live gradient shows as soon as its first frame is drawn, without
+     LensFlare's usual fade over the still: arriving through the tile's
+     power-on, a fade would swap still for live mid-transition and flicker */
+  .case-hero :global(.lens-flare__canvas) {
+    transition: none;
+  }
+
+  /* 432px wide at 1512, as in Figma, with a floor for phones */
+  .case-hero :global(.case-hero__art .tile-art__logo) {
+    width: clamp(200px, calc(432 / 1512 * 100%), 640px);
+  }
+
+  .case-hero__overlay {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    padding: var(--space-xl) var(--page-gutter);
+  }
+
+  .case-hero__nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  .case-hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    list-style: none;
+  }
+
+  /* The Bar in white over the art */
+  .case-hero :global(.bar__lead) {
+    color: var(--text-on-dark);
+  }
+
+  .case-hero :global(:is(.bar__middle, .bar__trail)) {
+    color: var(--neutral-050);
+  }
+
+  .case-hero__close {
+    display: contents;
+  }
+
+  @media (max-width: 700px) {
+    .case-hero__links {
+      gap: var(--space-s);
+    }
+  }
+</style>
+
+<script>
+  // Close goes back rather than forward when the reader came from the
+  // homepage, so the browser puts them straight back where they'd scrolled
+  // to (and the art morphs back into its tile). Arriving any other way, the
+  // link goes to the project's tile on the homepage.
+  const close = document.querySelector<HTMLAnchorElement>('.case-hero__close a');
+  close?.addEventListener('click', (event) => {
+    // Navigation API where there is one, the referrer elsewhere
+    const from = (window as any).navigation?.activation?.from?.url ?? document.referrer;
+    if (!from) return;
+    const url = new URL(from);
+    if (url.origin === location.origin && url.pathname === '/' && history.length > 1) {
+      event.preventDefault();
+      history.back();
+    }
+  });
+</script>

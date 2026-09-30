@@ -1,0 +1,46 @@
+---
+// Figma: "Stat". A number in the serif, what it counts underneath, and an
+// optional Label (the slot) for the comparison.
+import Label from './Label.astro';
+
+interface Props {
+  value: string;
+  label: string;
+}
+
+const { value, label } = Astro.props;
+const hasNote = Astro.slots.has('default');
+---
+
+<div class="stat">
+  <p class="stat__figure">
+    <span class="stat__value t-h1">{value}</span>
+    <span class="stat__label t-h3">{label}</span>
+  </p>
+  {hasNote && <Label><slot /></Label>}
+</div>
+
+<style>
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+    text-align: center;
+  }
+
+  .stat__figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat__value {
+    color: var(--text-strong);
+  }
+
+  .stat__label {
+    color: var(--text-muted);
+    text-wrap: balance;
+  }
+</style>

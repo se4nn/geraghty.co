@@ -1,0 +1,39 @@
+---
+// Figma: the post-launch rows. A screen, a Stat, a screen: three 402px
+// columns with 48px between, centred on the grid. On phones the Stat leads
+// and the two screens sit side by side under it.
+---
+
+<div class="screen-row"><slot /></div>
+
+<style>
+  .screen-row {
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(48 / 1416 * 100cqi);
+  }
+
+  .screen-row > :global(*) {
+    flex: none;
+    width: calc(402 / 1416 * 100cqi);
+  }
+
+  @media (max-width: 700px) {
+    .screen-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-xl) var(--space-m);
+    }
+
+    .screen-row > :global(*) {
+      width: auto;
+    }
+
+    .screen-row > :global(.stat) {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+  }
+</style>

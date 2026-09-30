@@ -1,20 +1,23 @@
 ---
 // Figma: "Bar". A bold run of labels split by bars on the left, lighter
-// detail pushed to the right. Under every project tile and case study hero.
+// detail pushed to the right. Under every project tile, and along the foot
+// of a case study hero, where a middle item (the role) sits centred.
 interface Props {
   lead: string[];
+  middle?: string;
   trail: { label: string; href?: string }[];
 }
 
-const { lead, trail } = Astro.props;
+const { lead, middle, trail } = Astro.props;
 ---
 
-<p class="bar t-h3">
+<p class:list={['bar', 't-h3', { 'bar--three': middle }]}>
   <span class="bar__lead t-h3-bold">
     {lead.map((item, i) => (
       <>{i > 0 && <><span class="bar__sep" aria-hidden="true">|</span><wbr /></>}<span class="bar__item">{item}</span></>
     ))}
   </span>
+  {middle && <span class="bar__middle">{middle}</span>}
   <span class="bar__trail">
     {
       trail.map((item, i) => {
@@ -52,6 +55,34 @@ const { lead, trail } = Astro.props;
 
   .bar__lead {
     color: var(--text-strong);
+  }
+
+  /* Three equal columns: lead left, middle centred, trail right */
+  .bar--three {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: baseline;
+  }
+
+  .bar__middle {
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .bar--three .bar__trail {
+    text-align: right;
+  }
+
+  /* Phones: one per line, left aligned */
+  @media (max-width: 700px) {
+    .bar--three {
+      grid-template-columns: 1fr;
+      gap: var(--space-2xs);
+    }
+
+    .bar--three :is(.bar__middle, .bar__trail) {
+      text-align: left;
+    }
   }
 
   /* Lines break at the bars, never inside a label */

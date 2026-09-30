@@ -1,0 +1,48 @@
+---
+// Figma: "Stats". Three Stats across the grid split by thin rules, stacked
+// with short rules between them on phones.
+---
+
+<div class="stats"><slot /></div>
+
+<style>
+  /* Figma: stat, 16 gap, 16px divider slot, 16 gap, stat. So a 48px gap
+     with the rule in its middle; stats stay equal widths. */
+  .stats {
+    display: flex;
+    align-items: stretch;
+    gap: calc(3 * var(--space-m));
+  }
+
+  .stats > :global(*) {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .stats > :global(* + *)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(-1.5 * var(--space-m) - 0.5px);
+    width: 1px;
+    background-color: var(--border-default);
+  }
+
+  /* Phones: stacked, a short rule between */
+  @media (max-width: 700px) {
+    .stats {
+      flex-direction: column;
+      gap: var(--space-2xl);
+    }
+
+    .stats > :global(* + *)::before {
+      top: calc(-0.5 * var(--space-2xl));
+      bottom: auto;
+      left: calc(50% - 32px);
+      width: 64px;
+      height: 1px;
+    }
+  }
+</style>

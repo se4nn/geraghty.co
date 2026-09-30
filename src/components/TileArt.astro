@@ -35,6 +35,8 @@ interface Props {
   widths?: number[];
   eager?: boolean;
   transitionName?: string;
+  // Off where the page places the logo itself (the Next Project tile)
+  showLogo?: boolean;
   class?: string;
 }
 
@@ -50,6 +52,7 @@ const {
   widths = [480, 820, 1640],
   eager = false,
   transitionName,
+  showLogo = true,
   class: className,
 } = Astro.props;
 const gradient = live ? projectGradient : undefined;
@@ -100,14 +103,18 @@ const loading = eager ? 'eager' : 'lazy';
     )
   }
   {showGrain && !gradient && <img class="tile-art__grain" src={grainImage.src} alt="" loading={loading} />}
-  <img
-    class="tile-art__logo"
-    src={logo.src}
-    alt={alt}
-    width={logo.width}
-    height={logo.height}
-    style={transitionName ? `view-transition-name: logo-${transitionName}; view-transition-class: logo;` : undefined}
-  />
+  {
+    showLogo && (
+      <img
+        class="tile-art__logo"
+        src={logo.src}
+        alt={alt}
+        width={logo.width}
+        height={logo.height}
+        style={transitionName ? `view-transition-name: logo-${transitionName}; view-transition-class: logo;` : undefined}
+      />
+    )
+  }
 </div>
 
 <style>

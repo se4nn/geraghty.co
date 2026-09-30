@@ -1,15 +1,26 @@
 ---
 // Link styled as a button. Figma: "Button"
+// neon: the testimonial's View. light: white outline over artwork (Close,
+// Next Project). glass: no outline, over artwork (a case study's links).
+// Without an href it's a span, for a button inside a bigger link.
 interface Props {
-  href: string;
-  variant?: 'neon';
+  href?: string;
+  variant?: 'neon' | 'light' | 'glass';
   label?: string;
 }
 
 const { href, variant = 'neon', label } = Astro.props;
+const El = href ? 'a' : 'span';
+const external = href?.startsWith('http');
 ---
 
-<a class:list={['button', `button--${variant}`, 't-h3']} href={href} aria-label={label}><slot /></a>
+<El
+  class:list={['button', `button--${variant}`, 't-h3']}
+  href={href}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener' : undefined}
+  aria-label={label}><slot /></El
+>
 
 <style>
   .button {
@@ -55,8 +66,41 @@ const { href, variant = 'neon', label } = Astro.props;
     }
   }
 
-  .button:focus-visible {
+  .button--neon:focus-visible {
     outline: 2px solid var(--brand-neon);
+    outline-offset: 3px;
+  }
+
+  /* Over artwork: a dark tint behind white type. Light adds the outline. */
+  .button--light,
+  .button--glass {
+    background-color: oklch(from var(--neutral-1000) l c h / 0.16);
+    color: var(--text-on-dark);
+  }
+
+  /* Figma strokes sit inside the box, so the padding gives way to them */
+  .button--light,
+  .button--glass {
+    padding: calc(var(--space-xs) - var(--border-width-strong)) calc(var(--space-m) - var(--border-width-strong));
+    border: var(--border-width-strong) solid var(--text-on-dark);
+  }
+
+  .button--glass {
+    border-color: transparent;
+  }
+
+  @media (hover: hover) {
+    .button--light:hover,
+    :global(a:hover) > .button--light,
+    .button--glass:hover {
+      background-color: var(--neutral-000);
+      color: var(--neutral-1000);
+    }
+  }
+
+  .button--light:focus-visible,
+  .button--glass:focus-visible {
+    outline: 2px solid var(--neutral-000);
     outline-offset: 3px;
   }
 </style>

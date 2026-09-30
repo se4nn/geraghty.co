@@ -1,0 +1,331 @@
+---
+title: Shuffle
+tags: [B2C, Fin-tech]
+dates: Dec ’23 → Nov ’24
+order: 5
+tile:
+  image: ../../assets/work/shuffle-tile.png
+  logo: ../../assets/logos/shuffle.svg
+  logoScale: 0.5325
+  gradient:
+    from: var(--gradient-shuffle-from)
+    to: var(--gradient-shuffle-to)
+    seed: 5
+    dither: crt
+link: /work/shuffle/
+caseStudy:
+  summary: A random rewards app that launched four months early.
+  role: First Product & Design Hire
+  next: format
+  links:
+    - label: App Store
+      href: https://apps.apple.com/gb/app/shuffle-rewards/id6474543590?mt=8
+    - label: Website
+      href: https://getshuffle.co.uk
+---
+
+import heroPhoneMap from '../../assets/work/shuffle/hero-phone-map.png';
+import heroPhoneTransactions from '../../assets/work/shuffle/hero-phone-transactions.png';
+import posterBillboard from '../../assets/work/shuffle/poster-billboard.jpg';
+import posterBusStop from '../../assets/work/shuffle/poster-bus-stop.jpg';
+import userFlow from '../../assets/work/shuffle/user-flow.png';
+import manchesterMap from '../../assets/work/shuffle/manchester-map.png';
+import manchesterChart from '../../assets/work/shuffle/manchester-chart.png';
+import stickersTop from '../../assets/work/shuffle/venue-stickers-top.png';
+import stickersBottom from '../../assets/work/shuffle/venue-stickers-bottom.png';
+import onboardingPhones from '../../assets/work/shuffle/onboarding-phones.png';
+import logoStill from '../../assets/work/shuffle/logo-still.png';
+import appIconPhone from '../../assets/work/shuffle/app-icon-phone.png';
+import designSystem from '../../assets/work/shuffle/design-system.png';
+import launchPhoneMap from '../../assets/work/shuffle/launch-phone-map.png';
+import launchPhoneReward from '../../assets/work/shuffle/launch-phone-reward.png';
+import launchPhoneList from '../../assets/work/shuffle/launch-phone-list.png';
+import bankStep from '../../assets/work/shuffle/bank-step.png';
+import bankSelect from '../../assets/work/shuffle/bank-select.png';
+import discoveryList from '../../assets/work/shuffle/discovery-list.png';
+import discoveryMap from '../../assets/work/shuffle/discovery-map.png';
+
+<CaseIntro title="Building a rewards app for the Monzo era">
+  <Fragment slot="lead">I joined Shuffle in December 2023, about a year into their journey and still in their idea phase. Was it possible to bring a fresh identity to rewards apps, unseating rivals like Quidco and TopCashback?</Fragment>
+
+  <Stats>
+    <Stat value="140% spend" label="per user vs target"><strong>£32.67</strong> vs £23.33</Stat>
+    <Stat value="£2.5m" label="raised after the v0">From <strong>Top VCs</strong></Stat>
+    <Stat value="4 months" label="ahead of launch plan"><strong>August</strong> vs December</Stat>
+  </Stats>
+
+  <Skills items={[
+    { label: 'Product Design', logos: [] },
+    { label: 'Strategy', logos: [] },
+    { label: 'Brand', logos: [] },
+    { label: 'Design Leadership', logos: [] },
+  ]} />
+</CaseIntro>
+
+<Chapter label="The story" flush>
+
+<Crop window={[1416, 956]} motion="arrive">
+  <CropImage src={heroPhoneMap} rect={[41, -366, 804, 1236.5]} from={[0, -160]} alt="The Shuffle map of partner venues, with Madre featured" eager />
+  <CropImage src={heroPhoneTransactions} rect={[495.5, 281, 910, 1155]} from={[0, 200]} delay={120} alt="The Shuffle transactions screen, showing £25 of rewards available" eager />
+</Crop>
+
+<Section title="The Initial Plan">
+<Column>
+
+The core idea revolved around bringing gaming dynamics into the rewards world. We'd do this by randomising the amount you were rewarded (up-to 100%) across any and all transactions on the card.
+
+</Column>
+<Column>
+
+Given the idea was to launch a card, we had around 12 months to test, build and get all of our approvals in order (FCA, Mastercard and Apple/Google to name but a few).
+
+</Column>
+</Section>
+
+<Pair>
+  <Crop window={[684, 812]} src={posterBillboard} rect={[-238.4, 0, 1010.4, 811.8]} alt="A Shuffle billboard under a railway bridge: “Save 100% on”, with rewards of 2% to 24% ticking past" />
+  <Crop window={[684, 812]} src={posterBusStop} rect={[0, -107.1, 684, 1026.2]} alt="A yellow Shuffle poster behind a slatted shutter: “Next time. Dinner’s on us.”" />
+</Pair>
+
+<Section title="v0: The Investor Edition">
+<Column>
+
+First up was a quick brand and a clickable v0 (happy and unhappy paths included), built to show investors what the team had in mind. It did a few other jobs too. It gave venues something tangible to react to, the engineers somewhere to start, and the approvals paperwork something to point at.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+A clickable prototype and an initial brand later, we were ready for our first investment round, raising £2.5m.
+
+</Column>
+</Section>
+
+<Crop
+  window={[1416, 812]}
+  src={userFlow}
+  rect={[0, 27.5, 2074, 759.5]}
+  bleed
+  min={0.5}
+  alt="The v0 user flows as wireframes: explainer screens, onboarding with its error states, invite code, profile, updating a phone number and discovery"
+/>
+
+<Section title="Audience & Demographics">
+<Column>
+
+We already had our target audience **“Couples with two incomes and no kids, eating out at least twice a week”**; now all we needed was a launch city.
+
+To find the ideal site, we compared cities across the UK on demographics, income and layout.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+Manchester came out on top - young (37% aged 20-39), walkable and packed with independent places to eat. After a quick trip up North to assess ourselves, we knew we had our launch city.
+
+</Column>
+</Section>
+
+<Crop window={[1416, 812]} src={manchesterMap} rect={[-143.88, -475, 1702, 1762]} bg="var(--neutral-050)" min={0.5} focus={1065} alt="A map of Manchester city centre">
+  <CropImage src={manchesterChart} rect={[761, 264, 608, 500]} alt="Manchester’s 2021 population pyramid, with a large bulge of people aged around 18 to 35" />
+  <CropLink href="https://commons.wikimedia.org/wiki/File:Manchester_population_pyramid.svg" rect={[1256, 286, 89, 12]}>Source: Wikimedia Commons</CropLink>
+</Crop>
+
+<Stats>
+  <Stat value="2.92m" label="Greater Manchester" />
+  <Stat value="37%" label="20-39 years old" />
+  <Stat value="Walkable" label="City centre" />
+</Stats>
+
+<Section title="The Tastemaker">
+<Column>
+
+Then we spoke to around 50 people over two weeks. The pattern that stood out was that in most groups of friends, the same person decides where everyone goes. We called them the tastemaker, and they cared far more about curation and discovery than money off. Diners told us restaurant rewards felt small or pointless, and venues didn't believe they worked.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+Another general rewards product would be launching into a packed market, so I proposed we focus on restaurants, bars and cafes and make it curated.
+
+</Column>
+</Section>
+
+<Crop window={[1416, 224]} bleed min={0.6} motion="scroll">
+  <CropImage src={stickersTop} rect={[-364, 0, 2144, 120]} from={[120, 0]} to={[-120, 0]} alt="Stickers of Shuffle’s partner venues, including Pollen, Salt BBQ Slims, Trof, FDN Coffee, Diecast and New Wave" />
+  <CropImage src={stickersBottom} rect={[-364, 120, 2144, 104]} from={[-120, 0]} to={[120, 0]} alt="More partner stickers, including Trading Route, Doug’s, Salón, Bunny Jackson’s, Lost Cat and Wolf at the Door" />
+</Crop>
+
+<Section title="The Re-Shuffle">
+<Column>
+
+That left the card. Approvals weren't expected until November and we were aiming to launch in December.
+
+**This was where I had an idea.**
+
+</Column>
+<Column>
+
+What if we offered customers a rewards product with the same app experience, random rewards and a curated list of spots, but instead of issuing our own card, linked to their existing bank account?
+
+</Column>
+</Section>
+
+<Timeline
+  original={[
+    { title: 'Initial Research', date: 'Jan ’24' },
+    { title: 'Legal Paperwork', date: 'Apr ’24' },
+    { title: 'App Design', date: 'Jun ’24' },
+    { title: 'v1 Build', date: 'Oct ’24' },
+    { title: 'v1 Launch', date: 'Dec ’24' },
+  ]}
+  updated={[
+    { title: 'Research Complete', date: 'Jan ’24' },
+    { title: 'Re-Shuffle', date: 'Feb ’24' },
+    { title: 'App Design', date: 'Mar ’24' },
+    { title: 'v1 Build', date: 'Jul ’24' },
+    { title: 'v1 Launch', date: 'Aug ’24' },
+  ]}
+/>
+
+<Section>
+<Column>
+
+I ran workshops with the founders and engineers to weigh up our options. Given the choice between full card issuance and open banking, the choice was clear. Launching with an open banking connected product would enable us to launch in August, not December. The cost would be asking people to trust us (a new startup) with their bank details and transaction history.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+Open banking it was, with the card left for later and first users in August 2024.
+
+</Column>
+</Section>
+
+<Crop
+  window={[1416, 812]}
+  src={onboardingPhones}
+  rect={[-424, -643, 2291.5, 2365.5]}
+  bg="var(--neutral-300)"
+  alt="Shuffle’s sign-up screens on tilted phones: verifying a mobile number, an already-registered warning and the free trial"
+/>
+
+<Section title="Mission & Branding">
+<Column>
+
+I led a workshop mixing Simon Sinek's Why framework with some of the tropes of the Five Whys, to figure out why Shuffle exists.
+
+We settled on **“Bringing joy to your everyday”**. Helping highlight the best spots in your local area and grow a better community together as a result. Our brand therefore had to reflect just that.
+
+</Column>
+<Column>
+
+Visually this meant utilising a scaled back colour palette, choosing a humanist/geometric sans hybrid typeface in Onest, and really focussing on the brands Shuffle would play host to.
+
+</Column>
+</Section>
+
+<Pair>
+  <LogoCard video="/img/shuffle/logo.mp4" still={logoStill} scale={0.9125} bg="rgb(239 237 235)" alt="The Shuffle wordmark" />
+  <Crop window={[684, 812]} src={appIconPhone} rect={[29.58, -970.42, 1002.5, 1821.5]} bg="var(--chip-shuffle)" alt="The yellow Shuffle app icon in an iPhone dock" />
+</Pair>
+
+<Section title="Building a Design System">
+<Column>
+
+Working directly with the engineering team, I set up Shuffle to use a design system from day-one. It lived in Figma with components, variables and clear documentation, and was mapped to the codebase and its states so design and development were working from the same thing.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+Faster delivery, less miscommunication and a system the team following me could build on without me.
+
+</Column>
+</Section>
+
+<Crop window={[1416, 812]} src={designSystem} rect={[0, -66.05, 1416, 944.1]} alt="Pages of the Shuffle design system: buttons, labels, inputs, radios, select, toast and navigation, each with states and do’s and don’ts" />
+
+<Section title="Launching in Public">
+<Column>
+
+After a private beta, we opened to the public on 13 September 2024 with 14 partner venues across Manchester (Pollen, Bundobust, Medlock Canteen and Madre to name but a few). Customers were averaging more than 1.5 visits in their first two weeks.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+1,176 sign-ups in the first week against a target of 500, and spend per user of £32.67 a month against £23.33 (140% of target).
+
+</Column>
+</Section>
+
+<Crop window={[1416, 1416]} bleed motion="scroll" range="entry 25% cover 65%" ease="cubic-bezier(0.33, 1, 0.68, 1)">
+  <CropImage src={launchPhoneMap} rect={[-233.61, -11.54, 791.5, 1059.5]} from={[0, 232.4]} alt="The Shuffle map of partner venues" />
+  <CropImage src={launchPhoneReward} rect={[278.39, 220.86, 791.5, 1059.5]} alt="A “You just unlocked a big reward!” screen" />
+  <CropImage src={launchPhoneList} rect={[790.39, 420.5, 790, 1059.5]} from={[0, -199.64]} alt="The discovery list: Madre, Bold Street Coffee and Medlock Canteen" />
+</Crop>
+
+<Stats>
+  <Stat value="1,176" label="Accounts created">vs <strong>500</strong> target</Stat>
+  <Stat value="£32.67" label="Spend per user">Target of <strong>£23.33</strong></Stat>
+  <Stat value="14 Partners" label="Available at launch">Across <strong>Manchester</strong></Stat>
+</Stats>
+
+</Chapter>
+
+<Chapter label="Post launch" glow>
+
+<Section title="Connecting your bank" tag="Post Launch">
+<Column>
+
+**Trust turned out to be the sticking point**
+
+As suspected, users connecting their bank accounts became a key drop-off in our sign-up funnel.
+
+</Column>
+<Column>
+
+**Change:**
+
+Show the value upfront, ask for consent in stages and be clearer about what data we can see.
+
+</Column>
+</Section>
+
+<ScreenRow>
+  <Crop window={[402, 874]} src={bankStep} rect={[-3.5, 0, 409.5, 902]} bleed alt="Sign-up step 3 of 5: “Pay your bill via your regular debit card”, showing a card at a payment terminal" />
+  <Stat value="57% of users" label="connected their bank account">Previously 44% <Badge>+30%</Badge></Stat>
+  <Crop window={[402, 874]} src={bankSelect} rect={[-3.5, 0, 409.5, 902]} bleed alt="Connecting an account: “Who is your account held with?”, with the most popular banks listed" />
+</ScreenRow>
+
+<Section title="Home / Discovery" tag="Post Launch">
+<Column>
+
+**People liked the curated feed**
+
+But couldn't tell where anything was, and kept dipping out to Google Maps to find each venue.
+
+</Column>
+<Column>
+
+**Change:**
+
+A short design sprint later and we’d added a map which made the app instantly more usable, even while our list was small.
+
+</Column>
+</Section>
+
+<ScreenRow>
+  <Crop window={[402, 874]} src={discoveryList} rect={[-3.5, 0, 409.5, 902]} bleed alt="Discovery as a list: Madre, Bold Street Coffee and Medlock Canteen" />
+  <Stat value="Map Discovery" label="helped users find where to go next">Feature <Badge>New</Badge></Stat>
+  <Crop window={[402, 874]} src={discoveryMap} rect={[-7.5, 0, 417, 906]} bleed alt="Discovery as a map: partner venues around the user’s location, with Madre featured" />
+</ScreenRow>
+
+</Chapter>

@@ -1,0 +1,61 @@
+---
+// Figma: "Intro" of a case study. A serif title and a short lead, centred
+// over the middle three grid columns, then whatever follows in the slot
+// (Stats, Skills), 96px apart, on the page background.
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<section class="case-intro" aria-labelledby="case-intro-title">
+  <div class="case-intro__inner container">
+    <div class="case-intro__lead">
+      <h2 id="case-intro-title" class="case-intro__title t-h1">{title}</h2>
+      <div class="case-intro__text t-h3"><slot name="lead" /></div>
+    </div>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .case-intro {
+    background-color: var(--bg-page);
+  }
+
+  .case-intro__inner {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2xl);
+    padding-block: calc(var(--space-2xl) + var(--space-xl));
+  }
+
+  /* Middle three of the five grid columns */
+  .case-intro__lead {
+    align-self: center;
+    width: min(100%, calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap)));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    text-align: center;
+  }
+
+  .case-intro__title {
+    color: var(--text-display);
+    text-wrap: balance;
+  }
+
+  .case-intro__text {
+    color: var(--text-muted);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 1100px) {
+    .case-intro__lead {
+      width: 100%;
+    }
+  }
+</style>

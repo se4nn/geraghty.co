@@ -1,0 +1,29 @@
+---
+// Figma: "Label". An outlined chip of small copy under a stat, or beside a
+// section title. Bold runs inside read a touch darker.
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<p class:list={['label', 't-body', className]}><slot /></p>
+
+<style>
+  .label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-s);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-l);
+    color: var(--text-label);
+    white-space: nowrap;
+  }
+
+  .label :global(strong) {
+    font-weight: var(--weight-bold);
+  }
+</style>

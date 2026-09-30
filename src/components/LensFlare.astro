@@ -535,6 +535,15 @@ const {
 
       this.init();
 
+      // Already on screen (a case study hero, say): draw the first frame now
+      // rather than a frame or two later, so the page's first paint (and a
+      // view transition's snapshot of it) already has the live gradient
+      const box = this.getBoundingClientRect();
+      if (box.bottom > 0 && box.top < window.innerHeight && box.width > 0) {
+        this.visible = true;
+        this.draw(this.phase());
+      }
+
       this.io = new IntersectionObserver(([entry]) => {
         this.visible = entry.isIntersecting;
         if (this.visible) this.play();

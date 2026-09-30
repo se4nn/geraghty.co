@@ -1,0 +1,170 @@
+---
+// Figma: "Next Project". The next project's tile art across the grid on the
+// dark background, rising out of the dark above (a Neutral/1000 fade at the
+// top) with rounded lower corners. Its stacked logo sits bottom left; the
+// Next Project button, tags and dates on the right. The whole tile links.
+import type { CollectionEntry } from 'astro:content';
+import type { ImageMetadata } from 'astro';
+import TileArt from './TileArt.astro';
+import Button from './Button.astro';
+
+interface Props {
+  project: CollectionEntry<'work'>;
+  // The stacked logo; the tile's own logo is the wide one
+  logo: ImageMetadata;
+}
+
+const { project, logo } = Astro.props;
+const { title, tags, dates, tile, link } = project.data;
+// No case study yet: go to the project's tile on the homepage
+const href = link ?? `/#work-${project.id}`;
+---
+
+<section class="next" aria-label="Next project">
+  <div class="next__inner container">
+    <a class="next__tile" href={href}>
+      <TileArt
+        class="next__art"
+        image={tile.image}
+        logo={tile.logo}
+        logoScale={tile.logoScale}
+        grain={tile.grain}
+        gradient={tile.gradient}
+        alt=""
+        sizes="(max-width: 1512px) 94vw, 1416px"
+        widths={[820, 1640, 2832]}
+        transitionName={project.id}
+        showLogo={false}
+      />
+      <div class="next__content">
+        <img class="next__logo" src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
+        <div class="next__side">
+          <Button variant="light">Next Project</Button>
+          <div class="next__info t-h3">
+            <p class="next__tags t-h3-bold">
+              {tags.map((tag, i) => (
+                <>{i > 0 && <span class="next__sep" aria-hidden="true">|</span>}<span>{tag}</span></>
+              ))}
+            </p>
+            <p class="next__dates">{dates}</p>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<style>
+  .next {
+    background-color: var(--bg-dark);
+  }
+
+  .next__inner {
+    padding-top: var(--space-2xl);
+  }
+
+  /* 1416 × 508 at 1512; everything inside scales with the tile */
+  .next__tile {
+    container-type: inline-size;
+    position: relative;
+    display: grid;
+    /* Width first, so the min-height makes it taller, not wider */
+    width: 100%;
+    aspect-ratio: 1416 / 508;
+    min-height: 420px;
+    color: var(--text-on-dark);
+  }
+
+  .next__tile > :global(*) {
+    grid-area: 1 / 1;
+  }
+
+  .next__tile :global(.next__art) {
+    border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
+  }
+
+  /* Rises out of the dark above it */
+  .next__tile :global(.next__art)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, var(--bg-dark), oklch(from var(--bg-dark) l c h / 0));
+    pointer-events: none;
+  }
+
+  .next__content {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-xl);
+    padding: clamp(24px, calc(64 / 1416 * 100cqi), 64px);
+  }
+
+  .next__logo {
+    width: auto;
+    height: clamp(120px, calc(240 / 1416 * 100cqi), 240px);
+  }
+
+  .next__side {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-l);
+  }
+
+  .next__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    text-align: right;
+  }
+
+  .next__tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .next__sep {
+    margin-inline: 0.5em;
+  }
+
+  .next__dates {
+    color: var(--neutral-050);
+  }
+
+  .next__tile:focus-visible {
+    outline: 2px solid var(--neutral-000);
+    outline-offset: 4px;
+    border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
+  }
+
+  /* Phones: logo top left, the rest along the bottom */
+  @media (max-width: 700px) {
+    .next__tile {
+      aspect-ratio: 4 / 5;
+    }
+
+    .next__content {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+    }
+
+    .next__side {
+      align-self: stretch;
+      align-items: flex-start;
+    }
+
+    .next__info {
+      text-align: left;
+    }
+
+    .next__tags {
+      justify-content: flex-start;
+    }
+  }
+</style>
