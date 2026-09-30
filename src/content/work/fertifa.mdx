@@ -75,10 +75,17 @@ That meant designing for two very different moments. Whatever we made had to be 
 </Column>
 </Section>
 
+
+<Pillars label="Fertifa’s brand pillars" items={[
+  { title: 'A foundation for family', lines: ['Regardless of gender or sexuality.', 'To form new life and relationships.', 'Supporting people’s biological and sexual differences.', 'Putting families first.'] },
+  { title: 'Building support for life', lines: ['For all reproductive health queries.', 'Supporting people through meaningful relationships.', 'Celebrating unique journeys.', 'The first chapter in the book of family.'] },
+  { title: 'Ensuring trust for all', lines: ['Clear, precise, honest.', 'White glove service, ultimate care.', 'From start to finish, and beyond.', 'Professional and accredited.'] },
+]} />
+
 <Section title="Three Pillars">
 <Column>
 
-Over four or five rounds of workshops and feedback with Eileen, Fertifa’s CEO, and Roxy, their Head of Marketing, we worked out what Fertifa actually stood for. It came down to three pillars.
+Over four or five rounds of workshops and feedback with Eileen, Fertifa’s CEO, and Roxy, their Head of Marketing, we worked out what Fertifa actually stood for. It came down to the three pillars above.
 
 </Column>
 <Column>
@@ -89,12 +96,6 @@ The pillars didn’t stay in a deck. “From start to finish and beyond” and �
 
 </Column>
 </Section>
-
-<Pillars label="Fertifa’s brand pillars" items={[
-  { title: 'A foundation for family', lines: ['Regardless of gender or sexuality.', 'To form new life and relationships.', 'Supporting people’s biological and sexual differences.', 'Putting families first.'] },
-  { title: 'Building support for life', lines: ['For all reproductive health queries.', 'Supporting people through meaningful relationships.', 'Celebrating unique journeys.', 'The first chapter in the book of family.'] },
-  { title: 'Ensuring trust for all', lines: ['Clear, precise, honest.', 'White glove service, ultimate care.', 'From start to finish, and beyond.', 'Professional and accredited.'] },
-]} />
 
 <Pair>
   <Crop window={[684, 812]} src={posterValues01} rect={[-400, -84, 1500, 1000]} alt="A framed Fertifa values poster leaning against a wall: “From start to finish & beyond.”" />
@@ -149,18 +150,49 @@ In 2022 every startup was reaching for bright, loud colour (think Deliveroo and 
 </Column>
 <Column>
 
-So one colour does the heavy lifting: a bold violet the team nicknamed “Blurple”, with light tints for backgrounds and deep shades for type.
+So one colour does the heavy lifting: a bold violet the team nicknamed “Blurple”. Around it sits a softer extended palette of greys, greens, yellows, blues and reds for backgrounds, illustration and the product, never all at once.
 
 </Column>
 </Section>
 
-<Swatches label="Fertifa’s primary colour ramp" items={[
+<Palette label="Fertifa’s colour palette" columns={6} primary={[
   { name: 'Primary 100', hex: '#F5F6FE', color: 'var(--fertifa-100)' },
   { name: 'Primary 200', hex: '#EDEEFD', color: 'var(--fertifa-200)' },
   { name: 'Primary 300', hex: '#DAD2F4', color: 'var(--fertifa-300)' },
   { name: 'Primary 500', hex: '#6E11E8', color: 'var(--fertifa-500)', on: 'dark' },
   { name: 'Primary 700', hex: '#47038C', color: 'var(--fertifa-700)', on: 'dark' },
   { name: 'Primary 900', hex: '#240A3D', color: 'var(--fertifa-900)', on: 'dark' },
+]} secondary={[
+  { name: 'Grey 100', hex: '#F7F4F3', color: 'var(--fertifa-grey-100)' },
+  { name: 'Grey 200', hex: '#E4E2E2', color: 'var(--fertifa-grey-200)' },
+  { name: 'Grey 300', hex: '#A8A09F', color: 'var(--fertifa-grey-300)' },
+  { name: 'Grey 500', hex: '#766D6B', color: 'var(--fertifa-grey-500)' },
+  { name: 'Grey 700', hex: '#3D3B38', color: 'var(--fertifa-grey-700)' },
+  { name: 'Grey 900', hex: '#151413', color: 'var(--fertifa-grey-900)' },
+  { name: 'Green 100', hex: '#F7FDFB', color: 'var(--fertifa-green-100)' },
+  { name: 'Green 200', hex: '#EEFCF9', color: 'var(--fertifa-green-200)' },
+  { name: 'Green 300', hex: '#D1F0E9', color: 'var(--fertifa-green-300)' },
+  { name: 'Green 500', hex: '#79E7CE', color: 'var(--fertifa-green-500)' },
+  { name: 'Green 700', hex: '#059E7B', color: 'var(--fertifa-green-700)' },
+  { name: 'Green 900', hex: '#1F7A65', color: 'var(--fertifa-green-900)' },
+  { name: 'Yellow 100', hex: '#FEFEF0', color: 'var(--fertifa-yellow-100)' },
+  { name: 'Yellow 200', hex: '#FBFBD5', color: 'var(--fertifa-yellow-200)' },
+  { name: 'Yellow 300', hex: '#F4F4A4', color: 'var(--fertifa-yellow-300)' },
+  { name: 'Yellow 500', hex: '#FEFE72', color: 'var(--fertifa-yellow-500)' },
+  { name: 'Yellow 700', hex: '#BEB72D', color: 'var(--fertifa-yellow-700)' },
+  { name: 'Yellow 900', hex: '#8A811E', color: 'var(--fertifa-yellow-900)' },
+  { name: 'Blue 100', hex: '#F5FAFF', color: 'var(--fertifa-blue-100)' },
+  { name: 'Blue 200', hex: '#E7F3FE', color: 'var(--fertifa-blue-200)' },
+  { name: 'Blue 300', hex: '#CDE4F9', color: 'var(--fertifa-blue-300)' },
+  { name: 'Blue 500', hex: '#3C9AEC', color: 'var(--fertifa-blue-500)' },
+  { name: 'Blue 700', hex: '#23659F', color: 'var(--fertifa-blue-700)' },
+  { name: 'Blue 900', hex: '#244A6B', color: 'var(--fertifa-blue-900)' },
+  { name: 'Red 100', hex: '#FDF7F7', color: 'var(--fertifa-red-100)' },
+  { name: 'Red 200', hex: '#FBEEEE', color: 'var(--fertifa-red-200)' },
+  { name: 'Red 300', hex: '#FAD1D1', color: 'var(--fertifa-red-300)' },
+  { name: 'Red 500', hex: '#EB4747', color: 'var(--fertifa-red-500)' },
+  { name: 'Red 700', hex: '#AF4141', color: 'var(--fertifa-red-700)' },
+  { name: 'Red 900', hex: '#883030', color: 'var(--fertifa-red-900)' },
 ]} />
 
 <Pair>

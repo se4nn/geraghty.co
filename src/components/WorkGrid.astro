@@ -35,7 +35,7 @@ const placed = projects.map((project, i) => {
   <ul class="work-grid" role="list">
     {
       placed.map(({ project, slot, style }) => (
-        <li id={`work-${project.id}`} class:list={['work-grid__item', `work-grid__item--${slot.align}`]} style={style}>
+        <li class:list={['work-grid__item', `work-grid__item--${slot.align}`]} style={style}>
           <ProjectTile project={project} shape={slot.shape} />
         </li>
       ))
@@ -72,7 +72,6 @@ const placed = projects.map((project, i) => {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    scroll-margin-top: var(--space-xl);
   }
 
   .work-grid__item--end {

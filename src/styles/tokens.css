@@ -63,6 +63,37 @@
   --fertifa-500: oklch(49.24% 0.2682 291.43);  /* #6e11e8 */
   --fertifa-700: oklch(34.58% 0.1863 295.85);  /* #47038c */
   --fertifa-900: oklch(22.14% 0.0918 302.66);  /* #240a3d */
+  /* Fertifa 2022 Brand Guide, Extensive colour */
+  --fertifa-grey-100: oklch(96.92% 0.0035 39.48);   /* #f7f4f3 */
+  --fertifa-grey-200: oklch(91.43% 0.0022 17.20);   /* #e4e2e2 */
+  --fertifa-grey-300: oklch(71.22% 0.0095 26.05);   /* #a8a09f */
+  --fertifa-grey-500: oklch(54.24% 0.0117 32.53);   /* #766d6b */
+  --fertifa-grey-700: oklch(35.33% 0.0058 78.25);   /* #3d3b38 */
+  --fertifa-grey-900: oklch(19.20% 0.0026 67.67);   /* #151413 */
+  --fertifa-green-100: oklch(98.90% 0.0068 174.38); /* #f7fdfb */
+  --fertifa-green-200: oklch(97.99% 0.0152 181.79); /* #eefcf9 */
+  --fertifa-green-300: oklch(93.08% 0.0337 180.41); /* #d1f0e9 */
+  --fertifa-green-500: oklch(85.55% 0.1084 176.90); /* #79e7ce */
+  --fertifa-green-700: oklch(62.22% 0.1227 169.74); /* #059e7b */
+  --fertifa-green-900: oklch(52.18% 0.0896 173.55); /* #1f7a65 */
+  --fertifa-yellow-100: oklch(99.33% 0.0183 106.73);/* #fefef0 */
+  --fertifa-yellow-200: oklch(97.84% 0.0493 107.28);/* #fbfbd5 */
+  --fertifa-yellow-300: oklch(94.91% 0.1006 108.17);/* #f4f4a4 */
+  --fertifa-yellow-500: oklch(97.06% 0.1608 109.06);/* #fefe72 */
+  --fertifa-yellow-700: oklch(76.20% 0.1497 106.44);/* #beb72d */
+  --fertifa-yellow-900: oklch(59.35% 0.1147 103.97);/* #8a811e */
+  --fertifa-blue-100: oklch(98.28% 0.0085 247.91);  /* #f5faff */
+  --fertifa-blue-200: oklch(95.84% 0.0196 245.64);  /* #e7f3fe */
+  --fertifa-blue-300: oklch(90.84% 0.0378 245.78);  /* #cde4f9 */
+  --fertifa-blue-500: oklch(66.90% 0.1500 248.59);  /* #3c9aec */
+  --fertifa-blue-700: oklch(49.47% 0.1137 248.95);  /* #23659f */
+  --fertifa-blue-900: oklch(39.73% 0.0710 246.95);  /* #244a6b */
+  --fertifa-red-100: oklch(98.08% 0.0064 17.27);    /* #fdf7f7 */
+  --fertifa-red-200: oklch(95.93% 0.0141 17.40);    /* #fbeeee */
+  --fertifa-red-300: oklch(89.56% 0.0462 18.05);    /* #fad1d1 */
+  --fertifa-red-500: oklch(63.35% 0.2009 24.98);    /* #eb4747 */
+  --fertifa-red-700: oklch(52.74% 0.1443 23.44);    /* #af4141 */
+  --fertifa-red-900: oklch(43.74% 0.1208 23.53);    /* #883030 */
 
   /* Colour: roles */
   --bg-page: var(--neutral-050);

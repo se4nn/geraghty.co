@@ -19,6 +19,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <script is:inline>
+      // Arriving at a #fragment (Close on a case study goes to its tile), land
+      // on it straight away: the page's smooth scrolling would otherwise
+      // open at the top and glide down. Smooth scrolling comes back once the
+      // page has loaded, for links within it.
+      if (location.hash) {
+        const root = document.documentElement;
+        root.style.scrollBehavior = 'auto';
+        addEventListener('load', () => requestAnimationFrame(() => root.style.removeProperty('scroll-behavior')), { once: true });
+      }
+    </script>
+    <script is:inline>
       // Flags a page that arrived through a view transition, so its own
       // entrance can step aside for the morph. Registered in the head so it
       // is in place before the first render.

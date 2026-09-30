@@ -18,6 +18,7 @@ const Wrapper = link ? 'a' : 'div';
 ---
 
 <Wrapper class:list={['tile', `tile--${shape}`]} href={link}>
+  <span id={`work-${project.id}`} class="tile__anchor" aria-hidden="true"></span>
   <TileArt
     class="tile__art"
     image={tile.image}
@@ -44,6 +45,30 @@ const Wrapper = link ? 'a' : 'div';
 
   .tile :global(.tile__art) {
     aspect-ratio: 1;
+  }
+
+  /* The #work-<id> target (Close on a case study, the skill chips). It sits
+     at the middle of the art and scrolls to the middle of the screen, so
+     a jump here lands with the tile centred, however tall its grid cell */
+  .tile {
+    position: relative;
+  }
+
+  .tile__anchor {
+    position: absolute;
+    top: 50cqi;
+    left: 0;
+    scroll-margin-top: 50svh;
+  }
+
+  .tile--tall .tile__anchor {
+    top: calc((3 * var(--col) + 2 * var(--grid-gap)) / 2);
+  }
+
+  @media (max-width: 700px) {
+    .tile--tall .tile__anchor {
+      top: calc(50cqi * 811.2 / 508.8);
+    }
   }
 
   /* Tall tiles are two columns wide and three columns high */

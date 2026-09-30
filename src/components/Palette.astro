@@ -1,0 +1,115 @@
+---
+// A brand palette in one block: the primary ramp stacked on the left, named
+// with its hex, lightest at the top; the secondary ramps as a grid of plain
+// chips on the right, one ramp to a row, lightest to darkest. Primary first,
+// then the grid underneath on phones.
+// on: 'dark' where a primary swatch needs light text
+interface Swatch {
+  name: string;
+  hex: string;
+  color: string;
+  on?: 'light' | 'dark';
+}
+
+interface Props {
+  primary: Swatch[];
+  secondary: Swatch[];
+  // Shades per secondary ramp
+  columns: number;
+  label: string;
+}
+
+const { primary, secondary, columns, label } = Astro.props;
+---
+
+<div class="palette" role="group" aria-label={label}>
+  <ul class="palette__primary" role="list">
+    {
+      primary.map((item) => (
+        <li class:list={['palette__swatch', { 'palette__swatch--dark': item.on === 'dark' }]} style={`--swatch: ${item.color}`}>
+          <span class="t-body-bold">{item.name}</span>
+          <span class="palette__hex t-label">{item.hex}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <ul class="palette__secondary" role="list" style={`--columns: ${columns}`}>
+    {
+      secondary.map((item) => (
+        <li class="palette__chip" style={`--swatch: ${item.color}`}>
+          <span class="visually-hidden">
+            {item.name} {item.hex}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  /* The primary ramp takes a third, the grid the rest, at 1416 × 560 */
+  .palette {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--space-m);
+    aspect-ratio: 1416 / 560;
+  }
+
+  .palette__primary,
+  .palette__secondary {
+    display: grid;
+    overflow: clip;
+    border-radius: var(--radius-s);
+    list-style: none;
+    padding: 0;
+  }
+
+  .palette__primary {
+    grid-auto-rows: minmax(0, 1fr);
+  }
+
+  .palette__secondary {
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+  }
+
+  .palette__swatch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-inline: var(--space-l);
+    background-color: var(--swatch);
+    color: var(--text-strong);
+  }
+
+  .palette__swatch--dark {
+    color: var(--text-on-dark);
+  }
+
+  .palette__hex {
+    text-transform: uppercase;
+    opacity: 0.72;
+  }
+
+  .palette__chip {
+    background-color: var(--swatch);
+  }
+
+  /* Phones: the primary ramp, then the grid under it */
+  @media (max-width: 700px) {
+    .palette {
+      grid-template-columns: minmax(0, 1fr);
+      aspect-ratio: auto;
+    }
+
+    .palette__swatch {
+      padding-block: var(--space-s);
+      padding-inline: var(--space-m);
+    }
+
+    .palette__chip {
+      aspect-ratio: 1;
+    }
+  }
+</style>
