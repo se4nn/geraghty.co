@@ -28,7 +28,7 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
 
 <section class="next" aria-label="Next project">
   <div class="next__inner container">
-    <a class="next__tile" href={href}>
+    <a class="next__tile" href={href} data-transition={`art-${project.id}`}>
       <TileArt
         class="next__art"
         image={tile.image}
@@ -39,7 +39,6 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
         alt=""
         sizes="(max-width: 1512px) 94vw, 1416px"
         widths={[820, 1640, 2832]}
-        transitionName={project.id}
         showLogo={false}
       />
       <div class="next__content">
@@ -59,6 +58,25 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     </a>
   </div>
 </section>
+
+<script>
+  // The tile only morphs when you leave through it. Named on the page all
+  // the time, it would also pair with the same project's tile or hero on
+  // the page you came from, and fly down to the foot of this one on arrival
+  // (a dark box crossing the screen, from the CRT's backing). So it takes
+  // its name in pageswap, just before the old page is captured, and only
+  // when the navigation goes where the tile points.
+  addEventListener('pageswap', (event) => {
+    const to = event.activation?.entry?.url;
+    if (!event.viewTransition || !to) return;
+    for (const tile of document.querySelectorAll<HTMLAnchorElement>('.next__tile[data-transition]')) {
+      const art = tile.querySelector<HTMLElement>('.next__art');
+      if (!art || tile.href !== to) continue;
+      art.style.viewTransitionName = tile.dataset.transition!;
+      art.style.setProperty('view-transition-class', 'art');
+    }
+  });
+</script>
 
 <style>
   .next {

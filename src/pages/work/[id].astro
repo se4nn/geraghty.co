@@ -85,12 +85,14 @@ const components = {
 
 <Base title={`${title}, a case study by Sean Geraghty`} description={study.summary}>
   <main>
-    <!-- Everything before the footer. The availability pill parks at its end. -->
+    <!-- Everything before the footer. The availability pill parks at the
+         end of the story, clear of the Next Project tile, which runs
+         straight into the footer with no room of its own for it. -->
     <div class="study-body">
       <CaseHero project={project} />
       <Content components={components} />
-      <NextProject project={next} logo={stackedLogos[next.id] ?? next.data.tile.logo} />
       <Availability label={availability} email={contactEmail} />
+      <NextProject project={next} logo={stackedLogos[next.id] ?? next.data.tile.logo} />
     </div>
 
     <Footer email={contactEmail} label="Testimonial and contact">
