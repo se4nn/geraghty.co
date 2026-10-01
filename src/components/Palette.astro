@@ -4,6 +4,7 @@
 // chips on the right, one ramp to a row, lightest to darkest. Primary first,
 // then the grid underneath on phones.
 // on: 'dark' where a primary swatch needs light text
+// color can be any background, so a secondary chip can be a gradient
 interface Swatch {
   name: string;
   hex: string;
@@ -92,8 +93,9 @@ const { primary, secondary, columns, label } = Astro.props;
     opacity: 0.72;
   }
 
+  /* A chip can be a gradient as well as a flat colour */
   .palette__chip {
-    background-color: var(--swatch);
+    background: var(--swatch);
   }
 
   /* Phones: the primary ramp, then the grid under it */

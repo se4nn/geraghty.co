@@ -95,6 +95,26 @@
   --fertifa-red-700: oklch(52.74% 0.1443 23.44);    /* #af4141 */
   --fertifa-red-900: oklch(43.74% 0.1208 23.53);    /* #883030 */
 
+  /* Minimum Brand Guidelines, primary palette and accents (an sRGB file).
+     Each accent's -deep is the far end of its gradient */
+  --minimum-primary: oklch(53.77% 0.2336 261.48);       /* #075ef2 */
+  --minimum-primary-deep: oklch(46.50% 0.1882 260.97);  /* #0c4fc0 */
+  --minimum-carbon: oklch(8.60% 0.0056 285.17);         /* #020203 */
+  --minimum-dark: oklch(26.54% 0.0214 269.28);          /* #212530 */
+  --minimum-mid: oklch(71.88% 0.0120 269.51);           /* #a1a4ac */
+  --minimum-light: oklch(95.10% 0.0063 255.48);         /* #eceff3 */
+  --minimum-white: oklch(100% 0 0);                     /* #ffffff */
+  --minimum-pink: oklch(72.57% 0.2618 327.10);          /* #f656f9 */
+  --minimum-pink-deep: oklch(64.97% 0.2969 327.16);     /* #e40ce9 */
+  --minimum-mint: oklch(89.34% 0.1675 173.35);          /* #1fffd2 */
+  --minimum-mint-deep: oklch(75.11% 0.1435 172.67);     /* #0bcba5 */
+  --minimum-cyan: oklch(85.84% 0.1418 206.79);          /* #28eaff */
+  --minimum-cyan-deep: oklch(79.37% 0.1369 209.24);     /* #00d3eb */
+  --minimum-yellow: oklch(90.25% 0.1694 96.84);         /* #ffde3e */
+  --minimum-yellow-deep: oklch(87.17% 0.1553 88.15);    /* #ffce47 */
+  --minimum-violet: oklch(63.07% 0.2143 289.82);        /* #8c68ff */
+  --minimum-violet-deep: oklch(52.02% 0.2767 281.64);   /* #5f2eff */
+
   /* Colour: roles */
   --bg-page: var(--neutral-050);
   --bg-work: var(--neutral-100);
