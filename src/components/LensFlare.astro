@@ -125,10 +125,13 @@ const {
   // tiles.
   const CRT_CELL = 3; // screen pixel pitch, CSS px
   const SCREEN_FPS = 30; // flicker and row jitter step at the screen's rate
-  // The beam is a line across the middle of the viewport, so scrolling scans
-  // it down the page. Its phosphor trail stretches with scroll speed, on the
-  // side the content came from, and settles to a short glow at rest.
-  const BEAM_Y = 0.5; // down the viewport
+  // The beam is a line across the viewport, so scrolling scans it down the
+  // page. It sits at the mouse's height (the middle until the mouse moves,
+  // and always on touch), following a little behind like a phosphor catching
+  // up. Its trail stretches with scroll and mouse speed, on the side the beam
+  // came from, and settles to a short glow at rest.
+  const BEAM_Y = 0.5; // down the viewport, before the mouse moves
+  const BEAM_FOLLOW = 90; // ms for the beam to close most of the gap to the mouse
   const BEAM_REST = 0.45; // strength at rest, 1 when scrolling fast
   const BEAM_TRAIL_REST = 0.03; // trail length at rest, share of the viewport
   const BEAM_TRAIL_MAX = 0.25; // trail length at full speed
@@ -487,6 +490,34 @@ const {
     { passive: true },
   );
 
+  // Shared beam position, 0 top to 1 bottom of the viewport. It eases towards
+  // the mouse; its own speed, in viewports per second, stretches the trail as
+  // scrolling does (moving down is positive, like scrolling down). Stepped
+  // once per frame however many tiles draw.
+  const beamState = { y: BEAM_Y, target: BEAM_Y, t: 0, vel: 0 };
+  window.addEventListener(
+    'pointermove',
+    (e) => {
+      // Touch would jump the beam to every tap; it stays put there
+      if (e.pointerType === 'touch') return;
+      beamState.target = Math.min(1, Math.max(0, e.clientY / window.innerHeight));
+    },
+    { passive: true },
+  );
+
+  function stepBeam(now: number) {
+    if (!beamState.t) beamState.t = now;
+    // Capped so a long gap between draws (tiles off screen) doesn't read as
+    // a fast move
+    const dt = Math.min(now - beamState.t, 100);
+    if (dt <= 0) return;
+    beamState.t = now;
+    const prev = beamState.y;
+    beamState.y += (beamState.target - beamState.y) * (1 - Math.exp(-dt / BEAM_FOLLOW));
+    const v = ((beamState.y - prev) / dt) * 1000;
+    beamState.vel = beamState.vel * 0.6 + v * 0.4;
+  }
+
   class LensFlare extends HTMLElement {
     canvas!: HTMLCanvasElement;
     gl!: WebGL2RenderingContext;
@@ -554,9 +585,11 @@ const {
       this.ro.observe(this);
       reducedMotion.addEventListener('change', this.redraw);
       document.addEventListener('visibilitychange', this.redraw);
-      // A CRT window slides over the screen as the page scrolls, so redraw
-      // straight away rather than waiting for the next 30fps frame
-      window.addEventListener('scroll', this.onScroll, { passive: true });
+      // A CRT window slides over the screen as the page scrolls, and the beam
+      // follows the mouse, so redraw straight away rather than waiting for
+      // the next 30fps frame
+      window.addEventListener('scroll', this.onMove, { passive: true });
+      window.addEventListener('pointermove', this.onMove, { passive: true });
     }
 
     disconnectedCallback() {
@@ -565,7 +598,8 @@ const {
       this.ro?.disconnect();
       reducedMotion.removeEventListener('change', this.redraw);
       document.removeEventListener('visibilitychange', this.redraw);
-      window.removeEventListener('scroll', this.onScroll);
+      window.removeEventListener('scroll', this.onMove);
+      window.removeEventListener('pointermove', this.onMove);
     }
 
     readColours() {
@@ -687,11 +721,14 @@ const {
       gl.uniform2f(up('u_origin'), rect.left * dpr, rect.top * dpr);
       gl.uniform2f(up('u_screen'), window.innerWidth * dpr, window.innerHeight * dpr);
       // Scroll speed eases off after the last scroll event, so the trail
-      // settles rather than snapping back
-      const speed = scrollState.vel * Math.exp(-(performance.now() - scrollState.t) / BEAM_SETTLE);
-      const pace = Math.min(1, Math.abs(speed) / (window.innerHeight * BEAM_FULL_SPEED));
+      // settles rather than snapping back. The beam's own speed settles as it
+      // catches up with the mouse. Both in viewports per second.
+      stepBeam(performance.now());
+      const scrolling = scrollState.vel * Math.exp(-(performance.now() - scrollState.t) / BEAM_SETTLE);
+      const speed = scrolling / window.innerHeight + beamState.vel;
+      const pace = Math.min(1, Math.abs(speed) / BEAM_FULL_SPEED);
       const trail = BEAM_TRAIL_REST + (BEAM_TRAIL_MAX - BEAM_TRAIL_REST) * pace;
-      gl.uniform1f(up('u_scan'), BEAM_Y);
+      gl.uniform1f(up('u_scan'), beamState.y);
       gl.uniform1f(up('u_trail'), speed < 0 ? -trail : trail);
       gl.uniform1f(up('u_beamAmt'), BEAM_REST + (1 - BEAM_REST) * pace);
       gl.uniform1f(up('u_screenFrame'), Math.floor(now * SCREEN_FPS) % 1024);
@@ -742,8 +779,8 @@ const {
       this.rafId = null;
     }
 
-    onScroll = () => {
-      if (this.dataset.dither === 'crt') this.redraw();
+    onMove = () => {
+      if (this.dataset.dither === 'crt' && !reducedMotion.matches) this.redraw();
     };
 
     redraw = () => {
