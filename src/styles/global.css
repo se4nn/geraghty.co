@@ -195,13 +195,20 @@ a {
   object-fit: cover;
 }
 
-/* Open: CRT power-on */
-html:active-view-transition-type(open)::view-transition-image-pair(.art) {
-  background-color: var(--neutral-1000);
-}
-
+/* Open: CRT power-on. The old tile dims to black and holds there as the
+   dark glass the hero powers on over; it covers the whole pair, so no
+   backing colour is needed. A backing on the pair would also sit behind
+   every other homepage tile, which are named too but have nothing to pair
+   with: they'd hold as black boxes over the case study until the
+   transition ends. */
 html:active-view-transition-type(open)::view-transition-old(.art) {
   animation: screen-off 240ms var(--ease-out) both;
+}
+
+/* Tiles that aren't being opened leave with the page */
+html:active-view-transition-type(open)::view-transition-old(.art):only-child,
+html:active-view-transition-type(open)::view-transition-old(.logo):only-child {
+  animation: fade-out var(--duration-s) var(--ease-out) both;
 }
 
 html:active-view-transition-type(open)::view-transition-new(.art) {
@@ -209,7 +216,7 @@ html:active-view-transition-type(open)::view-transition-new(.art) {
 }
 
 html:active-view-transition-type(open)::view-transition-old(.logo) {
-  animation: screen-off 160ms var(--ease-out) both;
+  animation: fade-out 160ms var(--ease-out) both;
 }
 
 html:active-view-transition-type(open)::view-transition-new(.logo) {
@@ -218,8 +225,13 @@ html:active-view-transition-type(open)::view-transition-new(.logo) {
 
 @keyframes screen-off {
   to {
+    filter: brightness(0);
+  }
+}
+
+@keyframes fade-out {
+  to {
     opacity: 0;
-    filter: brightness(0.4);
   }
 }
 
