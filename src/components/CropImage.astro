@@ -28,8 +28,11 @@ const [x, y, w, h] = rect;
 // least a phone screen's worth.
 const share = +(w / window).toFixed(4);
 const sizes = `max(${share} * min(100vw - 32px, 1416px), ${Math.min(share, 2.5) * 375}px)`;
-const widths = [640, 1024, 1600, 2400, 3200, 4000].filter((n) => n < src.width);
+const widths = [640, 1024, 1600, 2400, 2880, 3200, 4000].filter((n) => n < src.width);
 widths.push(src.width);
+// Astro's default webp quality left text in slides and fine lines soft on
+// Retina screens (Sean, 1 Oct 2026)
+const quality = 90;
 
 const style = [
   `--x: ${x}; --y: ${y}; --iw: ${w}; --ih: ${h};`,
@@ -47,6 +50,7 @@ const style = [
   alt={alt}
   widths={widths}
   sizes={sizes}
+  quality={quality}
   loading={eager ? 'eager' : 'lazy'}
   style={style}
 />
