@@ -5,6 +5,10 @@
 // Motion (the Crop's `motion` says when it plays):
 // from: where the image starts, as a Figma px offset [x, y] from its place
 // to: where it ends up (default: its place). Scroll drifts use both.
+//
+// frame: how a flat UI export sits on the page. screen: rounded corners, a
+// hairline and a soft shadow, so a light screen holds its edge on a light
+// background. phone: the same, inside a dark bezel (402-wide mobile frames).
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -18,9 +22,10 @@ interface Props {
   to?: [number, number];
   // Arrivals: wait this long after the Crop arrives (ms)
   delay?: number;
+  frame?: 'screen' | 'phone';
 }
 
-const { src, rect, window = 1416, alt = '', eager = false, from, to, delay = 0 } = Astro.props;
+const { src, rect, window = 1416, alt = '', eager = false, from, to, delay = 0, frame } = Astro.props;
 const [x, y, w, h] = rect;
 
 // Rendered width is the image's share of the window, the window at most the
@@ -45,7 +50,7 @@ const style = [
 ---
 
 <Image
-  class:list={['crop-image', { 'crop-image--moves': from || to }]}
+  class:list={['crop-image', { 'crop-image--moves': from || to }, frame && `crop-image--${frame}`]}
   src={src}
   alt={alt}
   widths={widths}
@@ -63,5 +68,24 @@ const style = [
     width: calc(var(--iw) * var(--s));
     height: calc(var(--ih) * var(--s));
     max-width: none;
+  }
+
+  /* Sizes are Figma px, scaled with the crop */
+  .crop-image--screen,
+  .crop-image--phone {
+    box-shadow:
+      0 0 0 1px oklch(0% 0 0 / 0.06),
+      0 calc(12 * var(--s)) calc(40 * var(--s)) oklch(0% 0 0 / 0.1);
+  }
+
+  .crop-image--screen {
+    border-radius: calc(12 * var(--s));
+  }
+
+  .crop-image--phone {
+    box-sizing: border-box;
+    border: calc(10 * var(--s)) solid var(--neutral-1000);
+    border-radius: calc(56 * var(--s));
+    background-color: var(--neutral-1000);
   }
 </style>

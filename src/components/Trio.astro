@@ -1,0 +1,21 @@
+---
+// Three images side by side, a third of the grid each (440 frames with the
+// same 48 gap as a Pair). They stack on phones.
+---
+
+<div class="trio"><slot /></div>
+
+<style>
+  .trio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl);
+  }
+
+  @media (max-width: 700px) {
+    .trio {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-l);
+    }
+  }
+</style>

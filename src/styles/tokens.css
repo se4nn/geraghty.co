@@ -48,8 +48,8 @@
   --gradient-fertifa-to: oklch(30.89% 0.1877 279.43);   /* #29008a */
   --gradient-delli-from: oklch(59.76% 0.126 103.58);    /* #8d8200 */
   --gradient-delli-to: oklch(42.26% 0.1498 271.06);     /* #32429e */
-  --gradient-studia-from: oklch(49.13% 0.0842 185);     /* #0a7067 */
-  --gradient-studia-to: oklch(51.73% 0.1904 327.9);     /* #9e319e */
+  --gradient-studia-from: oklch(86.31% 0.2237 127.34);  /* #a9eb00, Studia Neon 600 */
+  --gradient-studia-to: oklch(61.56% 0.2197 34.31);     /* #eb3900, Studia Coral 600 */
   --gradient-shuffle-from: oklch(49.52% 0.2276 328.36); /* #a000a0 */
   --gradient-shuffle-to: oklch(46.34% 0.1267 256.66);   /* #23589e */
   --gradient-minimum-from: oklch(48% 0.1006 102.3);     /* #695f00 */
@@ -114,6 +114,13 @@
   --minimum-yellow-deep: oklch(87.17% 0.1553 88.15);    /* #ffce47 */
   --minimum-violet: oklch(63.07% 0.2143 289.82);        /* #8c68ff */
   --minimum-violet-deep: oklch(52.02% 0.2767 281.64);   /* #5f2eff */
+
+  /* Studia, the case study's panels (Design System, an sRGB file; the
+     cream is the Assured Academic route's background) */
+  --studia-neon-050: oklch(98.79% 0.0347 119.29);   /* #f8ffe5 */
+  --studia-neutral-050: oklch(97.69% 0.0011 0);     /* #f8f7f7 */
+  --studia-neutral-900: oklch(19.27% 0.0201 233.09);/* #0b161c */
+  --studia-assured-cream: oklch(93.78% 0.0187 100.13); /* #edebdd */
 
   /* Colour: roles */
   --bg-page: var(--neutral-050);

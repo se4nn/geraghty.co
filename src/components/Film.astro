@@ -1,0 +1,160 @@
+---
+// A film in the story, across the grid at 1416 × 812 (three columns high,
+// so the 16:9 film loses a sliver at each side). Like the homepage showreel it
+// plays muted and looping while it's on screen, and pauses when it leaves.
+// Films here have a soundtrack worth hearing, so a button turns the sound
+// on (and starts it, if it's paused). Clicking the film plays or pauses it;
+// once someone pauses it, scrolling never restarts it. Reduced motion never
+// autoplays: the poster sits there until it's clicked.
+// Sean's media is authored: never trim or re-time it (MOTION.md).
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+
+interface Props {
+  video: string;
+  poster: ImageMetadata;
+  // What the film shows, for screen readers
+  alt: string;
+}
+
+const { video, poster, alt } = Astro.props;
+const posterImage = await getImage({ src: poster, width: 1920, format: 'webp', quality: 90 });
+---
+
+<figure class="film">
+  <video class="film__video" poster={posterImage.src} aria-label={alt} muted loop playsinline preload="none">
+    <source src={video} type="video/mp4" />
+  </video>
+  <button class="film__toggle" type="button" aria-label="Play the film">
+    <svg class="film__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
+  </button>
+  <button class="film__sound t-label" type="button" aria-pressed="false">Sound on</button>
+</figure>
+
+<style>
+  .film {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1416 / 812;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--neutral-1000);
+  }
+
+  .film__video,
+  .film__toggle {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The whole film is the play/pause button; the icon only shows when it's
+     paused */
+  .film__toggle {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .film__icon {
+    width: 72px;
+    height: 72px;
+    padding: 20px;
+    border-radius: 50%;
+    fill: var(--text-on-dark);
+    background-color: oklch(0% 0 0 / 0.45);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    transition: opacity var(--duration-s) var(--ease-out);
+  }
+
+  .film[data-paused] .film__icon {
+    opacity: 1;
+  }
+
+  .film__toggle:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: -4px;
+  }
+
+  .film__sound {
+    z-index: 1;
+  }
+
+  .film__sound {
+    position: absolute;
+    left: var(--space-m);
+    bottom: var(--space-m);
+    padding: var(--space-xs) var(--space-m);
+    border: 0;
+    border-radius: var(--radius-l);
+    color: var(--text-on-dark);
+    background-color: oklch(0% 0 0 / 0.45);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: background-color var(--duration-s) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .film__sound:hover {
+      background-color: oklch(0% 0 0 / 0.7);
+    }
+  }
+
+  .film__sound:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  for (const film of document.querySelectorAll<HTMLElement>('.film')) {
+    const video = film.querySelector('video')!;
+    const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
+    const button = film.querySelector<HTMLButtonElement>('.film__sound')!;
+    // Set once someone pauses it, so scrolling back doesn't restart it
+    let held = reducedMotion.matches;
+
+    const sync = () => {
+      film.toggleAttribute('data-paused', video.paused);
+      toggle.setAttribute('aria-label', video.paused ? 'Play the film' : 'Pause the film');
+    };
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    sync();
+
+    // Muted, it plays while a third of it is on screen
+    new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) video.pause();
+        else if (!held) video.play().catch(() => {});
+      },
+      { threshold: 0.33 },
+    ).observe(video);
+
+    toggle.addEventListener('click', () => {
+      if (video.paused) {
+        held = false;
+        video.play().catch(() => {});
+      } else {
+        held = true;
+        video.pause();
+      }
+    });
+
+    button.addEventListener('click', () => {
+      video.muted = !video.muted;
+      button.textContent = video.muted ? 'Sound on' : 'Sound off';
+      button.setAttribute('aria-pressed', String(!video.muted));
+      if (!video.muted && video.paused) video.play().catch(() => {});
+    });
+  }
+</script>
