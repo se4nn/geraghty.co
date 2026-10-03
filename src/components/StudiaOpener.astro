@@ -12,10 +12,14 @@
 //
 // Motion, from the Creator Live route's live reactions:
 // - Arrive (once, when first seen; arrival.ts): the card and quote are set
-//   down from above, the fire is lifted in, then Sophia's cursor glides in
-//   on a curve, like someone joining the session.
-// - Live (while on screen): the cursor keeps wandering over the wordmark,
-//   the fire breathes, the card and quote float on slow, unequal loops.
+//   down from above, the fire pops in like a reaction, then Sophia's cursor
+//   glides in on a curve, like someone joining the session.
+// - Live (while on screen): Sophia's cursor moves like a person's (quick,
+//   slightly curved moves that slow into place, the odd overshoot and
+//   correction, pauses with a little hand tremor; driven by the script
+//   below). Every few seconds the fire pops again and sends a copy floating
+//   up, like reactions in a livestream. The card and quote float on slow,
+//   unequal loops.
 // - Drift (scroll): nearer layers slide further than deeper ones.
 // Reduced motion: the finished still, nothing moves.
 import { Image } from 'astro:assets';
@@ -62,6 +66,7 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
         <div class="so__pane so__pane--glass" style="--radius: 66; --fill: 0.32; --stroke: 1.5;">
           <Image class="so__emoji" src={fire} alt="" widths={[fire.width / 2, fire.width]} sizes={share(132)} quality={90} />
         </div>
+        <div class="so__reactions" aria-hidden="true"></div>
       </div></div></div>
     </div>
 
@@ -145,8 +150,22 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
     backdrop-filter: blur(calc(20 * var(--s)));
   }
 
-  .so__item--cursor .so__live {
-    transform-origin: 15% 15%;
+  /* Reactions float up from the fire, over everything else */
+  .so__item--fire {
+    z-index: 1;
+  }
+
+  .so__reactions {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .so__reactions :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -162,9 +181,14 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
       rotate: 6deg;
     }
 
+    /* The fire pops in from nothing, past full size and back, like a
+       reaction landing */
     .so[data-arrival='waiting'] .so__item--fire .so__arrive {
-      translate: calc(-40 * var(--s)) calc(420 * var(--s));
-      rotate: -24deg;
+      scale: 0;
+    }
+
+    .so[data-arrival='arrived'] .so__item--fire .so__arrive {
+      transition: scale 760ms var(--ease-bounce) 420ms;
     }
 
     .so[data-arrival='waiting'] .so__item--cursor .so__arrive-x {
@@ -198,15 +222,8 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
       transition: translate 1900ms var(--ease-in-out) 650ms;
     }
 
-    /* Live, after the arrival has settled */
-    .so__item--cursor .so__live {
-      animation: so-wander 11s var(--ease-in-out) 2.6s infinite;
-    }
-
-    .so__item--fire .so__live {
-      animation: so-breathe 3.4s var(--ease-in-out) 1.8s infinite alternate;
-    }
-
+    /* Live, after the arrival has settled. The cursor and the fire's pops
+       are scripted */
     .so__item--card .so__live {
       animation: so-float 7.2s var(--ease-in-out) 1.6s infinite alternate;
       --float: 6;
@@ -248,20 +265,6 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
     }
   }
 
-  /* Someone reading the wordmark: short moves between letters, with pauses */
-  @keyframes so-wander {
-    0%, 12% { translate: 0 0; rotate: 0deg; }
-    24%, 34% { translate: calc(-46 * var(--s)) calc(-18 * var(--s)); rotate: -3deg; }
-    48%, 58% { translate: calc(-14 * var(--s)) calc(22 * var(--s)); rotate: 1deg; }
-    72%, 82% { translate: calc(34 * var(--s)) calc(-6 * var(--s)); rotate: 2deg; }
-    100% { translate: 0 0; rotate: 0deg; }
-  }
-
-  @keyframes so-breathe {
-    from { scale: 1; rotate: 0deg; }
-    to { scale: 1.06; rotate: -4deg; }
-  }
-
   @keyframes so-float {
     from { translate: 0 0; }
     to { translate: 0 calc(var(--float) * var(--s)); }
@@ -276,13 +279,152 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
 <script>
   import { whenSeen, arrive } from '../scripts/arrival';
 
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   for (const opener of document.querySelectorAll<HTMLElement>('.so')) {
-    // Arrive once when first seen; already on screen at load, it's left as is
-    whenSeen(opener, 0.3).then((seen) => {
-      if (seen) arrive(opener);
+    // Live only while it's on screen; `whenLive` waits for it to come back
+    let live = false;
+    let wake: (() => void) | null = null;
+    const whenLive = () => (live ? Promise.resolve() : new Promise<void>((r) => (wake = r)));
+    new IntersectionObserver(([entry]) => {
+      live = entry.isIntersecting;
+      opener.toggleAttribute('data-live', live);
+      if (live && wake) (wake(), (wake = null));
+    }).observe(opener);
+
+    // Arrive once when first seen; already on screen at load, it's left as
+    // is and the live motion simply starts
+    whenSeen(opener, 0.3).then(async (seen) => {
+      if (reducedMotion.matches) return;
+      if (seen) {
+        arrive(opener);
+        await wait(2600);
+      }
+      wander(opener.querySelector<HTMLElement>('.so__item--cursor .so__live')!);
+      react(opener.querySelector<HTMLElement>('.so__item--fire')!);
     });
 
-    // Live loops run only while it's on screen
-    new IntersectionObserver(([entry]) => opener.toggleAttribute('data-live', entry.isIntersecting)).observe(opener);
+    // Sophia's cursor. Positions are Figma px from where the tag sits.
+    // A move follows a gently curved path on a minimum-jerk profile (fast in
+    // the middle, slow at both ends, like a hand), takes longer the further
+    // it goes (Fitts' law), sometimes overshoots and corrects, then rests
+    // with a faint tremor
+    async function wander(el: HTMLElement) {
+      let x = 0;
+      let y = 0;
+      const place = (px: number, py: number) => {
+        el.style.translate = `calc(${px.toFixed(2)} * var(--s)) calc(${py.toFixed(2)} * var(--s))`;
+      };
+      const frame = () => new Promise<number>((r) => requestAnimationFrame(r));
+
+      async function move(tx: number, ty: number, duration: number) {
+        const sx = x;
+        const sy = y;
+        const d = Math.hypot(tx - sx, ty - sy);
+        // A control point off to one side bends the path a little
+        const bend = rand(-0.22, 0.22) * d;
+        const cx = (sx + tx) / 2 - ((ty - sy) / (d || 1)) * bend;
+        const cy = (sy + ty) / 2 + ((tx - sx) / (d || 1)) * bend;
+        let start = 0;
+        let t = 0;
+        while (t < 1) {
+          await whenLive();
+          const now = await frame();
+          if (!start) start = now;
+          t = Math.min(1, (now - start) / duration);
+          const e = t * t * t * (10 - 15 * t + 6 * t * t);
+          const u = 1 - e;
+          x = u * u * sx + 2 * u * e * cx + e * e * tx;
+          y = u * u * sy + 2 * u * e * cy + e * e * ty;
+          place(x, y);
+        }
+      }
+
+      async function rest(ms: number) {
+        const bx = x;
+        const by = y;
+        const a = rand(0.004, 0.007);
+        const b = rand(0.002, 0.005);
+        let start = 0;
+        for (;;) {
+          await whenLive();
+          const now = await frame();
+          if (!start) start = now;
+          const k = now - start;
+          if (k >= ms) break;
+          place(bx + Math.sin(k * a) * 0.7, by + Math.sin(k * b + 1) * 0.6);
+        }
+        place(bx, by);
+      }
+
+      for (;;) {
+        // Somewhere over the wordmark, not too near where it is now
+        let tx = 0;
+        let ty = 0;
+        do {
+          tx = rand(-330, 150);
+          ty = rand(-170, 70);
+        } while (Math.hypot(tx - x, ty - y) < 50);
+        // Drift home now and then, so it never strays for long
+        if (Math.random() < 0.2) (tx = rand(-12, 12)), (ty = rand(-8, 8));
+
+        const d = Math.hypot(tx - x, ty - y);
+        const duration = 240 + 125 * Math.log2(1 + d / 14);
+        if (Math.random() < 0.35) {
+          // Overshoot by a few percent, then a quick correction
+          const over = rand(0.04, 0.09);
+          await move(tx + (tx - x) * over, ty + (ty - y) * over, duration);
+          await move(tx, ty, rand(160, 240));
+        } else {
+          await move(tx, ty, duration);
+        }
+        // Sometimes a small adjustment before settling, as if reading
+        if (Math.random() < 0.3) {
+          await rest(rand(180, 420));
+          await move(x + rand(-16, 16), y + rand(-10, 10), rand(200, 300));
+        }
+        await rest(rand(500, 2600));
+      }
+    }
+
+    // The fire: every few seconds it pops, and a copy floats up and away
+    async function react(item: HTMLElement) {
+      const emoji = item.querySelector<HTMLElement>('.so__emoji')!;
+      const stream = item.querySelector<HTMLElement>('.so__reactions')!;
+      for (;;) {
+        await wait(rand(2600, 5200));
+        await whenLive();
+        emoji.animate(
+          [
+            { scale: 1, rotate: '0deg' },
+            { scale: 1.34, rotate: '-10deg', offset: 0.28 },
+            { scale: 0.9, rotate: '5deg', offset: 0.55 },
+            { scale: 1.06, rotate: '-2deg', offset: 0.78 },
+            { scale: 1, rotate: '0deg' },
+          ],
+          { duration: 680, easing: 'ease-out' },
+        );
+        const ghost = emoji.cloneNode(true) as HTMLElement;
+        ghost.removeAttribute('class');
+        stream.append(ghost);
+        const rise = rand(150, 240);
+        const sway = rand(-26, 26);
+        const spin = rand(-18, 18);
+        const s = 'var(--s)';
+        ghost
+          .animate(
+            [
+              { translate: '0 0', scale: 0.6, rotate: '0deg', opacity: 0 },
+              { translate: `calc(${sway * 0.4} * ${s}) calc(${-rise * 0.25} * ${s})`, scale: 1.05, rotate: `${spin * 0.5}deg`, opacity: 1, offset: 0.18 },
+              { translate: `calc(${-sway * 0.6} * ${s}) calc(${-rise * 0.65} * ${s})`, scale: 0.95, rotate: `${-spin * 0.4}deg`, opacity: 0.9, offset: 0.6 },
+              { translate: `calc(${sway} * ${s}) calc(${-rise} * ${s})`, scale: 0.8, rotate: `${spin}deg`, opacity: 0 },
+            ],
+            { duration: rand(1700, 2300), easing: 'cubic-bezier(0.3, 0.45, 0.2, 1)' },
+          )
+          .finished.then(() => ghost.remove());
+      }
+    }
   }
 </script>
