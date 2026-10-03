@@ -16,7 +16,7 @@
 //   scroll: tied to scroll while the crop crosses the screen
 // range, ease: the scroll range and easing (default: the whole crossing,
 //   linear)
-// caption: a line under the image (Figma: Label 19/24, 16 below, starting
+// caption: a line under the image (Body in Neutral 600, 24 below, starting
 //   48 Figma px in, in line with the screen inside the panel). The crop
 //   becomes a figure with a figcaption
 // captionInset: that indent, in Figma px (default 48)
@@ -83,7 +83,7 @@ const style = [
     {src && rect && <CropImage src={src} rect={rect} window={w} alt={alt} eager={eager} />}
     <slot />
   </div>
-  {caption && <figcaption class="crop__caption t-label">{caption}</figcaption>}
+  {caption && <figcaption class="crop__caption t-body">{caption}</figcaption>}
 </Root>
 
 <style>
@@ -111,9 +111,9 @@ const style = [
   }
 
   .crop__caption {
-    margin-top: var(--space-m);
+    margin-top: var(--space-l);
     padding-left: calc(var(--caption-inset) / var(--w) * 100cqi);
-    color: var(--text-strong);
+    color: var(--neutral-600);
   }
 
   .crop--bleed .crop__window {
