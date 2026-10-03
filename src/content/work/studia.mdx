@@ -85,17 +85,21 @@ I kept what worked, the live lessons, replays and homework, and redesigned the r
 <Section title="Three Customers">
 <Column>
 
-Most tutoring platforms are built for one customer. Studia had three. The tutor wanted to earn more than an hourly rate. The student wanted to know what to revise tonight. The parent was paying, and wanted proof it was working.
+Most tutoring platforms are built for one customer. Studia had three. Tutors wanted more than an hourly rate, from platforms that took 25–40% of it. Students wanted to know what to revise tonight. Parents were paying, and wanted proof it was working.
 
 </Column>
 <Column>
 
-Each of them measured success differently, so it couldn’t be one product with three logins. Our interviews with students pointed the same way: most weren’t short of content, they were short of a plan.
+Each of them measured success differently, so it couldn’t be one product with three logins. Our interviews with students made the point sharper: most weren’t short of content, they were short of a plan.
 
 </Column>
 </Section>
 
 <Crop window={[1416, 508]} src={threeCustomers} rect={[0, 0, 1416, 508]} caption="Three customers, three ideas of success" alt="Three illustrations, one per customer. Tutor: a five-star tutor ringed by a clock and a money bag. Student: a girl revising alone, a sad face beside her. Parent: two tutor cards with their hourly prices" />
+
+</Chapter>
+
+<Chapter label="The brand" glow>
 
 <Section title="Two Routes">
 <Column>
@@ -116,6 +120,8 @@ We kept something from each. The brand took Creator Live’s condensed wordmark 
   <Crop window={[684, 812]} src={brandAssuredAcademic} rect={[0, 0, 684, 812]} caption="Assured Academic" alt="Assured Academic: two phones on cream under the Studia wordmark, a tutor live under “Where tuition goes LIVE” and a subject list on a soft pink gradient" />
   <Crop window={[684, 812]} src={brandCreatorLive} rect={[0, 0, 684, 812]} caption="Creator Live" alt="Creator Live: a billboard on a brick wall, “Newtons Law of Motion” in fat rounded letters on mint" />
 </Pair>
+
+<Crop window={[1416, 512]} src={logoAppIcon} rect={[0, 0, 1416, 512]} caption="The wordmark and app icon" alt="The Studia wordmark on neon, and the app icon: the condensed wordmark stacked on a neon tile" />
 
 <Section title="Going Live Before Launch">
 <Column>
@@ -161,9 +167,29 @@ Tutoring sites make tutors look like listings: a photo, a price and a list of su
 </Column>
 <Column>
 
+It took more than 50 versions to get there: from a wireframe that read like a listing to a page that opens with a line in the tutor’s own voice, then the proof a parent looks for. DBS, verified ID, reviews, grades improved and how fast they reply.
+
+</Column>
+</Section>
+
+<Pair>
+  <Crop window={[684, 812]} src={profileInitialWireframe} rect={[0, 0, 684, 812]} caption="Initial Wireframe" alt="Sophie Anderson’s profile as a listing, lessons and pricing, availability and reviews in grey boxes" />
+  <Crop window={[684, 812]} src={profileDevelopedDesign} rect={[0, 0, 684, 812]} caption="Developed Design" alt="“I make calculus fun. Confident & calm tutor at Cambridge, from Hackney”, with stats, sessions and plans, and a library" />
+</Pair>
+
+<Crop window={[1416, 812]} src={profileFinal} rect={[0, 0, 1416, 812]} caption="Final Design" alt="The Hero tutor profile, top and bottom, from the lime header and Kevin’s card to his education, subjects and specialisms, and tutors you may also like" />
+
+<Section>
+<Column>
+
+One template had to cover two kinds of tutor. Hero tutors, the handful Studia planned to launch with, teach live and sell a monthly subscription. Everyone else teaches one to one.
+
+</Column>
+<Column>
+
 **Change:**
 
-One template, two kinds of tutor. Hero tutors, the handful Studia planned to launch with, get a library of past livestreams and a Subscribe to Live card. Everyone else gets a free introduction call, which is what a new tutor needs most.
+Hero profiles get a library of past livestreams and a Subscribe to Live card. Everyone else gets a free introduction call instead, which is what a new tutor needs most.
 
 </Column>
 </Section>
@@ -181,12 +207,12 @@ The first analytics wireframe was a wall of numbers. I asked a different questio
 </Column>
 <Column>
 
-We put it in front of five Studia tutors for 45 minutes each. The weekly calendar and the income breakdown landed straight away. The AI insights did too, but tutors wanted to know why before acting on one, so every number got a “Why?”.
+We put it in front of five Studia tutors for 45 minutes each, and cut by what they did. The weekly calendar and income breakdown stayed. Time utilisation, measured against a maximum nobody had chosen, went. No-shows came out of the headline numbers. AI insights stayed, but each one got a “Why?” first.
 
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} src={tutorUserTests} rect={[0, 0, 1416, 812]} alt="The modules tutors tested: time utilisation, AI insights, unlocking livestreams, revenue breakdown and KPIs" />
+<Crop window={[1416, 812]} src={tutorUserTests} rect={[0, 0, 1416, 812]} caption="The modules five tutors tested" alt="The modules tutors tested: time utilisation, AI insights, unlocking livestreams, revenue breakdown and KPIs" />
 
 <Section>
 <Column>
@@ -203,7 +229,7 @@ Students only see tutors live once they’ve proved themselves one to one, and n
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} bg="var(--studia-neon-050)">
+<Crop window={[1416, 812]} bg="var(--studia-neon-050)" caption="Livestreams stay locked until they’re earned" captionInset={72}>
   <CropImage src={analyticsLocked} rect={[72, 72, 1272, 881.22]} frame="screen" alt="A tutor’s analytics with livestreams still locked: “Unlock live streams”, 60% there, with lessons completed, attendance, rating, subjects taught and verified ID as a checklist" />
 </Crop>
 
@@ -232,12 +258,12 @@ It also read the tutor’s lesson plan and suggested quick-fire polls, timed to 
 <Section title="Who Pays, Who Learns">
 <Column>
 
-The student and the parent see the same lessons for different reasons. Oliver’s dashboard leads with his next class and a Join button. Sarah’s leads with what each of her children did this month, and what it cost.
+Students had told us they were short of a plan, so Oliver’s dashboard leads with what to do next: his next class and a Join button. The first draft, out of Figma Make, put everything on one screen. Three rounds later, spend and subscriptions had moved to his parent.
 
 </Column>
 <Column>
 
-When a student subscribes to a tutor, the parent approves it. Under-16s can’t pay for anything themselves, so billing lives with the parent.
+Sarah’s dashboard leads with what each of her children did this month, and what it cost. When a student subscribes to a tutor, the parent approves it. Under-16s can’t pay for anything themselves, so billing lives with the parent.
 
 </Column>
 </Section>
@@ -251,27 +277,9 @@ When a student subscribes to a tutor, the parent approves it. Under-16s can’t 
   </Crop>
 </Pair>
 
-<Section title="Less Dashboard">
-<Column>
+</Chapter>
 
-Every screen went through the same cut. The tutor profile took more than 50 versions, from a wireframe that read like a listing to a page that opens with a line in the tutor’s own voice, then the proof a parent looks for: DBS, verified ID, reviews, grades improved and how fast they reply. I tested it with parents on Ballpark.
-
-</Column>
-<Column>
-
-**Change:**
-
-The student dashboard went the same way. The first draft came out of Figma Make with everything on one screen. Three rounds later it leads with the next lesson, and the money lives on the parent’s dashboard.
-
-</Column>
-</Section>
-
-<Pair>
-  <Crop window={[684, 812]} src={profileInitialWireframe} rect={[0, 0, 684, 812]} caption="Initial Wireframe" alt="Sophie Anderson’s profile as a listing, lessons and pricing, availability and reviews in grey boxes" />
-  <Crop window={[684, 812]} src={profileDevelopedDesign} rect={[0, 0, 684, 812]} caption="Developed Design" alt="“I make calculus fun. Confident & calm tutor at Cambridge, from Hackney”, with stats, sessions and plans, and a library" />
-</Pair>
-
-<Crop window={[1416, 812]} src={profileFinal} rect={[0, 0, 1416, 812]} caption="Final Design" alt="The Hero tutor profile, top and bottom, from the lime header and Kevin’s card to his education, subjects and specialisms, and tutors you may also like" />
+<Chapter label="The system" glow>
 
 <Section title="The System">
 <Column>
@@ -288,8 +296,6 @@ Six softer accents mark subjects, session types and badges. From those atoms cam
 
 <Crop window={[1416, 512]} src={systemComponentsAtoms} rect={[0, 0, 1416, 512]} alt="Studia’s design system atoms: progress meters, buttons in every style, inputs in their states, alerts, filters, a tooltip, labels, toggles, checkboxes and a verification code" />
 
-<Crop window={[1416, 512]} src={logoAppIcon} rect={[0, 0, 1416, 512]} alt="The Studia wordmark on neon, and the app icon: the condensed wordmark stacked on a neon tile" />
-
 <Crop window={[1416, 812]} src={systemProduct} rect={[0, -1.15, 1416, 814.3]} alt="Product components built from them: notifications, a missed-lesson alert, stat cards, personality chips, a locked weekly schedule, a class subscription card, a Hero tutor card, and Subscribe to Live and Book 1:1 Lesson cards" />
 
 </Chapter>
@@ -299,14 +305,14 @@ Six softer accents mark subjects, session types and badges. From those atoms cam
 <Section title="What Happened Next">
 <Column>
 
-Studia is now live at [studia.io](https://studia.io).
+Studia is live at [studia.io](https://studia.io). I wrapped up in January 2026 and handed over a design system, the tutor journey from application to first livestream, and the student and parent dashboards to build on.
 
 </Column>
 <Column>
 
-**What’s next:**
+**Looking back:**
 
-Studia has more on the way that isn’t public yet. More on that once it is.
+The exciting idea was a creator platform for tutors. But parents only buy into that if the basics feel safe: vetting, honest profiles, and a dashboard that tells each person what to do next. That’s where most of my time went, and I’d start there again.
 
 </Column>
 </Section>
