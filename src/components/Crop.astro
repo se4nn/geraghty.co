@@ -16,6 +16,10 @@
 //   scroll: tied to scroll while the crop crosses the screen
 // range, ease: the scroll range and easing (default: the whole crossing,
 //   linear)
+// caption: a line under the image (Figma: Label 19/24, 16 below, starting
+//   48 Figma px in, in line with the screen inside the panel). The crop
+//   becomes a figure with a figcaption
+// captionInset: that indent, in Figma px (default 48)
 // More layers (CropImage, CropLink) can be slotted on top.
 import type { ImageMetadata } from 'astro';
 import CropImage from './CropImage.astro';
@@ -33,6 +37,8 @@ interface Props {
   range?: string;
   ease?: string;
   eager?: boolean;
+  caption?: string;
+  captionInset?: number;
   class?: string;
 }
 
@@ -49,8 +55,11 @@ const {
   range,
   ease,
   eager = false,
+  caption,
+  captionInset = 48,
   class: className,
 } = Astro.props;
+const Root = caption ? 'figure' : 'div';
 
 const style = [
   `--w: ${w}`,
@@ -60,12 +69,13 @@ const style = [
   bg && `--crop-bg: ${bg}`,
   range && `--drift-range: ${range}`,
   ease && `--drift-ease: ${ease}`,
+  caption && `--caption-inset: ${captionInset}`,
 ]
   .filter(Boolean)
   .join('; ');
 ---
 
-<div
+<Root
   class:list={['crop', { 'crop--bleed': bleed, 'crop--focus': focus !== undefined }, motion && `crop--${motion}`, className]}
   style={style}
 >
@@ -73,10 +83,12 @@ const style = [
     {src && rect && <CropImage src={src} rect={rect} window={w} alt={alt} eager={eager} />}
     <slot />
   </div>
-</div>
+  {caption && <figcaption class="crop__caption t-label">{caption}</figcaption>}
+</Root>
 
 <style>
   .crop {
+    margin: 0;
     container-type: inline-size;
     /* 0: layers sit at their Figma x. 1: centred on --fx (phones only) */
     --anchor: 0;
@@ -96,6 +108,12 @@ const style = [
     overflow: clip;
     border-radius: var(--radius-s);
     background-color: var(--crop-bg, transparent);
+  }
+
+  .crop__caption {
+    margin-top: var(--space-m);
+    padding-left: calc(var(--caption-inset) / var(--w) * 100cqi);
+    color: var(--text-strong);
   }
 
   .crop--bleed .crop__window {
