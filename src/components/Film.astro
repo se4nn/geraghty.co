@@ -5,6 +5,8 @@
 // Films here have a soundtrack worth hearing, so a button turns the sound
 // on (and starts it, if it's paused). A silent loop (the design system in
 // motion) passes `sound={false}` and its own `ratio`, and gets no button.
+// A film that plays once (`loop={false}`) stops on its last frame and gets a
+// small Replay button bottom left, in the place of the sound button.
 // Clicking the film plays or pauses it; once someone pauses it, scrolling
 // never restarts it. Reduced motion never
 // autoplays: the poster sits there until it's clicked.
@@ -29,20 +31,23 @@ interface Props {
   sound?: boolean;
   // Width the poster is made at; 2x the slot for a loop that needs to be crisp
   posterWidth?: number;
+  // Loops by default. Without it the film plays once, stops, and offers Replay
+  loop?: boolean;
 }
 
-const { video, encrypted, poster, alt, ratio = [1416, 812], sound = true, posterWidth = 1920 } = Astro.props;
+const { video, encrypted, poster, alt, ratio = [1416, 812], sound = true, posterWidth = 1920, loop = true } = Astro.props;
 const posterImage = await getImage({ src: poster, width: posterWidth, format: 'webp', quality: 90 });
 ---
 
 <figure class="film" style={`aspect-ratio: ${ratio[0]} / ${ratio[1]}`} data-encrypted={encrypted} data-locked={encrypted ? '' : undefined}>
-  <video class="film__video" poster={posterImage.src} aria-label={alt} muted={!encrypted} loop playsinline preload="none">
+  <video class="film__video" poster={posterImage.src} aria-label={alt} muted={!encrypted} loop={loop} playsinline preload="none">
     {video && <source src={video} type="video/mp4" />}
   </video>
   <button class="film__toggle" type="button" aria-label="Play the film">
     <svg class="film__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
   </button>
   {sound && <button class="film__sound t-label" type="button" aria-pressed="false">Sound on</button>}
+  {!loop && <button class="film__replay t-label" type="button">Replay</button>}
   {
     encrypted && (
       <form class="film__lock">
@@ -105,12 +110,18 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     opacity: 1;
   }
 
+  /* A film that has finished shows its last frame, not a play button */
+  .film[data-ended] .film__icon {
+    opacity: 0;
+  }
+
   .film__toggle:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: -4px;
   }
 
-  .film__sound {
+  .film__sound,
+  .film__replay {
     position: absolute;
     z-index: 1;
     left: var(--space-m);
@@ -126,12 +137,14 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   }
 
   @media (hover: hover) {
-    .film__sound:hover {
+    .film__sound:hover,
+    .film__replay:hover {
       background-color: oklch(0% 0 0 / 0.7);
     }
   }
 
-  .film__sound:focus-visible {
+  .film__sound:focus-visible,
+  .film__replay:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
   }
@@ -230,12 +243,14 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     const video = film.querySelector('video')!;
     const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
     const button = film.querySelector<HTMLButtonElement>('.film__sound');
+    const replay = film.querySelector<HTMLButtonElement>('.film__replay');
     // Set once someone pauses it, so scrolling back doesn't restart it.
     // A locked film waits for its password.
     let held = reducedMotion.matches || film.hasAttribute('data-locked');
 
     const sync = () => {
       film.toggleAttribute('data-paused', video.paused);
+      film.toggleAttribute('data-ended', video.ended);
       toggle.setAttribute('aria-label', video.paused ? 'Play the film' : 'Pause the film');
       if (button) {
         button.textContent = video.muted ? 'Sound on' : 'Sound off';
@@ -245,13 +260,14 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     video.addEventListener('play', sync);
     video.addEventListener('pause', sync);
     video.addEventListener('volumechange', sync);
+    video.addEventListener('ended', sync);
     sync();
 
     // Muted, it plays while a third of it is on screen
     new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) video.pause();
-        else if (!held) video.play().catch(() => {});
+        else if (!held && !video.ended) video.play().catch(() => {});
       },
       { threshold: 0.33 },
     ).observe(video);
@@ -264,6 +280,13 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
         held = true;
         video.pause();
       }
+    });
+
+    // Replay starts again from the top, whether it finished or was paused
+    replay?.addEventListener('click', () => {
+      held = false;
+      video.currentTime = 0;
+      video.play().catch(() => {});
     });
 
     button?.addEventListener('click', () => {
