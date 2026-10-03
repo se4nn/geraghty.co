@@ -1,0 +1,288 @@
+---
+// The Studia opener (Figma: Portfolio › Studia · Case study assets,
+// "Opener" 2344:210963), rebuilt in layers so the pieces around the
+// wordmark can move. The neon and wordmark are one image; the tutor card,
+// the quote, the fire and Sophia's cursor sit on top at their Figma
+// positions (1416 × 812 px, scaled by --s).
+//
+// The card, quote and fire are glass in Figma (GLASS / BACKGROUND_BLUR), so
+// their panes are drawn here with backdrop-filter and only their contents
+// are images: as they move they blur the real wordmark behind them, not a
+// copy baked into the picture.
+//
+// Motion, from the Creator Live route's live reactions:
+// - Arrive (once, when first seen; arrival.ts): the card and quote are set
+//   down from above, the fire is lifted in, then Sophia's cursor glides in
+//   on a curve, like someone joining the session.
+// - Live (while on screen): the cursor keeps wandering over the wordmark,
+//   the fire breathes, the card and quote float on slow, unequal loops.
+// - Drift (scroll): nearer layers slide further than deeper ones.
+// Reduced motion: the finished still, nothing moves.
+import { Image } from 'astro:assets';
+import base from '../assets/work/studia/opener/base.png';
+import card from '../assets/work/studia/opener/card.png';
+import quote from '../assets/work/studia/opener/quote.png';
+import fire from '../assets/work/studia/opener/fire.png';
+import tag from '../assets/work/studia/opener/tag.png';
+
+interface Props {
+  alt: string;
+}
+const { alt } = Astro.props;
+
+const W = 1416;
+const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}px), ${Math.min(1, (w / W) * 2.5) * 375}px)`;
+---
+
+<div class="so" role="img" aria-label={alt}>
+  <div class="so__window">
+    <Image class="so__base" src={base} alt="" widths={[1024, 1600, 2400, base.width]} sizes={share(W)} quality={90} loading="eager" fetchpriority="high" />
+
+    <!-- Tutor card: 64,134, 312 × 114, rotated 4° -->
+    <div class="so__item so__item--card" style="--x: 64; --y: 134; --w: 312; --h: 114; --r: -4deg;">
+      <div class="so__drift"><div class="so__arrive"><div class="so__live">
+        <div class="so__pane so__pane--glass" style="--radius: 18; --fill: 0.52; --stroke: 2.25;">
+          <Image src={card} alt="" widths={[card.width / 2, card.width]} sizes={share(312)} quality={90} />
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- Quote: 1087,144, 307 × 42, rotated −10° -->
+    <div class="so__item so__item--quote" style="--x: 1087; --y: 144; --w: 307; --h: 42; --r: 10deg;">
+      <div class="so__drift"><div class="so__arrive"><div class="so__live">
+        <div class="so__pane so__pane--blur" style="--radius: 36; --fill: 0.68; --stroke: 2.25;">
+          <Image src={quote} alt="" widths={[quote.width / 2, quote.width]} sizes={share(307)} quality={90} />
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- Fire: 36,434, 132 × 132, rotated 15° -->
+    <div class="so__item so__item--fire" style="--x: 36; --y: 434; --w: 132; --h: 132; --r: -15deg;">
+      <div class="so__drift"><div class="so__arrive"><div class="so__live">
+        <div class="so__pane so__pane--glass" style="--radius: 66; --fill: 0.32; --stroke: 1.5;">
+          <Image class="so__emoji" src={fire} alt="" widths={[fire.width / 2, fire.width]} sizes={share(132)} quality={90} />
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- Sophia's cursor: the tag at 927,421 (131 × 48); its image carries
+         30 px of room for the pointer and shadow -->
+    <div class="so__item so__item--cursor" style="--x: 897; --y: 391; --w: 191; --h: 108; --r: 0deg;">
+      <div class="so__arrive-x"><div class="so__arrive-y"><div class="so__live">
+        <Image src={tag} alt="" widths={[tag.width / 2, tag.width]} sizes={share(191)} quality={90} />
+      </div></div></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .so {
+    container-type: inline-size;
+  }
+
+  .so__window {
+    --s: calc(100cqi / 1416);
+    position: relative;
+    height: calc(812 * var(--s));
+    overflow: clip;
+    border-radius: var(--radius-s);
+    background-color: oklch(92.8% 0.2202 125); /* #c6ff33, under the image */
+  }
+
+  .so__base {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .so__item {
+    position: absolute;
+    left: calc(var(--x) * var(--s));
+    top: calc(var(--y) * var(--s));
+    width: calc(var(--w) * var(--s));
+    height: calc(var(--h) * var(--s));
+  }
+
+  .so__item :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .so__drift,
+  .so__arrive,
+  .so__arrive-x,
+  .so__arrive-y,
+  .so__live {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* A pane rotates about its top left corner, as in Figma */
+  .so__pane {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--radius) * var(--s));
+    transform-origin: 0 0;
+    rotate: var(--r);
+    background:
+      linear-gradient(135deg, oklch(100% 0 0 / 0.22), oklch(100% 0 0 / 0) 55%),
+      oklch(100% 0 0 / var(--fill));
+    box-shadow:
+      inset 0 0 0 calc(var(--stroke) * var(--s)) oklch(100% 0 0 / 0.4),
+      0 calc(6.75 * var(--s)) calc(18 * var(--s)) calc(-3.375 * var(--s)) oklch(19.27% 0.0201 233.09 / 0.2);
+  }
+
+  /* Figma's GLASS frosts what's behind it; its BACKGROUND_BLUR (40) is
+     about half that radius in CSS */
+  .so__pane--glass {
+    backdrop-filter: blur(calc(16 * var(--s))) saturate(1.15);
+  }
+
+  .so__pane--blur {
+    backdrop-filter: blur(calc(20 * var(--s)));
+  }
+
+  .so__item--cursor .so__live {
+    transform-origin: 15% 15%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Arrive. Waiting: off the window, which clips them. Arrived: the long,
+       soft out the case study phones use, one after another */
+    .so[data-arrival='waiting'] .so__item--card .so__arrive {
+      translate: 0 calc(-300 * var(--s));
+      rotate: -6deg;
+    }
+
+    .so[data-arrival='waiting'] .so__item--quote .so__arrive {
+      translate: 0 calc(-260 * var(--s));
+      rotate: 6deg;
+    }
+
+    .so[data-arrival='waiting'] .so__item--fire .so__arrive {
+      translate: calc(-40 * var(--s)) calc(420 * var(--s));
+      rotate: -24deg;
+    }
+
+    .so[data-arrival='waiting'] .so__item--cursor .so__arrive-x {
+      translate: calc(560 * var(--s)) 0;
+    }
+
+    .so[data-arrival='waiting'] .so__item--cursor .so__arrive-y {
+      translate: 0 calc(260 * var(--s));
+    }
+
+    .so[data-arrival='arrived'] .so__arrive {
+      transition:
+        translate 1600ms var(--ease-out-expo) var(--delay, 0ms),
+        rotate 1600ms var(--ease-out-expo) var(--delay, 0ms);
+    }
+
+    .so__item--quote {
+      --delay: 140ms;
+    }
+
+    .so__item--fire {
+      --delay: 280ms;
+    }
+
+    /* The cursor comes in on a curve: x eases out, y eases in and out */
+    .so[data-arrival='arrived'] .so__arrive-x {
+      transition: translate 1900ms var(--ease-out-expo) 650ms;
+    }
+
+    .so[data-arrival='arrived'] .so__arrive-y {
+      transition: translate 1900ms var(--ease-in-out) 650ms;
+    }
+
+    /* Live, after the arrival has settled */
+    .so__item--cursor .so__live {
+      animation: so-wander 11s var(--ease-in-out) 2.6s infinite;
+    }
+
+    .so__item--fire .so__live {
+      animation: so-breathe 3.4s var(--ease-in-out) 1.8s infinite alternate;
+    }
+
+    .so__item--card .so__live {
+      animation: so-float 7.2s var(--ease-in-out) 1.6s infinite alternate;
+      --float: 6;
+    }
+
+    .so__item--quote .so__live {
+      animation: so-float 5.6s var(--ease-in-out) 1.9s infinite alternate-reverse;
+      --float: 7;
+    }
+
+    /* Only while it's on screen */
+    .so:not([data-live]) .so__live {
+      animation-play-state: paused;
+    }
+
+    /* Drift with scroll: the fire is nearest, the quote furthest */
+    @supports (animation-timeline: view()) {
+      .so {
+        view-timeline-name: --studia-opener;
+      }
+
+      .so__drift {
+        animation: so-drift linear both;
+        animation-timeline: --studia-opener;
+        animation-range: cover 0% cover 100%;
+      }
+
+      .so__item--card .so__drift {
+        --depth: 36;
+      }
+
+      .so__item--quote .so__drift {
+        --depth: 24;
+      }
+
+      .so__item--fire .so__drift {
+        --depth: 56;
+      }
+    }
+  }
+
+  /* Someone reading the wordmark: short moves between letters, with pauses */
+  @keyframes so-wander {
+    0%, 12% { translate: 0 0; rotate: 0deg; }
+    24%, 34% { translate: calc(-46 * var(--s)) calc(-18 * var(--s)); rotate: -3deg; }
+    48%, 58% { translate: calc(-14 * var(--s)) calc(22 * var(--s)); rotate: 1deg; }
+    72%, 82% { translate: calc(34 * var(--s)) calc(-6 * var(--s)); rotate: 2deg; }
+    100% { translate: 0 0; rotate: 0deg; }
+  }
+
+  @keyframes so-breathe {
+    from { scale: 1; rotate: 0deg; }
+    to { scale: 1.06; rotate: -4deg; }
+  }
+
+  @keyframes so-float {
+    from { translate: 0 0; }
+    to { translate: 0 calc(var(--float) * var(--s)); }
+  }
+
+  @keyframes so-drift {
+    from { translate: 0 calc(var(--depth, 0) * var(--s)); }
+    to { translate: 0 calc(var(--depth, 0) * -1 * var(--s)); }
+  }
+</style>
+
+<script>
+  import { whenSeen, arrive } from '../scripts/arrival';
+
+  for (const opener of document.querySelectorAll<HTMLElement>('.so')) {
+    // Arrive once when first seen; already on screen at load, it's left as is
+    whenSeen(opener, 0.3).then((seen) => {
+      if (seen) arrive(opener);
+    });
+
+    // Live loops run only while it's on screen
+    new IntersectionObserver(([entry]) => opener.toggleAttribute('data-live', entry.isIntersecting)).observe(opener);
+  }
+</script>
