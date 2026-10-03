@@ -6,29 +6,49 @@
 // on (and starts it, if it's paused). Clicking the film plays or pauses it;
 // once someone pauses it, scrolling never restarts it. Reduced motion never
 // autoplays: the poster sits there until it's clicked.
+//
+// Private films: pass `encrypted` instead of `video`, the path to a file made
+// by scripts/encrypt-film.mjs. The poster shows with a password field; the
+// right password decrypts the film in the browser (AES-GCM, key from PBKDF2)
+// and it plays with sound. The plain MP4 is never shipped.
 // Sean's media is authored: never trim or re-time it (MOTION.md).
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
 
 interface Props {
-  video: string;
+  video?: string;
+  encrypted?: string;
   poster: ImageMetadata;
   // What the film shows, for screen readers
   alt: string;
 }
 
-const { video, poster, alt } = Astro.props;
+const { video, encrypted, poster, alt } = Astro.props;
 const posterImage = await getImage({ src: poster, width: 1920, format: 'webp', quality: 90 });
 ---
 
-<figure class="film">
-  <video class="film__video" poster={posterImage.src} aria-label={alt} muted loop playsinline preload="none">
-    <source src={video} type="video/mp4" />
+<figure class="film" data-encrypted={encrypted} data-locked={encrypted ? '' : undefined}>
+  <video class="film__video" poster={posterImage.src} aria-label={alt} muted={!encrypted} loop playsinline preload="none">
+    {video && <source src={video} type="video/mp4" />}
   </video>
   <button class="film__toggle" type="button" aria-label="Play the film">
     <svg class="film__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
   </button>
   <button class="film__sound t-label" type="button" aria-pressed="false">Sound on</button>
+  {
+    encrypted && (
+      <form class="film__lock">
+        <p class="film__lock-title t-body-bold">This film is private</p>
+        <p class="film__lock-note t-label">Enter the password to watch it.</p>
+        <div class="film__lock-row">
+          <label class="visually-hidden" for="film-password">Password</label>
+          <input class="film__lock-input t-label" id="film-password" type="password" autocomplete="off" required />
+          <button class="film__lock-button t-label" type="submit">Watch</button>
+        </div>
+        <p class="film__lock-status t-label" role="status" aria-live="polite" />
+      </form>
+    )
+  }
 </figure>
 
 <style>
@@ -84,11 +104,8 @@ const posterImage = await getImage({ src: poster, width: 1920, format: 'webp', q
   }
 
   .film__sound {
-    z-index: 1;
-  }
-
-  .film__sound {
     position: absolute;
+    z-index: 1;
     left: var(--space-m);
     bottom: var(--space-m);
     padding: var(--space-xs) var(--space-m);
@@ -111,24 +128,114 @@ const posterImage = await getImage({ src: poster, width: 1920, format: 'webp', q
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
   }
+
+  /* Locked: the poster, dimmed, with the password form in the middle */
+  .film[data-locked] .film__toggle,
+  .film[data-locked] .film__sound {
+    display: none;
+  }
+
+  .film__lock {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-m);
+    text-align: center;
+    color: var(--text-on-dark);
+    background-color: oklch(0% 0 0 / 0.55);
+    backdrop-filter: blur(6px);
+  }
+
+  .film:not([data-locked]) .film__lock {
+    display: none;
+  }
+
+  .film__lock-title,
+  .film__lock-note,
+  .film__lock-status {
+    margin: 0;
+  }
+
+  .film__lock-note,
+  .film__lock-status {
+    color: var(--text-on-dark-muted);
+  }
+
+  .film__lock-row {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+  }
+
+  .film__lock-input,
+  .film__lock-button {
+    padding: var(--space-xs) var(--space-m);
+    border-radius: var(--radius-l);
+  }
+
+  .film__lock-input {
+    width: min(240px, 50vw);
+    border: 1px solid oklch(100% 0 0 / 0.3);
+    color: var(--text-on-dark);
+    background-color: oklch(100% 0 0 / 0.1);
+  }
+
+  .film__lock-button {
+    border: 0;
+    color: var(--neutral-1000);
+    background-color: var(--brand-neon);
+    cursor: pointer;
+  }
+
+  .film__lock-input:focus-visible,
+  .film__lock-button:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: 2px;
+  }
 </style>
 
 <script>
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  // Must match scripts/encrypt-film.mjs
+  async function decrypt(url: string, password: string) {
+    const data = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    const salt = data.slice(4, 20);
+    const iv = data.slice(20, 32);
+    const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 310_000, hash: 'SHA-256' },
+      material,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt'],
+    );
+    // A wrong password fails the GCM tag check and throws
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data.slice(32));
+    return URL.createObjectURL(new Blob([plain], { type: 'video/mp4' }));
+  }
+
   for (const film of document.querySelectorAll<HTMLElement>('.film')) {
     const video = film.querySelector('video')!;
     const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
     const button = film.querySelector<HTMLButtonElement>('.film__sound')!;
-    // Set once someone pauses it, so scrolling back doesn't restart it
-    let held = reducedMotion.matches;
+    // Set once someone pauses it, so scrolling back doesn't restart it.
+    // A locked film waits for its password.
+    let held = reducedMotion.matches || film.hasAttribute('data-locked');
 
     const sync = () => {
       film.toggleAttribute('data-paused', video.paused);
       toggle.setAttribute('aria-label', video.paused ? 'Play the film' : 'Pause the film');
+      button.textContent = video.muted ? 'Sound on' : 'Sound off';
+      button.setAttribute('aria-pressed', String(!video.muted));
     };
     video.addEventListener('play', sync);
     video.addEventListener('pause', sync);
+    video.addEventListener('volumechange', sync);
     sync();
 
     // Muted, it plays while a third of it is on screen
@@ -152,9 +259,32 @@ const posterImage = await getImage({ src: poster, width: 1920, format: 'webp', q
 
     button.addEventListener('click', () => {
       video.muted = !video.muted;
-      button.textContent = video.muted ? 'Sound on' : 'Sound off';
-      button.setAttribute('aria-pressed', String(!video.muted));
       if (!video.muted && video.paused) video.play().catch(() => {});
+    });
+
+    // Private films
+    const form = film.querySelector<HTMLFormElement>('.film__lock');
+    if (!form) continue;
+    const input = form.querySelector('input')!;
+    const status = form.querySelector('.film__lock-status')!;
+    const submit = form.querySelector<HTMLButtonElement>('button')!;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submit.disabled = true;
+      status.textContent = 'Unlocking…';
+      try {
+        video.src = await decrypt(film.dataset.encrypted!, input.value);
+        film.removeAttribute('data-locked');
+        held = false;
+        video.muted = false;
+        await video.play().catch(() => {});
+        toggle.focus();
+      } catch {
+        status.textContent = 'That password isn’t right.';
+        input.select();
+      } finally {
+        submit.disabled = false;
+      }
     });
   }
 </script>
