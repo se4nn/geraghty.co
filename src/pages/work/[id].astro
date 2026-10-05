@@ -17,6 +17,7 @@ import Badge from '../../components/Badge.astro';
 import Skills from '../../components/Skills.astro';
 import Crop from '../../components/Crop.astro';
 import CropImage from '../../components/CropImage.astro';
+import CompareScreens from '../../components/CompareScreens.astro';
 import CropLink from '../../components/CropLink.astro';
 import Pair from '../../components/Pair.astro';
 import Trio from '../../components/Trio.astro';
@@ -75,6 +76,7 @@ const components = {
   Skills,
   Crop,
   CropImage,
+  CompareScreens,
   CropLink,
   Pair,
   Trio,
@@ -89,7 +91,7 @@ const components = {
 };
 ---
 
-<Base title={`${title}, a case study by Sean Geraghty`} description={study.summary}>
+<Base title={`${title}, a case study by Sean Geraghty`} description={study.summary} image={`/og/${project.id}.jpg`}>
   <main>
     <!-- Everything before the footer. The availability pill parks at the
          end of the story, clear of the Next Project tile, which runs

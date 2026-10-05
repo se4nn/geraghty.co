@@ -22,11 +22,8 @@ caseStudy:
       href: https://studia.io
 ---
 
-import before from '../../assets/work/studia/before.png';
-import threeCustomers from '../../assets/work/studia/three-customers.png';
 import brandAssuredAcademic from '../../assets/work/studia/brand-assured-academic.png';
 import brandCreatorLive from '../../assets/work/studia/brand-creator-live.png';
-import filmPoster from '../../assets/work/studia/film-poster.png';
 import earningAPlace from '../../assets/work/studia/earning-a-place.png';
 import profileInitialWireframe from '../../assets/work/studia/profile-initial-wireframe.png';
 import profileDevelopedDesign from '../../assets/work/studia/profile-developed-design.png';
@@ -34,18 +31,17 @@ import profileFinal from '../../assets/work/studia/profile-final.png';
 import tutorTypeHero from '../../assets/work/studia/tutor-type-hero.png';
 import tutorTypeRegular from '../../assets/work/studia/tutor-type-regular.png';
 import tutorUserTests from '../../assets/work/studia/tutor-user-tests.png';
-import analyticsLocked from '../../assets/work/studia/analytics-locked.png';
 import aiAutomatedReplies from '../../assets/work/studia/ai-automated-replies.png';
 import aiPollSuggestion from '../../assets/work/studia/ai-poll-suggestion.png';
-import dashboardStudent from '../../assets/work/studia/dashboard-student.png';
-import dashboardParent from '../../assets/work/studia/dashboard-parent.png';
+import compareStudent from '../../assets/work/studia/compare-student.png';
+import compareParent from '../../assets/work/studia/compare-parent.png';
 import systemMotionPoster from '../../assets/work/studia/system-motion-poster.png';
 
 <CaseIntro title="Tailored tutoring for every student">
   <Fragment slot="lead">I joined Studia in September 2025 as its Founding Designer, while the founders were getting ready to raise. The idea was big: tutors who livestream, sell subscriptions and use AI, rather than just selling hours. Could one product let a tutor run a business, show a student what to do next, and convince a parent it was worth paying for?</Fragment>
 
   <Stats>
-    <Stat value="3 audiences" label="tutor, student and parent" />
+    <Stat value="5 tutors" label="tested the dashboard" />
     <Stat value="50+ versions" label="of the tutor profile" />
     <Stat value="3,500" label="tutor applications to vet" />
   </Stats>
@@ -62,37 +58,33 @@ import systemMotionPoster from '../../assets/work/studia/system-motion-poster.pn
 
 <StudiaOpener alt="The STUDIA wordmark in black on neon, “Redefining tutoring for the digital age” beneath it, with a tutor card for Eleasha Richardson, a “The best tutor ever” quote, a fire emoji and a cursor named Sophia floating around it" />
 
-<Section title="Where It Started">
+<Section title="Who Pays, Who Learns">
 <Column>
 
-When I joined, Studia already had a product: livestream replays in a Video Vault, homework after each lesson, and an AI chat called Sigma. Parents got one card per child.
+Most tutoring platforms are built for one customer. Studia had three. Tutors’ income was capped by the clock, with platforms taking 25–40% of it. Students’ learning was split across lessons, apps and videos, with nothing joining it up. Parents were paying, and wanted proof it was working.
 
 </Column>
 <Column>
 
-**Change:**
-
-I kept what worked, the live lessons, replays and homework, and redesigned the rest: a calmer style, and separate experiences for tutors, students and parents.
+So it couldn’t be one product with three logins. The first draft, out of Figma Make, put everything on one screen. Three rounds later, Oliver’s dashboard led with his next class and a Join button, and spend had moved to his parent, Sarah. She approves every subscription, because under-16s can’t pay for anything themselves.
 
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} src={before} rect={[0, 0, 1416, 812]} caption="Studia when I joined, September 2025" alt="Six screens of Studia when I joined: the Video Vault of orange gradient livestream thumbnails, a student home of homework cards in bright subject pills, Sigma the AI chat, and homework questions" />
+<Stats>
+  <Stat value="Tutors" label="earning beyond the hour" />
+  <Stat value="Students" label="needing a plan" />
+  <Stat value="Parents" label="paying for proof" />
+</Stats>
 
-<Section title="Three Customers">
-<Column>
-
-Most tutoring platforms are built for one customer. Studia had three. Tutors wanted more than an hourly rate, from platforms that took 25–40% of it. Students wanted to know what to revise tonight. Parents were paying, and wanted proof it was working.
-
-</Column>
-<Column>
-
-Each of them measured success differently, so it couldn’t be one product with three logins. Our interviews with students made the point sharper: most weren’t short of content, they were short of a plan.
-
-</Column>
-</Section>
-
-<Crop window={[1416, 508]} src={threeCustomers} rect={[0, 0, 1416, 508]} caption="Three customers, three ideas of success" alt="Three illustrations, one per customer. Tutor: a five-star tutor ringed by a clock and a money bag. Student: a girl revising alone, a sad face beside her. Parent: two tutor cards with their hourly prices" />
+<Crop window={[1416, 812]} caption="Dashboard: Student vs Parent">
+  <CompareScreens
+    rect={[0, 0, 1416, 812]}
+    name="Compare the student and parent dashboards"
+    left={{ src: compareStudent, alt: "Oliver’s student dashboard: a prompt to connect a parent account, his next class with Kevin W. and a Join Now button, his week’s tutoring, livestreams, replays and goals, and his notifications" }}
+    right={{ src: compareParent, alt: "Sarah’s parent dashboard: Oliver and Grace side by side with their sessions, subscriptions and spend this month, the week’s lessons, and requests to approve" }}
+  />
+</Crop>
 
 </Chapter>
 
@@ -101,7 +93,7 @@ Each of them measured success differently, so it couldn’t be one product with 
 <Section title="Two Routes">
 <Column>
 
-I explored two directions for the brand. *Assured Academic* led with trust: a scholastic serif, grounded colours and gentle, page-turning motion. *Creator Live* led with energy: loud display type, punchy colour and live reactions.
+I designed the pitch deck for the raise, and explored two routes for the brand. *Assured Academic* led with trust: a scholastic serif and grounded colours. *Creator Live* led with energy: loud display type, punchy colour and live reactions.
 
 </Column>
 <Column>
@@ -118,23 +110,6 @@ We kept something from each. The brand took Creator Live’s condensed wordmark 
   <Crop window={[684, 812]} src={brandCreatorLive} rect={[0, 0, 684, 812]} caption="Creator Live" alt="Creator Live: a billboard on a brick wall, “Newtons Law of Motion” in fat rounded letters on mint" />
 </Pair>
 
-<Section title="Going Live Before Launch">
-<Column>
-
-To raise, Studia needed investors to see the product before it existed. I designed the pitch deck, and worked with a separate film team and the Studia team on a launch film made from the product’s own screens.
-
-</Column>
-<Column>
-
-**Outcome:**
-
-The deck and film went out with the raise in late 2025. The film closes on “Launching Q1 2026”.
-
-</Column>
-</Section>
-
-<Film encrypted="/img/studia/film.enc" poster={filmPoster} alt="Studia’s launch film: a biology tutor and her student meet on a livestream, with live reactions, an AI co-pilot, XP for right answers and the tutor’s earnings" />
-
 </Chapter>
 
 <Chapter label="Tutors" glow>
@@ -147,7 +122,7 @@ Studia had 3,500 tutor applications, and every tutor would be teaching children.
 </Column>
 <Column>
 
-I made the dashboard the onboarding. Schedule, Performance and Inbox stay locked until you’re through, and each step explains itself: rates are suggested by years of experience, from £30–45 an hour to £60–150, and payouts go through Stripe Connect.
+I made the dashboard the onboarding. Schedule, Performance and Inbox stay locked until you’re through, and each step explains itself, from suggested rates by experience to payouts through Stripe Connect.
 
 </Column>
 </Section>
@@ -162,7 +137,7 @@ Tutoring sites make tutors look like listings: a photo, a price and a list of su
 </Column>
 <Column>
 
-It took more than 50 versions to get there: from a wireframe that read like a listing to a page that opens with a line in the tutor’s own voice, then the proof a parent looks for. DBS, verified ID, reviews, grades improved and how fast they reply.
+It took more than 50 versions, from a wireframe that read like a listing to a page that opens in the tutor’s own voice, then shows the proof a parent looks for. Hero tutors, the handful Studia planned to launch with, add past livestreams and a Subscribe card. Everyone else gets a free introduction call, which is what a new tutor needs most.
 
 </Column>
 </Section>
@@ -174,42 +149,24 @@ It took more than 50 versions to get there: from a wireframe that read like a li
 
 <Crop window={[1416, 812]} src={profileFinal} rect={[0, 0, 1416, 812]} caption="Final Design" alt="The Hero tutor profile, top and bottom, from the lime header and Kevin’s card to his education, subjects and specialisms, and tutors you may also like" />
 
-<Section>
+<Section title="Marking Our Homework">
 <Column>
 
-One template had to cover two kinds of tutor. Hero tutors, the handful Studia planned to launch with, teach live and sell a monthly subscription. Everyone else teaches one to one.
+Before building the tutor dashboard, we put it in front of five Studia tutors for 45 minutes each. Some only taught one to one, others livestreamed too. We wanted to know what they understood, what they’d act on and what they’d ignore.
 
 </Column>
 <Column>
 
-**Change:**
+**Outcome:**
 
-Hero profiles get a library of past livestreams and a Subscribe to Live card. Everyone else gets a free introduction call instead, which is what a new tutor needs most.
-
-</Column>
-</Section>
-
-<Pair>
-  <Crop window={[684, 812]} src={tutorTypeHero} rect={[0, 0, 684, 812]} caption="Hero Tutor" alt="Kevin W.’s card on lime: a Hero Tutor badge, DBS checked, and his line, “I help students overcome challenges faster than Newton spotting an apple falling from a tree”" />
-  <Crop window={[684, 812]} src={tutorTypeRegular} rect={[0, 0, 684, 812]} caption="Regular Tutor" alt="Hannah F.’s card on grey: DBS checked and Available, and her line, “My students say I’m ‘the bomb’ at solving their maths queries”" />
-</Pair>
-
-<Section title="Earning the Mic">
-<Column>
-
-The first analytics wireframe was a wall of numbers. I asked a different question: what should a tutor do differently tomorrow? Each insight came with one button: open Thursday afternoon, add a midpoint poll, follow up with Sarah.
-
-</Column>
-<Column>
-
-We put it in front of five Studia tutors for 45 minutes each, and cut by what they did. The weekly calendar and income breakdown stayed. Time utilisation, measured against a maximum nobody had chosen, went. No-shows came out of the headline numbers. AI insights stayed, but each one got a “Why?” first.
+The calendar and income breakdown were what they looked at first, so they stayed. Time utilisation was measured against the wrong thing: their maximum availability, not the hours they actually wanted to teach. No-shows came out of the headline numbers. AI insights stayed, as long as each one showed why.
 
 </Column>
 </Section>
 
 <Crop window={[1416, 812]} src={tutorUserTests} rect={[0, 0, 1416, 812]} caption="The modules five tutors tested" alt="The modules tutors tested: time utilisation, AI insights, unlocking livestreams, revenue breakdown and KPIs" />
 
-<Section>
+<Section title="Earning the Mic">
 <Column>
 
 I worked most closely with **Ben Lavender**, Studia’s CPO, who’d worked on streaming at BBC iPlayer, LOVEFiLM and DAZN. Livestreams were the big promise, so we made them something you earn: 50 lessons, a 90% attendance rate, a 4.5 rating, three subjects and a verified ID.
@@ -219,14 +176,19 @@ I worked most closely with **Ben Lavender**, Studia’s CPO, who’d worked on s
 
 **Change:**
 
-Students only see tutors live once they’ve proved themselves one to one, and new tutors can see exactly what it takes to get there.
+In testing, tutors read the criteria as boxes to tick. They became a progress meter instead, so a new tutor can see how far they are from going live, and students only see tutors live once they’ve proved themselves one to one.
 
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} bg="var(--studia-neon-050)" caption="Livestreams stay locked until they’re earned" captionInset={72}>
-  <CropImage src={analyticsLocked} rect={[72, 72, 1272, 881.22]} frame="screen" alt="A tutor’s analytics with livestreams still locked: “Unlock live streams”, 60% there, with lessons completed, attendance, rating, subjects taught and verified ID as a checklist" />
-</Crop>
+<Pair>
+  <Crop window={[684, 812]} src={tutorTypeHero} rect={[0, 0, 684, 812]} caption="Hero Tutor" alt="Kevin W.’s card on lime: a Hero Tutor badge, DBS checked, and his line, “I help students overcome challenges faster than Newton spotting an apple falling from a tree”" />
+  <Crop window={[684, 812]} src={tutorTypeRegular} rect={[0, 0, 684, 812]} caption="Regular Tutor" alt="Hannah F.’s card on grey: DBS checked and Available, and her line, “My students say I’m ‘the bomb’ at solving their maths queries”" />
+</Pair>
+
+</Chapter>
+
+<Chapter label="Studia AI" glow>
 
 <Section title="The Teaching Assistant">
 <Column>
@@ -248,57 +210,12 @@ It also read the tutor’s lesson plan and suggested quick-fire polls, timed to 
 
 </Chapter>
 
-<Chapter label="Students and parents" glow>
-
-<Section title="Who Pays, Who Learns">
-<Column>
-
-Students had told us they were short of a plan, so Oliver’s dashboard leads with what to do next: his next class and a Join button. The first draft, out of Figma Make, put everything on one screen. Three rounds later, spend and subscriptions had moved to his parent.
-
-</Column>
-<Column>
-
-Sarah’s dashboard leads with what each of her children did this month, and what it cost. When a student subscribes to a tutor, the parent approves it. Under-16s can’t pay for anything themselves, so billing lives with the parent.
-
-</Column>
-</Section>
-
-<Pair>
-  <Crop window={[684, 509]} bg="var(--studia-neon-050)">
-    <CropImage src={dashboardStudent} rect={[48, 48, 588, 846.1]} frame="screen" alt="Oliver’s dashboard: his next class with a Join Now button, a prompt to connect a parent account, and his week’s tutoring, livestreams, replays and goals" />
-  </Crop>
-  <Crop window={[684, 509]} bg="var(--studia-neon-050)">
-    <CropImage src={dashboardParent} rect={[48, 48, 588, 573.3]} frame="screen" alt="Sarah’s dashboard: a subscription request to approve, then each child’s sessions, subscriptions and spend this month" />
-  </Crop>
-</Pair>
-
-</Chapter>
-
-<Chapter label="The system" glow>
-
-<Section title="The System">
-<Column>
-
-Underneath it all is a small design system, built in Figma alongside the screens. Baikal for type, calm neutrals, and one neon green saved for Hero tutors and the things you can do, like Subscribe, Create and Go.
-
-</Column>
-<Column>
-
-Six softer accents mark subjects, session types and badges. From those atoms came the pieces the whole product is built from: tutor cards, booking cards, class cards, notifications and reviews.
-
-</Column>
-</Section>
-
-<Film video="/img/studia/system-motion.mp4" poster={systemMotionPoster} ratio={[1416, 512]} posterWidth={2832} sound={false} loop={false} alt="Studia’s design system atoms in motion. The app icon on neon is clicked and bursts open: a progress meter shows a weak password, an error, then good and strong, buttons hover and press, an input floats its label, validates and errors, a toast changes state and is dismissed, a filter slides, a tooltip appears, a toggle and a tutor’s subject checkboxes switch, one refused until the qualification is verified, and a verification code is entered wrongly then correctly, before the Studia wordmark stretches out of a neon flood and its U stretches past its limit and snaps back" />
-
-</Chapter>
-
 <Chapter label="What happened next" glow>
 
 <Section title="What Happened Next">
 <Column>
 
-Studia is live at [studia.io](https://studia.io). I wrapped up in January 2026 and handed over a design system, the tutor journey from application to first livestream, and the student and parent dashboards to build on.
+Studia is live at [studia.io](https://studia.io). I wrapped up in January 2026 and handed over the tutor journey from application to first livestream, the student and parent dashboards, and the small design system underneath: Baikal type, calm neutrals and one neon green saved for Hero tutors and the things you can do.
 
 </Column>
 <Column>
@@ -309,5 +226,7 @@ The exciting idea was a creator platform for tutors. But parents only buy into t
 
 </Column>
 </Section>
+
+<Film video="/img/studia/system-motion.mp4" poster={systemMotionPoster} ratio={[1416, 512]} posterWidth={2832} sound={false} loop={false} alt="Studia’s design system atoms in motion. The app icon on neon is clicked and bursts open: a progress meter shows a weak password, an error, then good and strong, buttons hover and press, an input floats its label, validates and errors, a toast changes state and is dismissed, a filter slides, a tooltip appears, a toggle and a tutor’s subject checkboxes switch, one refused until the qualification is verified, and a verification code is entered wrongly then correctly, before the Studia wordmark stretches out of a neon flood and its U stretches past its limit and snaps back" />
 
 </Chapter>

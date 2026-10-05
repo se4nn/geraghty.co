@@ -1,7 +1,8 @@
 ---
 // A film in the story, across the grid at 1416 × 812 (three columns high,
 // so the 16:9 film loses a sliver at each side). Like the homepage showreel it
-// plays muted and looping while it's on screen, and pauses when it leaves.
+// plays muted and looping while it's on screen (a fifth of it), and pauses
+// when it leaves.
 // Films here have a soundtrack worth hearing, so a button turns the sound
 // on (and starts it, if it's paused). A silent loop (the design system in
 // motion) passes `sound={false}` and its own `ratio`, and gets no button.
@@ -263,13 +264,34 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     video.addEventListener('ended', sync);
     sync();
 
-    // Muted, it plays while a third of it is on screen
+    // Safari only autoplays a video that is muted as a property too, not
+    // just by attribute
+    if (!film.hasAttribute('data-locked')) {
+      video.muted = true;
+      video.defaultMuted = true;
+    }
+
+    // Muted, it plays while a fifth of it is on screen. If the browser
+    // refuses (an autoplay policy), it tries again on the reader's next
+    // scroll, tap or key press while it's still in view.
+    let inView = false;
+    const start = () => {
+      if (held || video.ended || !inView) return;
+      video.play().catch(() => {
+        const retry = () => {
+          for (const type of ['scroll', 'pointerdown', 'keydown']) window.removeEventListener(type, retry);
+          start();
+        };
+        for (const type of ['scroll', 'pointerdown', 'keydown']) window.addEventListener(type, retry, { once: true, passive: true });
+      });
+    };
     new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) video.pause();
-        else if (!held && !video.ended) video.play().catch(() => {});
+        inView = entry.isIntersecting;
+        if (!inView) video.pause();
+        else start();
       },
-      { threshold: 0.33 },
+      { threshold: 0.2 },
     ).observe(video);
 
     toggle.addEventListener('click', () => {
