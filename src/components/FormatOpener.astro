@@ -1,8 +1,8 @@
 ---
 // The Format opener: the click-through the product didn't have when I
 // joined. Real exports from Portfolio › Format - Case Study Assets
-// (invented data), at their design size (one frame px is one Figma px) on
-// the grey ground, the screen running off the right and bottom.
+// (invented data): the whole 1512 × 982 screen, scaled to sit in the
+// 1416 × 812 panel with 48 above and below, on the grey ground.
 //
 // The story, as a cursor tells it:
 // 1. The reports page. The cursor clicks the report on what people ask
@@ -33,9 +33,9 @@ interface Props {
 }
 const { alt } = Astro.props;
 
-// 1512 of the 1416 window
-const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
-const widths = [1512, 2268, 3024];
+// The screen: 1102 of the 1416 window
+const sizes = 'calc(0.7785 * min(100vw - 32px, 1416px))';
+const widths = [1102, 1653, 2204, 3024];
 ---
 
 <div class="fo" role="img" aria-label={alt}>
@@ -79,17 +79,18 @@ const widths = [1512, 2268, 3024];
     aspect-ratio: 1416 / 812;
   }
 
-  /* One card at design size, running off the right and the bottom */
+  /* The whole screen, 1512 × 982 at --k, centred in the panel */
   .fo__screen {
+    --k: 0.7291;
     position: absolute;
-    left: calc(96 * var(--u));
-    top: calc(72 * var(--u));
-    width: calc(1512 * var(--u));
-    bottom: 0;
+    left: calc(156.8 * var(--u));
+    top: calc(48 * var(--u));
+    width: calc(1512 * var(--k) * var(--u));
+    height: calc(982 * var(--k) * var(--u));
     overflow: hidden;
     /* Its pages stack among themselves, always under the cursor */
     isolation: isolate;
-    border-radius: calc(12 * var(--u)) calc(12 * var(--u)) 0 0;
+    border-radius: calc(12 * var(--u));
     background-color: var(--neutral-000);
     box-shadow:
       0 0 0 1px oklch(0% 0 0 / 0.06),
@@ -122,7 +123,7 @@ const widths = [1512, 2268, 3024];
     width: 100%;
     height: auto;
     max-width: none;
-    transform: translateY(calc(var(--scroll, 0) * -1 * var(--u)));
+    transform: translateY(calc(var(--scroll, 0) * -1 * var(--k) * var(--u)));
   }
 
   .fo__nav {
@@ -247,8 +248,9 @@ const widths = [1512, 2268, 3024];
 <script>
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Targets in window px: the screen sits 96,72 in, at design size
-  const at = (x: number, y: number) => [96 + x, 72 + y] as const;
+  // Targets in window px: frame px scaled by K, from the screen's corner
+  const K = 0.7291;
+  const at = (x: number, y: number) => [156.8 + x * K, 48 + y * K] as const;
   const REST = [1150, 560] as const;
   // The report scrolls until the customers table sits where the cards
   // were designed over it (their page content is 3693 down)

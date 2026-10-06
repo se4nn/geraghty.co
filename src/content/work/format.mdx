@@ -41,12 +41,12 @@ import wallStoriesInsights from '../../assets/work/format/wall/stories-insights.
 
 
 <CaseIntro title="Reports you can check">
-  <Fragment slot="lead">I joined Format in March 2026 as Lead Product Designer. It turned a company’s customer calls into a weekly report, with the quotes and the audio to back them up. But that was where it stopped. You could read the report, but you couldn’t click through to a company, find the person or see what was behind a claim.</Fragment>
+  <Fragment slot="lead">I joined Format in March 2026 as Lead Product Designer. Format turns a company’s customer calls into a weekly report, with the quotes and audio to back it up. The report was where it stopped: you couldn’t click through to a company, find the person behind a quote or see what a claim was built on.</Fragment>
 
   <Stats>
-    <Stat value="15+ pages" label="designed and shipped" />
-    <Stat value="0 → ⅓" label="of all usage, on the new record and insight pages" />
-    <Stat value="75%" label="of users connected Format to an AI tool" />
+    <Stat value="15+ pages" label="designed and shipped">In <strong>five months</strong></Stat>
+    <Stat value="0 → ⅓" label="of all usage">On the new <strong>record and insight</strong> pages</Stat>
+    <Stat value="75%" label="of users connected an AI tool">After the <strong>MCP page</strong> launched</Stat>
   </Stats>
 
   <Skills items={[
@@ -69,7 +69,7 @@ My first brief was to design the missing pages: records, insights, companies and
 </Column>
 <Column>
 
-But the pages weren’t the whole problem. Customers were already asking their own questions of Format through Claude, and when an answer came back there was no way to tell whether it was right.
+The bigger problem was trust. Customers had started asking Format questions through Claude, and when an answer came back, nothing showed whether it was right.
 
 </Column>
 </Section>
@@ -96,37 +96,35 @@ But the pages weren’t the whole problem. Customers were already asking their o
 <Section title="Same Question, Different Answers">
 <Column>
 
-In July I wanted to know what customers were asking Claude before they asked Format, so I asked Format, through its own Claude integration, in two ways. Counting the insights directly found 59 companies talking about it. Format’s own answer said 4, and called the theme dormant since January. A customer had raised it that same month.
+In July I tested that for myself. Through Claude, I asked Format which customers were stitching their own tools together to get answers from their data, and I asked it two ways. Pulling the raw insights and grouping them by company found 59. Format’s own summary said 4, and called the theme dormant since January. A customer had raised it that month.
 
 </Column>
 <Column>
 
-**Outcome:**
-
-The model wasn’t wrong. The 329 insights behind the 59 sat under a topic that had been archived, and only 28% of everything Format had heard sat under the topics it still counted. A wrong number was bad. Nobody being able to tell it was wrong was worse.
+The model wasn’t the problem. Those insights were filed under a topic that had since been archived, and Format’s answers only counted active topics, which held 28% of everything it had heard. The wrong number was bad. That nobody could tell it was wrong was worse.
 
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page: its conversations, who was in them and what they keep raising">
+<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page: every conversation, who was in it and what they keep raising">
   <CropImage src={companyPage} rect={[96, 72, 1512, 1165]} frame="screen" alt="A company page for Unilever: what the company is, its records, insights and people, each conversation with who took part and when, and a sidebar of what they talk about most (pricing 47%, feature requests 24%, competition 12%)" />
 </Crop>
 
 <Stats>
-  <Stat value="59" label="companies, counting the insights" />
-  <Stat value="4" label="in Format’s own answer" />
-  <Stat value="28%" label="of insights under topics still counted" />
+  <Stat value="59" label="companies had raised it">Counted <strong>insight by insight</strong></Stat>
+  <Stat value="4" label="in Format’s own answer">Which called the theme <strong>dormant</strong></Stat>
+  <Stat value="28%" label="of what customers said">Under topics Format <strong>still counted</strong></Stat>
 </Stats>
 
 <Section title="Show Your Working">
 <Column>
 
-So the reports Claude writes through Format were built to show their working. Each one counts its sources (records, insights and themes), every claim clicks through to the conversation behind it, and the insights it draws on sit underneath.
+That set the rule for what came next: show your working. A report written through Format says how many records, insights and themes it drew on. Every claim clicks through to the conversation behind it, and the insights it used sit underneath, so you can check it yourself.
 
 </Column>
 <Column>
 
-Reports are also shared as links. A teammate opens one and pulls it straight into Claude or ChatGPT with one button, so the product shows what it can do before anyone has set anything up.
+Reports are shared as links, too. Whoever opens one can take it into Claude or ChatGPT with one button and keep asking, so the product shows what it can do before anyone has set it up.
 
 </Column>
 </Section>
@@ -143,14 +141,14 @@ Reports are also shared as links. A teammate opens one and pulls it straight int
 <Section title="Bring Your Own AI">
 <Column>
 
-The MCP and skills page is where that starts. Martin shipped a first version quietly on 10 June, and I designed the one that launched in the week of 23 June: skills first, each a ready-made workflow like finding case-study candidates or briefing an account, with the setup for each AI tool a click away.
+Martin shipped a quiet first version of Format’s MCP page on 10 June, built around the setup steps. I redesigned it around what you’d use it for: skills, each a ready-made workflow like finding case-study candidates or briefing an account, with the setup for each tool a click away. It launched the week of 23 June.
 
 </Column>
 <Column>
 
 **Outcome:**
 
-75% of Format’s users connected it to an AI tool. Before launch, my design QA of the build found 31 issues on that one page, from a dialog missing its Close and Finish buttons to tabs a screen reader couldn’t use.
+75% of Format’s users connected it to an AI tool. Before launch I QA’d the build and logged 31 issues on that one page, from a dialog with no way to close it to tabs a screen reader couldn’t reach.
 
 </Column>
 </Section>
@@ -172,7 +170,7 @@ The MCP and skills page is where that starts. Martin shipped a first version qui
 
 <Chapter label="The system" glow>
 
-<Section title="A System That Checks Itself">
+<Section title="One Name, Two Places">
 <Column>
 
 When I arrived, the codebase had a set of colour tokens nothing used, colours that didn’t belong together, and about 65 stock shadcn components. I replaced them with five OKLCH hue ramps and an eleven-step neutral with a cool tint, in two layers: primitives for the raw values, and semantic names the components actually use.
@@ -187,15 +185,15 @@ Figma holds the same two layers as variables, so a colour has one name in both p
 
 <FormatVariables />
 
-<Section title="Seven Steps, Every Time">
+<Section title="A System That Checks Itself">
 <Column>
 
-Format’s team, me included, wrote most of its code with AI agents. They’re quick and confident, and they’ll tell you a change worked when it didn’t. So I wrote the loop every component went through: read the rules and every past mistake, take the values from Figma rather than a screenshot, build with tokens only, then check what actually renders in the browser against the design.
+Format’s team, me included, wrote most of the code with AI agents. They’re quick and confident, and they’ll tell you a change worked when it didn’t. So I wrote the loop every component went through: read the rules and every past mistake, take the values from Figma rather than a screenshot, build with tokens only, then check what actually renders in the browser against the design.
 
 </Column>
 <Column>
 
-An agent got three tries to match the design, then it came back to me, and nothing shipped without my sign-off. The last step writes down what went wrong. When the Button came back with 8px of padding instead of 12, that became a rule every later build read first.
+An agent got three tries to match the design before the component came back to me, and nothing shipped without my sign-off. The last step writes down what went wrong. When the Button came back with 8px of padding instead of 12, that became a rule every later build read first.
 
 </Column>
 </Section>
@@ -209,12 +207,12 @@ An agent got three tries to match the design, then it came back to me, and nothi
 <Section title="The Trigger, Not the Card">
 <Column>
 
-Spotlight was a hover card for the people and companies named in a report. Design was due on a Tuesday, engineering on Wednesday and launch on Thursday, the week of 10 August. The card was the brief.
+Spotlight is the card behind every name in a report. A mention carries the company’s logo after the person’s name, so one chip says who and where, and hovering it opens the card with the rest. Design was due on a Tuesday, engineering on Wednesday and launch on Thursday, the week of 10 August.
 
 </Column>
 <Column>
 
-But cards only appear when a report mentions someone, and the mentions were only generated some of the time. A well-designed card in a report with no mentions ships to nobody. I flagged it to engineering as theirs to fix, and spent the design time on what the card had to survive.
+The card was the brief. But cards only appear where a report mentions someone, and mentions were only generated some of the time. A well-designed card in a report with no mentions ships to nobody. I flagged it to engineering as theirs to fix, and spent the design time on what the card had to survive.
 
 </Column>
 </Section>
@@ -231,7 +229,7 @@ But cards only appear when a report mentions someone, and the mentions were only
 <Section title="Partial Is Normal">
 <Column>
 
-No data yet, partial data, below the confidence threshold, a person we couldn’t match, someone who’d left, a fetch that failed. Partial was the most likely state, so it had to look designed, not broken. I designed those states in code, straight into the component, rather than in Figma.
+Most cards wouldn’t be complete. There might be no data yet, only some of it, data below the confidence threshold, a person we couldn’t match, someone who’d left or a fetch that failed. Partial was the most likely state, so it had to look designed, not broken. I designed those states in code, straight into the component, rather than in Figma.
 
 </Column>
 <Column>
@@ -248,12 +246,12 @@ I also moved mobile into scope, because people read reports on their phones. And
 <Section title="Insight World">
 <Column>
 
-On the side, I built a 3D prototype in Claude Code to ask how you’d see what an AI answer was built from. Quotes cluster into themes, themes into trends, and clicking one lights up the evidence behind it while everything else dims.
+On the side, I built a 3D prototype in Claude Code to work out how you might see what an AI answer is built from. Quotes cluster into themes, themes into trends, and clicking one lights up the evidence behind it while everything else dims.
 
 </Column>
 <Column>
 
-It never became a feature, and it wasn’t meant to. It was a way to start a conversation about trust, and the team used it to explore and visualise how their own data connected. The data in it is invented, so it’s open to explore below.
+It never became a feature, and it wasn’t meant to. It was a way to start a conversation about trust, and the team used it to see how their own data connected. The data here is invented, so it’s yours to explore below.
 
 </Column>
 </Section>
@@ -270,7 +268,7 @@ I wrapped up in August 2026. The record and insight pages went from no usage to 
 
 **What’s next:**
 
-We only counted those numbers afterwards, so next time I’d agree the two or three a change should move before designing it. And I’d settle what correcting the AI means: an edit that sticks, a fix to the input, or delete and restate. Format sat closest to the second, while customers expected the first.
+We only counted those numbers afterwards. Next time I’d agree the two or three numbers a change should move before designing anything. And I’d settle early what correcting the AI means. Customers expected an edit that sticks. Format was built to fix the input and let the answer change.
 
 </Column>
 </Section>
