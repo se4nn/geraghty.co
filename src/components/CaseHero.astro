@@ -80,9 +80,13 @@ const study = project.data.caseStudy!;
     transition: none;
   }
 
-  /* 432px wide at 1512, as in Figma, with a floor for phones */
+  /* 432px wide at 1512, as in Figma, with a floor for phones. A tall,
+     stacked logo (Format's) would then run into the bar, so its height is
+     capped too; wide wordmarks never reach the cap */
   .case-hero :global(.case-hero__art .tile-art__logo) {
     width: clamp(200px, calc(432 / 1512 * 100%), 640px);
+    max-height: 55%;
+    object-fit: contain;
   }
 
   .case-hero__overlay {

@@ -145,6 +145,5 @@ export const testimonial = {
   photo: martin,
   companyLogo: formatWordmark,
   company: 'Format',
-  // Format case study doesn't exist yet
-  link: '#work',
+  link: '/work/format/',
 };

@@ -1,0 +1,1119 @@
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>Insight World</title>
+<style>
+  :root{
+    --bg: #0a0c13;
+    --bg-2: #10131d;
+    --panel: #12151fee;
+    --border: #232838;
+    --text: #e8eaf0;
+    --muted: #8790a8;
+    --faint: #4d5568;
+    --accent: #5eead4;
+    --accent-dim: #5eead43a;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background: radial-gradient(ellipse 140% 100% at 50% 40%, #1b1c1f 0%, #131417 45%, #0c0d10 100%);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+    user-select: none;
+  }
+  #stage{ position:relative; width:100%; height:100vh; }
+  canvas{ display:block; width:100%; height:100%; cursor: grab; }
+  canvas:focus-visible{ outline: 2px solid var(--accent); outline-offset: -2px; }
+  canvas.dragging{ cursor: grabbing; }
+
+  #vignette{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 55%, rgba(3,4,6,0.5) 100%);
+  }
+  #grain{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    opacity: 0.25; mix-blend-mode: overlay;
+  }
+
+  .hud{
+    position:absolute; z-index: 5;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px -12px rgba(0,0,0,0.6);
+  }
+
+  /* Top bar */
+  #topbar{
+    top:16px; left:16px; right:16px;
+    display:flex; align-items:center; gap:14px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+  #brand{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 10px;
+    border-right: 1px solid var(--border);
+  }
+  #brand b{ color: var(--text); font-weight: 600; }
+
+  .chipgroup{ display:flex; gap:6px; flex-wrap: wrap; align-items:center; }
+  .chip{
+    font-family: var(--sans);
+    font-size: 12.5px;
+    padding: 5px 10px 5px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #ffffff08;
+    color: var(--muted);
+    cursor: pointer;
+    display:flex; align-items:center; gap:6px;
+    transition: border-color .15s, color .15s, background .15s;
+    user-select:none;
+  }
+  .chip:hover{ border-color: #ffffff2a; }
+  .chip.active{ color: var(--text); background:#ffffff10; border-color:#ffffff33; }
+  .chip .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+  /* Scope readout */
+  #scope{
+    position:absolute; left:16px; bottom:16px;
+    padding: 9px 13px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    max-width: 340px;
+    line-height:1.5;
+  }
+  #scope b{ color: var(--text); font-variant-numeric: tabular-nums; }
+  #scope .warn{ color: #f0b64c; }
+
+  /* Timeline slider */
+  #timeline{
+    position:absolute; left: 50%; transform: translateX(-50%); bottom:16px;
+    width: min(460px, 40vw);
+    padding: 10px 16px 12px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  #timeline .lbl{ display:flex; justify-content:space-between; font-family: var(--mono); font-size:10.5px; color:var(--faint); letter-spacing:.03em; }
+  #timeline input[type=range]{
+    width:100%; accent-color: var(--accent); height:3px;
+  }
+
+  /* Legend */
+  #legend{
+    position:absolute; right:16px; bottom:16px;
+    padding: 10px 13px;
+    display:flex; flex-direction:column; gap:5px;
+  }
+  #legend .row{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); font-family: var(--mono); }
+  #legend .tick{ width:12px; height:2px; border-radius:1px; }
+
+  /* Detail panel */
+  #detail{
+    position:absolute; top:16px; right:16px; bottom:16px;
+    width: 340px;
+    padding: 0;
+    overflow-y: auto;
+    transform: translateX(370px);
+    opacity: 0;
+    transition: transform .28s cubic-bezier(.2,.7,.3,1), opacity .22s;
+    pointer-events: none;
+  }
+  #detail.open{ transform: translateX(0); opacity:1; pointer-events:auto; }
+  #detail .inner{ padding: 18px 18px 20px; }
+  #detail .topicline{ display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }
+  #detail .topicline .dot{ width:8px; height:8px; border-radius:50%; }
+  #detail .levelbadge{ display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:#ffffff10; color:var(--muted); margin-bottom:8px; }
+  #detail h2{ font-size:17px; line-height:1.35; margin: 0 0 8px; font-weight:600; text-wrap:balance; }
+  #detail .quote{ font-size:14.5px; line-height:1.55; color:var(--text); font-style:italic; padding-left:10px; border-left:2px solid var(--accent-dim); margin: 0 0 12px; }
+  #detail p.claim{ font-size:13.5px; line-height:1.6; color:#c5cadb; margin:0 0 14px; }
+  #detail .field{ margin-bottom:14px; }
+  #detail .field .k{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint); margin-bottom:4px; }
+  #detail .field .v{ font-size:13px; color:#c5cadb; line-height:1.55; }
+  #detail .stats{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+  #detail .stat{ background:#ffffff07; border:1px solid var(--border); border-radius:8px; padding:8px 6px; text-align:center; }
+  #detail .stat .n{ font-family:var(--mono); font-size:16px; font-weight:600; color:var(--text); font-variant-numeric:tabular-nums; }
+  #detail .stat .l{ font-size:9.5px; color:var(--faint); text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
+  #detail details{ margin-bottom:14px; }
+  #detail summary{ cursor:pointer; font-family:var(--mono); font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; padding:4px 0; }
+  #detail details p{ font-size:12.5px; color:var(--muted); line-height:1.6; margin:6px 0 0; }
+  #detail .lifebadge{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; padding:4px 9px; border-radius:6px; border:1px solid; margin-bottom:14px; }
+  #detail .conn{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 8px; border-radius:7px; cursor:pointer; font-size:12px; color:#c5cadb; }
+  #detail .conn:hover{ background:#ffffff0a; }
+  #detail .conn .arrow{ color:var(--faint); }
+  #detail .connlist{ display:flex; flex-direction:column; gap:2px; margin-bottom:6px; }
+  #closeDetail{
+    position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:7px;
+    border:1px solid var(--border); background:#ffffff08; color:var(--muted); cursor:pointer; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #closeDetail:hover{ color:var(--text); background:#ffffff14; }
+
+  #hint{
+    position:absolute; top:70px; left:50%; transform:translateX(-50%);
+    font-family: var(--mono); font-size:11px; color: var(--faint);
+    pointer-events:none; letter-spacing:.02em;
+    transition: opacity .5s;
+  }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:#ffffff1a; border-radius:4px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+
+<div id="stage">
+  <canvas id="c" tabindex="0"></canvas>
+  <div id="vignette"></div>
+  <svg id="grain" xmlns="http://www.w3.org/2000/svg">
+    <filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="1.15" numOctaves="2" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+  </svg>
+
+  <div id="hint">drag to orbit &middot; shift+drag to pan &middot; scroll to zoom &middot; click a node</div>
+
+  <div id="topbar" class="hud">
+    <div id="brand"><b>Insight World</b> — concept view</div>
+    <div class="chipgroup" id="topicChips"></div>
+  </div>
+
+  <div id="scope" class="hud"></div>
+
+  <div id="timeline" class="hud">
+    <div class="lbl"><span id="tlFrom">—</span><span>window</span><span id="tlTo">—</span></div>
+    <input type="range" id="tlSlider" min="0" max="100" value="100" step="1">
+  </div>
+
+  <div id="legend" class="hud"></div>
+
+  <div id="detail" class="hud">
+    <button id="closeDetail">&times;</button>
+    <div class="inner" id="detailInner"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------------
+   1. DATA MODEL — mirrors src/server/api/routers/insightGraph.ts
+   InsightGraphTopic { id, title, color }
+   InsightGraphLabelledGroupNode { id, level, orgTopicId, commonThread,
+     claim, membershipCriteria, lifecycleState, lifecycleConfidence,
+     memberCount, customerCount, conversationCount, spanFrom, spanTo,
+     childIds, parentIds }
+   InsightGraphQualNode { id, orgTopicId, recordId, timestamp,
+     quoteSnippet, quote, refinedQuote, context, followUp,
+     speakerName, speakerCompany }
+------------------------------------------------------------------ */
+
+/* Each topic gets its own jewel-toned hue — deep-field nebula colours
+   (rose, gold, violet, teal) rather than a single blue note. */
+function hashTopicIdToHue(id){
+  let hash = 0;
+  for (let i = 0; i < id.length; i++){ hash = (hash * 31 + id.charCodeAt(i)) | 0; }
+  return Math.abs(hash) % 360;
+}
+function topicColor(id){ return `hsl(${hashTopicIdToHue(id)}, 68%, 52%)`; }
+function topicColorAlpha(id, a){ return `hsla(${hashTopicIdToHue(id)}, 68%, 52%, ${a})`; }
+function topicColorLight(id, a){ return `hsla(${hashTopicIdToHue(id)}, 62%, 78%, ${a})`; }
+
+// lifecycle is encoded as brightness/pulse, not a separate hue —
+// keeps the constellation monochrome instead of turning into a legend of colors
+const LIFECYCLE = {
+  Emerging: { brightness: 0.8,  pulseSpeed: 1.3, label: "Emerging" },
+  Growing:  { brightness: 1.15, pulseSpeed: 1.6, label: "Growing"  },
+  Mature:   { brightness: 1.0,  pulseSpeed: 0.9, label: "Mature"    },
+  Cooling:  { brightness: 0.7,  pulseSpeed: 0.7, label: "Cooling"   },
+  Dormant:  { brightness: 0.45, pulseSpeed: 0.4, label: "Dormant", faint:true },
+  Extinct:  { brightness: 0.28, pulseSpeed: 0.2, label: "Extinct", faint:true, dashed:true },
+};
+const LIFECYCLE_ORDER = ["Emerging","Growing","Mature","Cooling","Dormant","Extinct"];
+const LEVEL_LABEL = { 0:"Insight", 1:"Theme", 2:"Trend", 3:"Movement" };
+
+const TOPICS = [
+  { id:"t-retention",   title:"Audience Retention" },
+  { id:"t-monetization",title:"Ad Monetization" },
+  { id:"t-booking",     title:"Guest Booking" },
+  { id:"t-format",      title:"Episode Format" },
+  { id:"t-distribution",title:"Distribution & SEO" },
+];
+TOPICS.forEach(t => t.color = topicColor(t.id));
+
+// Pre-rendered glow sprites, one per topic — at hundreds of nodes, building a fresh
+// CanvasGradient for every node's halo every single frame is the single biggest cost
+// in this scene. Bake the gradient once per topic into an offscreen bitmap; per-frame
+// drawing becomes a cheap drawImage + globalAlpha instead of a gradient allocation.
+const GLOW_SPRITE_SIZE = 128;
+const GLOW_SPRITE_R = 64;
+const glowSprites = new Map();
+function buildGlowSprite(topicId){
+  const c = document.createElement("canvas");
+  c.width = GLOW_SPRITE_SIZE; c.height = GLOW_SPRITE_SIZE;
+  const g = c.getContext("2d");
+  const cx = GLOW_SPRITE_SIZE/2, cy = GLOW_SPRITE_SIZE/2;
+  const grad = g.createRadialGradient(cx,cy,0, cx,cy,GLOW_SPRITE_R);
+  grad.addColorStop(0,    `rgba(236,239,245,0.9)`);
+  grad.addColorStop(0.12, topicColorLight(topicId, 0.85));
+  grad.addColorStop(0.3,  topicColorAlpha(topicId, 0.62));
+  grad.addColorStop(0.5,  topicColorAlpha(topicId, 0.24));
+  grad.addColorStop(0.78, topicColorAlpha(topicId, 0.055));
+  grad.addColorStop(1,    topicColorAlpha(topicId, 0));
+  g.fillStyle = grad;
+  g.beginPath(); g.arc(cx,cy,GLOW_SPRITE_R,0,Math.PI*2); g.fill();
+  return c;
+}
+TOPICS.forEach(t => glowSprites.set(t.id, buildGlowSprite(t.id)));
+
+const NOW = new Date("2026-07-07T00:00:00Z").getTime();
+const DAY = 86400000;
+const SPAN_DAYS = 180;
+
+function rand(seed){ // mulberry32
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = rand(20260707);
+function pick(arr){ return arr[Math.floor(rnd()*arr.length)]; }
+function randInt(a,b){ return a + Math.floor(rnd()*(b-a+1)); }
+function daysAgo(d){ return NOW - d*DAY; }
+
+const SPEAKERS = [
+  ["Maya Okafor","Riverton Media"],["Dev Patel","Northwind Audio"],["Sara Lindqvist","Clearwave Podcasts"],
+  ["Tomas Alves","Bright Signal Co"],["Priya Nair","Fieldstone Studios"],["Jonas Weber","Harbor & Co"],
+  ["Ana Cristea","Loud Room Media"],["Kwame Boateng","Anchorpoint"],["Ines Duarte","Wavelength Group"],
+];
+
+const QUAL_TEXT = {
+  "t-retention": [
+    ["Listeners drop off around minute eight when we run a cold-open ad.", "the mid-roll load"],
+    ["Episodes over 45 minutes lose a third of the audience by the outro.", "long-form drop-off"],
+    ["Serialized arcs keep people coming back week over week.", "serialization"],
+    ["We saw a retention bump right after adding recap segments.", "recap segments"],
+  ],
+  "t-monetization": [
+    ["Dynamic ad insertion is outperforming baked-in reads two to one.", "dynamic insertion"],
+    ["Sponsors want per-episode attribution, not just show-level numbers.", "attribution demand"],
+    ["Bundling audio + newsletter placements is closing bigger deals.", "cross-channel bundling"],
+    ["Direct-response ads convert better in the back half of an episode.", "placement timing"],
+  ],
+  "t-booking": [
+    ["Warm intros from past guests are converting far better than cold outreach.", "referral booking"],
+    ["Guests want to see the episode brief before committing.", "pre-brief requests"],
+    ["Scheduling friction is the top reason bookings fall through.", "scheduling friction"],
+    ["Repeat guests bring 3x the social lift of first-timers.", "repeat guest lift"],
+  ],
+  "t-format": [
+    ["Two-host banter intros are testing better than solo cold opens.", "cohost intros"],
+    ["Video-first recording is becoming table stakes for guest comfort.", "video-first"],
+    ["Shorter, punchier segments outperform the old 20-minute blocks.", "segment length"],
+    ["Live audience tapings are driving unusually high word-of-mouth.", "live tapings"],
+  ],
+  "t-distribution": [
+    ["Show notes with timestamped chapters are lifting search traffic.", "chaptered notes"],
+    ["Clipping to short-form video is now the top discovery channel.", "short-form clipping"],
+    ["Cross-posting to video platforms is out-pacing audio-only feeds.", "video cross-post"],
+    ["Newsletter embeds are quietly becoming a top referral source.", "newsletter embeds"],
+  ],
+};
+
+const MEMBERSHIP_CRITERIA = "Includes any insight where a participant describes a measurable shift in listener behavior, sponsor demand, or production process tied to this theme, observed across at least two independent conversations within the active window, excluding one-off anecdotes without a stated mechanism or comparison point.";
+
+let idCounter = 0;
+function nextId(prefix){ idCounter += 1; return `${prefix}-${idCounter}`; }
+
+const quals = [];
+const groups = []; // all levels 1-3
+const byId = new Map();
+
+TOPICS.forEach(topic => {
+  const bank = QUAL_TEXT[topic.id];
+  const topicQuals = [];
+  const qualCount = randInt(72, 104); // ~4x — stress-testing density/perf at scale
+  for (let i=0;i<qualCount;i++){
+    const src = pick(bank);
+    const spk = pick(SPEAKERS);
+    const ts = daysAgo(randInt(2, SPAN_DAYS));
+    const q = {
+      kind:"qual",
+      id: nextId("q"),
+      orgTopicId: topic.id,
+      recordId: nextId("rec"),
+      timestamp: ts,
+      quote: src[0],
+      refinedQuote: src[0],
+      quoteSnippet: src[0].slice(0,60)+"…",
+      context: `Raised during a working session on ${src[1]}, in the context of reviewing recent episode performance and sponsor feedback.`,
+      followUp: rnd() > 0.4 ? `Worth checking whether ${src[1]} holds across other shows in the network before generalizing.` : null,
+      speakerName: spk[0], speakerCompany: spk[1],
+      parentIds: [],
+    };
+    quals.push(q); topicQuals.push(q); byId.set(q.id, q);
+  }
+
+  // L1 groups: cluster quals into themes
+  const l1Count = randInt(16,24); // scaled with qualCount so per-theme fan-out stays the same shape
+  const shuffled = [...topicQuals].sort(()=>rnd()-0.5);
+  const buckets = Array.from({length:l1Count}, ()=>[]);
+  shuffled.forEach((q,i)=> buckets[i % l1Count].push(q));
+
+  const l1Nodes = buckets.map((members, i) => {
+    const span = members.map(m=>m.timestamp);
+    const life = LIFECYCLE_ORDER[randInt(0,3)];
+    const g = {
+      kind:"lg", level:1, id: nextId("lg1"), orgTopicId: topic.id,
+      commonThread: `${topic.title}: ${pick(bank)[1]}`,
+      claim: `A recurring pattern across ${members.length} conversations pointing to ${pick(bank)[1]} as a meaningful factor in ${topic.title.toLowerCase()}.`,
+      membershipCriteria: MEMBERSHIP_CRITERIA,
+      lifecycleState: life,
+      lifecycleConfidence: 0.55 + rnd()*0.4,
+      memberCount: members.length,
+      customerCount: Math.max(2, Math.round(members.length * (0.5+rnd()*0.4))),
+      conversationCount: Math.max(members.length, Math.round(members.length*1.2)),
+      spanFrom: Math.min(...span), spanTo: Math.max(...span),
+      childIds: members.map(m=>m.id), parentIds: [],
+    };
+    members.forEach(m => m.parentIds.push(g.id));
+    groups.push(g); byId.set(g.id, g);
+    return g;
+  });
+
+  // L2: 1 group rolling up the L1s for this topic
+  const l2span = l1Nodes.flatMap(g=>[g.spanFrom,g.spanTo]);
+  const l2 = {
+    kind:"lg", level:2, id: nextId("lg2"), orgTopicId: topic.id,
+    commonThread: `${topic.title} — emerging consensus`,
+    claim: `Across ${l1Nodes.length} themes, ${topic.title.toLowerCase()} is shifting in a consistent direction this quarter.`,
+    membershipCriteria: MEMBERSHIP_CRITERIA,
+    lifecycleState: LIFECYCLE_ORDER[randInt(0,4)],
+    lifecycleConfidence: 0.5 + rnd()*0.45,
+    memberCount: l1Nodes.reduce((s,g)=>s+g.memberCount,0),
+    customerCount: l1Nodes.reduce((s,g)=>s+g.customerCount,0),
+    conversationCount: l1Nodes.reduce((s,g)=>s+g.conversationCount,0),
+    spanFrom: Math.min(...l2span), spanTo: Math.max(...l2span),
+    childIds: l1Nodes.map(g=>g.id), parentIds: [],
+  };
+  l1Nodes.forEach(g => g.parentIds.push(l2.id));
+  groups.push(l2); byId.set(l2.id, l2);
+  topic._l2 = l2;
+});
+
+// L3: one cross-topic movement bridging three L2s
+(function(){
+  const parents = [TOPICS[0]._l2, TOPICS[3]._l2, TOPICS[4]._l2];
+  const span = parents.flatMap(g=>[g.spanFrom,g.spanTo]);
+  const l3 = {
+    kind:"lg", level:3, id: nextId("lg3"), orgTopicId: parents[0].orgTopicId,
+    crossTopicIds: parents.map(p=>p.orgTopicId),
+    commonThread: "Short, serialized episodes are reshaping distribution economics",
+    claim: "Retention gains from shorter serialized formats are compounding with short-form clipping and sponsor demand for granular attribution — three previously separate threads converging into one production strategy.",
+    membershipCriteria: MEMBERSHIP_CRITERIA,
+    lifecycleState: "Growing",
+    lifecycleConfidence: 0.71,
+    memberCount: parents.reduce((s,g)=>s+g.memberCount,0),
+    customerCount: parents.reduce((s,g)=>s+g.customerCount,0),
+    conversationCount: parents.reduce((s,g)=>s+g.conversationCount,0),
+    spanFrom: Math.min(...span), spanTo: Math.max(...span),
+    childIds: parents.map(g=>g.id), parentIds: [],
+  };
+  parents.forEach(p => p.parentIds.push(l3.id));
+  groups.push(l3); byId.set(l3.id, l3);
+})();
+
+// second cross-topic movement, bridging a different trio — doubles top-level structure
+(function(){
+  const parents = [TOPICS[1]._l2, TOPICS[2]._l2, TOPICS[4]._l2];
+  const span = parents.flatMap(g=>[g.spanFrom,g.spanTo]);
+  const l3 = {
+    kind:"lg", level:3, id: nextId("lg3"), orgTopicId: parents[0].orgTopicId,
+    crossTopicIds: parents.map(p=>p.orgTopicId),
+    commonThread: "Guest experience is becoming the top lever for discovery",
+    claim: "Booking friction, format changes, and distribution shifts are converging: shows that fix guest experience are seeing outsized gains in both search visibility and repeat bookings.",
+    membershipCriteria: MEMBERSHIP_CRITERIA,
+    lifecycleState: "Emerging",
+    lifecycleConfidence: 0.63,
+    memberCount: parents.reduce((s,g)=>s+g.memberCount,0),
+    customerCount: parents.reduce((s,g)=>s+g.customerCount,0),
+    conversationCount: parents.reduce((s,g)=>s+g.conversationCount,0),
+    spanFrom: Math.min(...span), spanTo: Math.max(...span),
+    childIds: parents.map(g=>g.id), parentIds: [],
+  };
+  parents.forEach(p => p.parentIds.push(l3.id));
+  groups.push(l3); byId.set(l3.id, l3);
+})();
+
+const allNodes = [...quals, ...groups];
+const GLOBAL_SPAN = { from: Math.min(...allNodes.map(n=>n.timestamp ?? n.spanFrom)), to: NOW };
+
+// flat, shuffled list of every parent→child membership link, used to pick a handful
+// of "live" flow dots per second rather than animating every connection at once
+const EDGE_LIST = [];
+groups.forEach(g => g.childIds.forEach(cid => EDGE_LIST.push({ parentId: g.id, childId: cid })));
+(function shuffle(arr){
+  const r = rand(777);
+  for (let i=arr.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+})(EDGE_LIST);
+
+/* ---------------------------------------------------------------
+   2. LAYOUT — position every node in 3D
+------------------------------------------------------------------ */
+
+// Full 3D — no forced "level = height" tower. Topics sit as their own galaxies
+// spread across a real sphere (Fibonacci sphere distribution); within a topic,
+// insights scatter through a spherical shell around it in every direction, and
+// each parent naturally settles near the 3D centroid of its own children.
+// Shell radius scales with sqrt(count) so a topic with 4x the insights gets
+// roughly 2x the room — density stays readable instead of collapsing to a point.
+const TOPIC_SPHERE_RADIUS = 360;
+const QUAL_SHELL_BASE = 15.5;
+
+TOPICS.forEach((t, i) => {
+  const n = TOPICS.length;
+  const phi = Math.acos(1 - 2*(i+0.5)/n);
+  const theta = Math.PI*(1+Math.sqrt(5))*(i+0.5);
+  t.anchor = {
+    x: TOPIC_SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta),
+    y: TOPIC_SPHERE_RADIUS * Math.cos(phi),
+    z: TOPIC_SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta),
+  };
+  t.qualShellR = QUAL_SHELL_BASE * Math.sqrt(quals.filter(q=>q.orgTopicId===t.id).length);
+});
+
+function timeAngle(ts){
+  const frac = (ts - GLOBAL_SPAN.from) / (GLOBAL_SPAN.to - GLOBAL_SPAN.from);
+  return frac * Math.PI * 2;
+}
+
+// a full 3D direction, loosely coherent with time (azimuth) but free in every
+// other axis — this is what makes a topic read as a sphere of stars, not a disc
+function qualDirection(ts){
+  const theta = timeAngle(ts) + (rnd()-0.5)*1.1;
+  const u = rnd()*2 - 1;
+  const s = Math.sqrt(Math.max(0, 1-u*u));
+  return { x: s*Math.cos(theta), y: u, z: s*Math.sin(theta) };
+}
+
+quals.forEach(q => {
+  const topic = TOPICS.find(t=>t.id===q.orgTopicId);
+  const dir = qualDirection(q.timestamp);
+  const r = topic.qualShellR * (0.45 + 0.65*rnd());
+  q.pos = {
+    x: topic.anchor.x + dir.x*r,
+    y: topic.anchor.y + dir.y*r,
+    z: topic.anchor.z + dir.z*r,
+  };
+});
+
+function centroidOf(childIds){
+  const pts = childIds.map(id => byId.get(id).pos).filter(Boolean);
+  return {
+    x: pts.reduce((s,p)=>s+p.x,0)/pts.length,
+    y: pts.reduce((s,p)=>s+p.y,0)/pts.length,
+    z: pts.reduce((s,p)=>s+p.z,0)/pts.length,
+  };
+}
+
+[1,2,3].forEach(level => {
+  groups.filter(g=>g.level===level).forEach(g => {
+    const c = centroidOf(g.childIds);
+    const jitter = 10;
+    g.pos = {
+      x: c.x + (rnd()-0.5)*jitter,
+      y: c.y + (rnd()-0.5)*jitter,
+      z: c.z + (rnd()-0.5)*jitter,
+    };
+  });
+});
+
+/* ---------------------------------------------------------------
+   3. RENDERER — hand-rolled perspective 3D on canvas 2D
+------------------------------------------------------------------ */
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize", resize);
+
+// default view opens pulled back far enough to frame the whole universe — every
+// topic's cluster in one shot — rather than arriving inside a single cluster
+const UNIVERSE_CENTER = {
+  x: TOPICS.reduce((s,t)=>s+t.anchor.x,0)/TOPICS.length,
+  y: TOPICS.reduce((s,t)=>s+t.anchor.y,0)/TOPICS.length,
+  z: TOPICS.reduce((s,t)=>s+t.anchor.z,0)/TOPICS.length,
+};
+let UNIVERSE_EXTENT = 60;
+TOPICS.forEach(t => {
+  const d = Math.hypot(t.anchor.x-UNIVERSE_CENTER.x, t.anchor.y-UNIVERSE_CENTER.y, t.anchor.z-UNIVERSE_CENTER.z) + t.qualShellR;
+  if (d > UNIVERSE_EXTENT) UNIVERSE_EXTENT = d;
+});
+const cam = {
+  yaw: -0.6, pitch: 0.26,
+  dist: Math.max(300, UNIVERSE_EXTENT * 1.65),
+  target: { ...UNIVERSE_CENTER },
+};
+let lastInteraction = 0;
+let camGoal = null; // {x,y,z,dist} — camera eases toward this on selection, cancelled by manual input
+let flowCache = { tick: -1, hl: undefined, list: [] }; // throttles the flow-dot edge filter to 1/sec
+
+// background starfield — fixed sky dome with gentle parallax, twinkle
+const starRnd = rand(9001);
+const STARS = Array.from({length: 220}, () => ({
+  x: starRnd(), y: starRnd(),
+  r: 0.4 + starRnd()*1.3,
+  base: 0.15 + starRnd()*0.55,
+  speed: 0.0006 + starRnd()*0.0016,
+  phase: starRnd()*Math.PI*2,
+}));
+
+// per-node "breathing" phase so pulses feel organic, not synchronized
+function nodePhase(id){
+  let h = 0; for (let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i))|0;
+  return (Math.abs(h) % 1000) / 1000 * Math.PI * 2;
+}
+const dustRnd = rand(4242);
+allNodes.forEach(n => {
+  n.phase = nodePhase(n.id);
+  // precomputed "dust" — faint satellite specks scattered around cluster nodes,
+  // so a theme/trend/movement reads as a distant cluster of points, not a flat disc
+  if (n.kind === "lg"){
+    const count = 5 + Math.min(14, Math.round(Math.sqrt(n.memberCount)*2));
+    n.dust = Array.from({length: count}, () => ({
+      a: dustRnd()*Math.PI*2,
+      r: 0.55 + dustRnd()*1.35,
+      size: 0.5 + dustRnd()*1.1,
+      tw: dustRnd()*Math.PI*2,
+    }));
+  }
+});
+
+const FOV = 520;
+
+function project(p){
+  // camera basis
+  const cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+  const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+  // translate relative to target
+  let x = p.x - cam.target.x, y = p.y - cam.target.y, z = p.z - cam.target.z;
+  // rotate yaw (around Y)
+  let x1 = x*cy - z*sy;
+  let z1 = x*sy + z*cy;
+  // rotate pitch (around X)
+  let y2 = y*cp - z1*sp;
+  let z2 = y*sp + z1*cp;
+  // camera sits back along z2
+  const camZ = z2 + cam.dist;
+  const scale = FOV / Math.max(camZ, 1);
+  return {
+    sx: W/2 + x1*scale,
+    sy: H/2 - y2*scale + 40,
+    scale, depth: camZ,
+  };
+}
+
+// pan the target across the camera's own right/up plane (Shift+drag), so the
+// world slides under the cursor instead of orbiting around a fixed point.
+// Scale is derived from the exact same projection math as project() (FOV/camZ),
+// so content at the focal plane tracks the pointer 1:1 — pixel for pixel, like
+// dragging a photo on a touchscreen, rather than an approximate fixed speed.
+function panBy(dx, dy){
+  const cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+  const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+  const rx = cy, rz = -sy;                          // camera's world-space right axis
+  const ux = -sp*sy, uy = cp, uz = -sp*cy;           // camera's world-space up axis
+  const scale = cam.dist / FOV;
+  // horizontal drag moves opposite the right vector, vertical drag moves WITH the
+  // up vector — these two need opposite signs (verified against project()'s partial
+  // derivatives), which is what was inverted before
+  cam.target.x += (-rx*dx + ux*dy) * scale;
+  cam.target.y += (uy*dy) * scale;
+  cam.target.z += (-rz*dx + uz*dy) * scale;
+}
+
+// touch-style momentum — a flick keeps gliding and settles with friction,
+// instead of stopping dead the instant the pointer is released
+let panVelocity = { x: 0, y: 0 };
+
+function nodeRadius(n){
+  if (n.kind==="qual") return 2.6;
+  const base = { 1:5.5, 2:8.5, 3:12 }[n.level];
+  return base + Math.sqrt(n.memberCount)*0.9;
+}
+
+let activeTopics = new Set(TOPICS.map(t=>t.id));
+let timeCutoffFrac = 1;
+
+function visible(n){
+  const topicIds = n.crossTopicIds || [n.orgTopicId];
+  if (!topicIds.some(id=>activeTopics.has(id))) return false;
+  const ts = n.timestamp ?? n.spanTo;
+  const cutoff = GLOBAL_SPAN.from + (GLOBAL_SPAN.to-GLOBAL_SPAN.from)*timeCutoffFrac;
+  return ts <= cutoff;
+}
+
+const projected = new Map(); // id -> {sx,sy,scale,depth,node}
+
+// branch highlight: descendants (what this rolls up FROM) get full brightness;
+// ancestors (the lineage it rolls up INTO) are lit for context but dimmer
+let highlightSet = null;
+function computeHighlight(n){
+  const down = new Set([n.id]);
+  (function walkDown(node){ (node.childIds||[]).forEach(cid=>{ if(!down.has(cid)){ down.add(cid); walkDown(byId.get(cid)); } }); })(n);
+  const up = new Set();
+  (function walkUp(node){ node.parentIds.forEach(pid=>{ if(!down.has(pid) && !up.has(pid)){ up.add(pid); walkUp(byId.get(pid)); } }); })(n);
+  return { down, up };
+}
+
+let lastDrawT = null;
+
+function draw(t){
+  ctx.clearRect(0,0,W,H);
+
+  const frameDt = lastDrawT ? Math.min(t-lastDrawT, 50) : 16.7;
+  lastDrawT = t;
+
+  // idle auto-rotation — the world drifts slowly on its own, like a sky chart
+  const idleFor = t - lastInteraction;
+  if (!dragging && idleFor > 1400){
+    cam.yaw += 0.00016 * Math.min(idleFor-1400, 4000)/4000 + 0.00006;
+  }
+
+  // touch-style pan momentum — once the pointer lifts, the flick keeps gliding
+  // and decays with friction, rather than the view stopping dead on release
+  if (!dragging && !camGoal && (Math.abs(panVelocity.x) > 0.002 || Math.abs(panVelocity.y) > 0.002)){
+    panBy(panVelocity.x*frameDt, panVelocity.y*frameDt);
+    const friction = Math.pow(0.996, frameDt); // frame-rate independent decay, ~1s glide
+    panVelocity.x *= friction;
+    panVelocity.y *= friction;
+  } else if (!dragging){
+    panVelocity.x = 0; panVelocity.y = 0;
+  }
+
+  // ease the camera toward a selection's bounding centre + distance — cancelled the
+  // moment the user drags or scrolls, so it never fights manual control
+  if (camGoal){
+    cam.target.x += (camGoal.x - cam.target.x) * 0.07;
+    cam.target.y += (camGoal.y - cam.target.y) * 0.07;
+    cam.target.z += (camGoal.z - cam.target.z) * 0.07;
+    cam.dist += (camGoal.dist - cam.dist) * 0.07;
+    const settled = Math.hypot(camGoal.x-cam.target.x, camGoal.y-cam.target.y, camGoal.z-cam.target.z) < 0.5
+      && Math.abs(camGoal.dist-cam.dist) < 0.5;
+    if (settled) camGoal = null;
+  }
+
+  const pulse = Math.sin(t*0.0009)*0.5+0.5;        // slow ambient breathing, 0..1
+
+  // nebula wisps — soft coloured atmosphere behind everything, one per topic region,
+  // drawn in world space so they drift with the camera. Scale is clamped and the wisp
+  // fades out as the camera closes in on it, so zooming into a branch never leaves a
+  // giant blown-out cloud sitting in front of (or overwhelming) the selected nodes.
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  TOPICS.forEach(topic => {
+    const worldPos = { x: topic.anchor.x*1.15, y: topic.anchor.y*1.15, z: topic.anchor.z*1.15 };
+    const distToTarget = Math.hypot(worldPos.x-cam.target.x, worldPos.y-cam.target.y, worldPos.z-cam.target.z);
+    const proximityFade = Math.max(0, Math.min(1, (distToTarget-40)/200));
+    if (proximityFade < 0.02) return;
+    const p = project(worldPos);
+    if (p.depth < 20) return; // behind or right on top of the camera — skip
+    const nebR = 260 * Math.min(Math.max(p.scale/1.1, 0.3), 1.3);
+    const neb = ctx.createRadialGradient(p.sx,p.sy,0,p.sx,p.sy,nebR);
+    neb.addColorStop(0, topicColorAlpha(topic.id, 0.07*proximityFade));
+    neb.addColorStop(0.5, topicColorAlpha(topic.id, 0.03*proximityFade));
+    neb.addColorStop(1, topicColorAlpha(topic.id, 0));
+    ctx.fillStyle = neb;
+    ctx.beginPath(); ctx.arc(p.sx,p.sy,nebR,0,Math.PI*2); ctx.fill();
+  });
+  ctx.restore();
+
+  // starfield sky dome, screen-space with faint parallax — barely-there, grain does most of the texture work
+  ctx.save();
+  STARS.forEach(s => {
+    const px = s.x*W + Math.sin(cam.yaw*0.6)*14*s.r;
+    const py = s.y*H*0.9 + (cam.pitch-0.32)*30*s.r;
+    const tw = 0.55 + 0.45*Math.sin(t*s.speed + s.phase);
+    ctx.beginPath();
+    ctx.arc(px, py, s.r*0.75, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(200,210,235,${(s.base*tw*0.5).toFixed(3)})`;
+    ctx.fill();
+  });
+  ctx.restore();
+
+  const visibleNodes = allNodes.filter(visible);
+  const visibleSet = new Set(visibleNodes.map(n=>n.id));
+
+  function dimFactor(id){
+    if (!highlightSet) return 1;
+    if (highlightSet.down.has(id)) return 1;
+    if (highlightSet.up.has(id)) return 0.42;
+    return 0.09;
+  }
+
+  // edges — thin, soft glowing threads, no colour banding, just brightness
+  ctx.lineCap = "round";
+  visibleNodes.forEach(n => {
+    if (n.kind !== "lg") return;
+    n.childIds.forEach(cid => {
+      if (!visibleSet.has(cid)) return;
+      const child = byId.get(cid);
+      const a = project(n.pos), b = project(child.pos);
+      const edgeDim = Math.min(dimFactor(n.id), dimFactor(cid));
+      const flow = 0.5 + 0.5*Math.sin(t*0.0012 + n.phase);
+      ctx.strokeStyle = `hsla(212,40%,68%,${(0.13 + flow*0.06) * edgeDim})`;
+      ctx.lineWidth = (edgeDim===1 && highlightSet) ? 1.3 : 0.75;
+      ctx.shadowBlur = edgeDim===1 ? 3 : 0;
+      ctx.shadowColor = "hsla(212,50%,65%,0.35)";
+      ctx.beginPath(); ctx.moveTo(a.sx,a.sy); ctx.lineTo(b.sx,b.sy); ctx.stroke();
+    });
+  });
+  ctx.shadowBlur = 0;
+
+  // flow notation — a small handful of dots travel up a branch about once a second,
+  // from insight toward theme toward trend, since that's the real direction of the
+  // data: individual insights roll up INTO the aggregate, not the other way round.
+  // With nothing selected they roam across a variety of branches for ambient life;
+  // once a node is selected, flow is confined to the fully-lit (downstream) part of it.
+  {
+    const tick = Math.floor(t/1000);
+    // this filter only needs to change once a second (or the instant selection
+    // changes) — recomputing it every frame was pure waste at hundreds of edges
+    if (tick !== flowCache.tick || highlightSet !== flowCache.hl){
+      flowCache.tick = tick;
+      flowCache.hl = highlightSet;
+      flowCache.list = EDGE_LIST.filter(e => {
+        const parent = byId.get(e.parentId), child = byId.get(e.childId);
+        if (!parent || !child || !visible(parent) || !visible(child)) return false;
+        if (highlightSet) return highlightSet.down.has(e.parentId) && highlightSet.down.has(e.childId);
+        return true;
+      });
+    }
+    const candidates = flowCache.list;
+    if (candidates.length){
+      const lanes = highlightSet ? Math.min(2, candidates.length) : Math.min(3, candidates.length);
+      const frac = (t%1000)/1000;
+      const fade = Math.sin(frac*Math.PI);
+      for (let lane=0; lane<lanes; lane++){
+        const idx = (tick + lane*7) % candidates.length;
+        const e = candidates[idx];
+        const parent = byId.get(e.parentId), child = byId.get(e.childId);
+        const a = project(parent.pos), b = project(child.pos);
+        // travel FROM child TO parent — up the branch, not down it
+        const fx = b.sx + (a.sx-b.sx)*frac;
+        const fy = b.sy + (a.sy-b.sy)*frac;
+        ctx.beginPath();
+        ctx.arc(fx,fy, 1.7, 0, Math.PI*2);
+        ctx.fillStyle = `hsla(${hashTopicIdToHue(parent.orgTopicId)},70%,88%,${0.75*fade})`;
+        ctx.fill();
+      }
+    }
+  }
+
+  // nodes, sorted far->near — soft glowing orbs, brightness (not hue/stroke) carries lifecycle + selection
+  const withDepth = visibleNodes.map(n => ({ n, p: project(n.pos) }));
+  withDepth.sort((a,b)=> b.p.depth - a.p.depth);
+  projected.clear();
+
+  withDepth.forEach(({n,p}) => {
+    const dim = dimFactor(n.id);
+    const life = n.kind === "lg" ? LIFECYCLE[n.lifecycleState] : null;
+    const lifeBright = life ? life.brightness : 1;
+    const lifePulseSpeed = life ? life.pulseSpeed : 1;
+    // the boundary itself is an exact value and never pulses — only the glow around it breathes
+    const r = nodeRadius(n) * Math.max(p.scale/1.1, 0.35);
+    const glowPulse = 1 + Math.sin(t*0.0011*lifePulseSpeed + n.phase)*0.16;
+    const isSel = selected && selected.id===n.id;
+    const isHover = hovered && hovered.id===n.id;
+    const focus = (isSel ? 1 : isHover ? 0.55 : 0) ;
+    const bright = lifeBright * dim;
+
+    if (dim < 0.02) return;
+
+    ctx.save();
+
+    // one shared radial field from hot core to open halo, drawn from a pre-baked
+    // per-topic sprite (see buildGlowSprite) instead of allocating a fresh
+    // CanvasGradient per node per frame — the difference between this scene holding
+    // 60fps at hundreds of nodes and stalling at a handful of frames per second.
+    // globalAlpha reproduces the old per-stop "bright" multiplier exactly (uniformly
+    // scaling every stop's alpha is identical to compositing the full sprite at that alpha).
+    const haloR = r * (2.5 + (pulse*0.3 + (glowPulse-1)*1.4) + focus*1.7);
+    const sprite = glowSprites.get(n.orgTopicId);
+    if (sprite && bright > 0.01){
+      ctx.globalAlpha = Math.min(1, bright);
+      ctx.drawImage(sprite, p.sx-haloR, p.sy-haloR, haloR*2, haloR*2);
+      ctx.globalAlpha = 1;
+    }
+
+    // cluster dust — faint satellite points drifting slowly within the halo,
+    // reading as a resolved cluster of galaxies rather than a single smooth orb
+    if (n.dust){
+      n.dust.forEach(d => {
+        const dr = r * d.r;
+        const dx = p.sx + Math.cos(d.a + t*0.00004)*dr;
+        const dy = p.sy + Math.sin(d.a + t*0.00004)*dr*0.7;
+        const tw = 0.4 + 0.6*Math.max(0, Math.sin(t*0.0007 + d.tw));
+        ctx.beginPath();
+        ctx.arc(dx,dy, d.size*Math.max(p.scale/1.1,0.4), 0, Math.PI*2);
+        ctx.fillStyle = topicColorAlpha(n.orgTopicId, 0.5*tw*bright);
+        ctx.fill();
+      });
+    }
+
+    // crisp outer boundary ring — the scope/membership edge, distinct from the soft bleed.
+    // Weight is a fraction of the globe's own radius, so small insights get a hairline
+    // and large movements get a ring that reads as a real boundary. Static — no pulse —
+    // since this line represents an exact value, unlike the glow around it.
+    ctx.beginPath();
+    ctx.arc(p.sx,p.sy,r,0,Math.PI*2);
+    const ringBase = Math.max(0.55, r*0.075);
+    ctx.lineWidth = ringBase * (isSel ? 1.7 : isHover ? 1.35 : 1);
+    ctx.strokeStyle = topicColorAlpha(n.orgTopicId, (n.crossTopicIds ? 0.85 : 0.6) * Math.max(lifeBright*dim,0.3));
+    ctx.stroke();
+
+    ctx.restore();
+
+    if ((isSel || isHover) && n.commonThread){
+      ctx.font = `500 ${Math.max(10.5, Math.min(13,r*0.6))}px var(--mono)`;
+      ctx.fillStyle = isSel ? "rgba(232,234,240,0.92)" : "rgba(232,234,240,0.55)";
+      ctx.textAlign = "center";
+      const label = n.commonThread.length>36 ? n.commonThread.slice(0,36)+"…" : n.commonThread;
+      ctx.fillText(label, p.sx, p.sy - r - 10);
+    }
+
+    projected.set(n.id, { sx:p.sx, sy:p.sy, r: Math.max(r,4) });
+  });
+
+  requestAnimationFrame(draw);
+}
+
+/* ---------------------------------------------------------------
+   4. INTERACTION — orbit, zoom, click-to-select, filters
+------------------------------------------------------------------ */
+
+let dragging = false, lastX=0, lastY=0, dragDist=0, lastMoveT=0;
+let selected = null, hovered = null;
+
+canvas.addEventListener("pointerdown", e => {
+  dragging = true; dragDist = 0; lastX = e.clientX; lastY = e.clientY;
+  lastMoveT = performance.now();
+  canvas.classList.add("dragging");
+  lastInteraction = performance.now();
+  camGoal = null;
+  panVelocity = { x: 0, y: 0 }; // grabbing the scene kills any residual glide, like touch
+});
+window.addEventListener("pointerup", e => {
+  dragging = false; canvas.classList.remove("dragging");
+  if (dragDist < 6) handleClick(e);
+});
+window.addEventListener("pointermove", e => {
+  if (dragging){
+    const dx = e.clientX-lastX, dy = e.clientY-lastY;
+    const now = performance.now();
+    const dt = Math.max(1, now-lastMoveT);
+    dragDist += Math.abs(dx)+Math.abs(dy);
+    if (e.shiftKey){
+      panBy(dx, dy);
+      // smoothed instantaneous velocity (px/ms), carried into inertia on release
+      panVelocity.x = panVelocity.x*0.6 + (dx/dt)*0.4;
+      panVelocity.y = panVelocity.y*0.6 + (dy/dt)*0.4;
+    } else {
+      cam.yaw += dx*0.006;
+      cam.pitch = Math.max(0.05, Math.min(1.1, cam.pitch + dy*0.004));
+    }
+    lastX = e.clientX; lastY = e.clientY;
+    lastMoveT = now;
+    lastInteraction = performance.now();
+  } else {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX-rect.left, my = e.clientY-rect.top;
+    hovered = hitTest(mx,my);
+    canvas.style.cursor = hovered ? "pointer" : (dragging ? "grabbing" : "grab");
+  }
+});
+canvas.addEventListener("wheel", e => {
+  e.preventDefault();
+  camGoal = null;
+  cam.dist = Math.max(160, Math.min(900, cam.dist + e.deltaY*0.4));
+  lastInteraction = performance.now();
+}, { passive:false });
+
+function hitTest(mx,my){
+  let best=null, bestD=Infinity;
+  projected.forEach((v, id) => {
+    const d = Math.hypot(v.sx-mx, v.sy-my);
+    if (d < v.r+6 && d < bestD){ bestD=d; best=byId.get(id); }
+  });
+  return best;
+}
+function handleClick(e){
+  const rect = canvas.getBoundingClientRect();
+  const hit = hitTest(e.clientX-rect.left, e.clientY-rect.top);
+  if (hit) selectNode(hit); else closeDetail();
+}
+
+// bounding centre + distance that frames a branch tightly, so a click reads as a
+// real zoom-in rather than a small cluster stranded in the middle of the screen
+function computeBoundingGoal(ids){
+  const nodes = [...ids].map(id => byId.get(id)).filter(Boolean);
+  if (!nodes.length) return null;
+  const cx = nodes.reduce((s,n)=>s+n.pos.x,0)/nodes.length;
+  const cy = nodes.reduce((s,n)=>s+n.pos.y,0)/nodes.length;
+  const cz = nodes.reduce((s,n)=>s+n.pos.z,0)/nodes.length;
+  let maxDist = 20;
+  nodes.forEach(n => {
+    const d = Math.hypot(n.pos.x-cx, n.pos.y-cy, n.pos.z-cz) + nodeRadius(n);
+    if (d > maxDist) maxDist = d;
+  });
+  return { x:cx, y:cy, z:cz, dist: Math.max(70, Math.min(480, maxDist*1.25 + 26)) };
+}
+
+function selectNode(n){
+  selected = n;
+  highlightSet = computeHighlight(n);
+  // frame the selection + everything downstream — the dimmer ancestor chain
+  // doesn't need to fit in view, it's context, not the focus
+  camGoal = computeBoundingGoal(highlightSet.down);
+  renderDetail(n);
+  document.getElementById("detail").classList.add("open");
+}
+function closeDetail(){
+  selected = null;
+  highlightSet = null;
+  document.getElementById("detail").classList.remove("open");
+}
+document.getElementById("closeDetail").onclick = closeDetail;
+window.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
+
+function fmtDate(ts){
+  return new Date(ts).toLocaleDateString("en-US", { month:"short", day:"numeric" });
+}
+
+function renderDetail(n){
+  const topic = TOPICS.find(t=>t.id===(n.orgTopicId));
+  const inner = document.getElementById("detailInner");
+  if (n.kind === "qual"){
+    const parents = n.parentIds.map(id=>byId.get(id));
+    inner.innerHTML = `
+      <div class="topicline"><span class="dot" style="background:${topic.color}"></span>${topic.title}</div>
+      <div class="levelbadge">Insight · L0</div>
+      <div class="field"><div class="k">Insight</div></div>
+      <p class="quote">"${n.refinedQuote}"</p>
+      <div class="field"><div class="k">Context</div><div class="v">${n.context}</div></div>
+      ${n.followUp ? `<div class="field"><div class="k">Follow-up</div><div class="v">${n.followUp}</div></div>` : ""}
+      <div class="field"><div class="k">Speaker</div><div class="v">${n.speakerName} · ${n.speakerCompany}</div></div>
+      <div class="field"><div class="k">Conversation</div><div class="v">${fmtDate(n.timestamp)}</div></div>
+      <div class="field"><div class="k">In ${parents.length} Theme${parents.length===1?"":"s"}</div>
+        <div class="connlist">
+          ${parents.map(p=>`<div class="conn" data-id="${p.id}"><span>${p.commonThread}</span><span class="arrow">→</span></div>`).join("")}
+        </div>
+      </div>
+    `;
+  } else {
+    const life = LIFECYCLE[n.lifecycleState];
+    const lifeAlpha = Math.min(1, 0.4 + life.brightness*0.5);
+    const lifeColor = topicColorAlpha(n.orgTopicId, lifeAlpha);
+    const parents = n.parentIds.map(id=>byId.get(id));
+    const children = n.childIds.map(id=>byId.get(id));
+    const childLabel = LEVEL_LABEL[n.level-1];
+    inner.innerHTML = `
+      <div class="topicline"><span class="dot" style="background:${topic.color}"></span>${n.crossTopicIds ? "Cross-topic" : topic.title}</div>
+      <div class="levelbadge">${LEVEL_LABEL[n.level]} · L${n.level}</div>
+      <h2>${n.commonThread}</h2>
+      <p class="claim">${n.claim}</p>
+      <div class="lifebadge" style="border-color:${lifeColor}; color:${lifeColor}">
+        <span style="width:6px;height:6px;border-radius:50%;background:${lifeColor};display:inline-block"></span>
+        ${life.label} · ${(n.lifecycleConfidence*100).toFixed(0)}% confidence
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">${n.memberCount}</div><div class="l">members</div></div>
+        <div class="stat"><div class="n">${n.customerCount}</div><div class="l">customers</div></div>
+        <div class="stat"><div class="n">${n.conversationCount}</div><div class="l">convos</div></div>
+      </div>
+      <div class="field"><div class="k">Span</div><div class="v">${fmtDate(n.spanFrom)} – ${fmtDate(n.spanTo)}</div></div>
+      <details><summary>Membership criteria</summary><p>${n.membershipCriteria}</p></details>
+      ${parents.length ? `<div class="field"><div class="k">In ${parents.length} Parent ${LEVEL_LABEL[n.level+1]||""}</div>
+        <div class="connlist">${parents.map(p=>`<div class="conn" data-id="${p.id}"><span>${p.commonThread}</span><span class="arrow">→</span></div>`).join("")}</div></div>` : ""}
+      <div class="field"><div class="k">${children.length} ${childLabel}${children.length===1?"":"s"}</div>
+        <div class="connlist">${children.slice(0,8).map(c=>`<div class="conn" data-id="${c.id}"><span>${c.commonThread||c.quoteSnippet}</span><span class="arrow">→</span></div>`).join("")}
+        ${children.length>8 ? `<div class="conn" style="color:var(--faint)">+ ${children.length-8} more</div>` : ""}</div>
+      </div>
+    `;
+  }
+  inner.querySelectorAll(".conn[data-id]").forEach(el => {
+    el.onclick = () => { const t = byId.get(el.dataset.id); selectNode(t); };
+  });
+}
+
+/* ---------------------------------------------------------------
+   5. CHROME — topic chips, timeline, legend, view toggle
+------------------------------------------------------------------ */
+
+const chipsEl = document.getElementById("topicChips");
+TOPICS.forEach(t => {
+  const chip = document.createElement("div");
+  chip.className = "chip active";
+  chip.innerHTML = `<span class="dot" style="background:${t.color}"></span>${t.title}`;
+  chip.onclick = () => {
+    if (activeTopics.has(t.id)){ activeTopics.delete(t.id); chip.classList.remove("active"); }
+    else { activeTopics.add(t.id); chip.classList.add("active"); }
+    updateScope();
+  };
+  chipsEl.appendChild(chip);
+});
+
+const legendEl = document.getElementById("legend");
+LIFECYCLE_ORDER.forEach(k => {
+  const l = LIFECYCLE[k];
+  const row = document.createElement("div");
+  row.className = "row";
+  const alpha = Math.min(1, 0.35 + l.brightness*0.5);
+  row.innerHTML = `<span class="tick" style="background:hsla(210,70%,72%,${alpha})"></span>${l.label}`;
+  legendEl.appendChild(row);
+});
+
+const tlSlider = document.getElementById("tlSlider");
+tlSlider.addEventListener("input", () => {
+  timeCutoffFrac = tlSlider.value/100;
+  document.getElementById("tlTo").textContent = fmtDate(GLOBAL_SPAN.from + (GLOBAL_SPAN.to-GLOBAL_SPAN.from)*timeCutoffFrac);
+  updateScope();
+});
+document.getElementById("tlFrom").textContent = fmtDate(GLOBAL_SPAN.from);
+document.getElementById("tlTo").textContent = fmtDate(GLOBAL_SPAN.to);
+
+function updateScope(){
+  const shown = allNodes.filter(visible);
+  const total = allNodes.length;
+  const el = document.getElementById("scope");
+  const hiddenTopics = TOPICS.length - activeTopics.size;
+  el.innerHTML = `Cross-section: <b>${activeTopics.size}</b>/${TOPICS.length} topics &middot; <b>${shown.length}</b> of ${total} nodes shown` +
+    (hiddenTopics>0 || timeCutoffFrac<1 ? `<br><span class="warn">scoped view — not the full graph</span>` : `<br>full window, all topics`);
+}
+
+setTimeout(() => { document.getElementById("hint").style.opacity = 0; }, 4500);
+
+resize();
+updateScope();
+requestAnimationFrame(draw);
+</script>
