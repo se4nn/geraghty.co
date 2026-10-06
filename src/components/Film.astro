@@ -34,9 +34,27 @@ interface Props {
   posterWidth?: number;
   // Loops by default. Without it the film plays once, stops, and offers Replay
   loop?: boolean;
+  // A live version of what the film shows (Insight World). A button opens it
+  // full screen in a dialog; the page only loads when it's opened
+  live?: string;
+  liveLabel?: string;
+  // The dialog's title, beside Close
+  liveTitle?: string;
 }
 
-const { video, encrypted, poster, alt, ratio = [1416, 812], sound = true, posterWidth = 1920, loop = true } = Astro.props;
+const {
+  video,
+  encrypted,
+  poster,
+  alt,
+  ratio = [1416, 812],
+  sound = true,
+  posterWidth = 1920,
+  loop = true,
+  live,
+  liveLabel = 'Explore it live',
+  liveTitle = liveLabel,
+} = Astro.props;
 const posterImage = await getImage({ src: poster, width: posterWidth, format: 'webp', quality: 90 });
 ---
 
@@ -49,6 +67,23 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   </button>
   {sound && <button class="film__sound t-label" type="button" aria-pressed="false">Sound on</button>}
   {!loop && <button class="film__replay t-label" type="button">Replay</button>}
+  {
+    live && (
+      <>
+        <button class="film__live t-label" type="button" aria-haspopup="dialog">
+          {liveLabel}
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 4 12" /></svg>
+        </button>
+        <dialog class="film__dialog" aria-label={liveTitle}>
+          <form class="film__bar" method="dialog">
+            <span class="t-label">{liveTitle}</span>
+            <button class="film__close t-label" type="submit">Close</button>
+          </form>
+          <iframe class="film__frame" data-src={live} title={alt} />
+        </dialog>
+      </>
+    )
+  }
   {
     encrypted && (
       <form class="film__lock">
@@ -148,6 +183,102 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   .film__replay:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
+  }
+
+  /* The live version: a button bottom right, and a full-screen dialog */
+  .film__live,
+  .film__close {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-m);
+    border: 0;
+    border-radius: var(--radius-l);
+    color: var(--text-on-dark);
+    background-color: oklch(0% 0 0 / 0.45);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: background-color var(--duration-s) var(--ease-out);
+  }
+
+  .film__live {
+    position: absolute;
+    z-index: 1;
+    right: var(--space-m);
+    bottom: var(--space-m);
+  }
+
+  .film__live svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  @media (hover: hover) {
+    .film__live:hover,
+    .film__close:hover {
+      background-color: oklch(0% 0 0 / 0.7);
+    }
+  }
+
+  .film__live:focus-visible,
+  .film__close:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: 2px;
+  }
+
+  .film__dialog {
+    width: calc(100vw - 2 * var(--space-m));
+    height: calc(100dvh - 2 * var(--space-m));
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    color: var(--text-on-dark);
+    background-color: var(--neutral-1000);
+  }
+
+  .film__dialog[open] {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .film__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-m);
+    border-bottom: 1px solid oklch(100% 0 0 / 0.1);
+  }
+
+  .film__dialog::backdrop {
+    background-color: oklch(0% 0 0 / 0.7);
+    backdrop-filter: blur(6px);
+  }
+
+  .film__frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .film__dialog[open] {
+      animation: film-dialog-in var(--duration-m, 300ms) var(--ease-out-expo, ease-out);
+    }
+  }
+
+  @keyframes film-dialog-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
   }
 
   /* Locked: the poster, dimmed, with the password form in the middle */
@@ -315,6 +446,36 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
       video.muted = !video.muted;
       if (!video.muted && video.paused) video.play().catch(() => {});
     });
+
+    // The live version: load it on first open, pause the film behind it,
+    // and pick the film up again when the dialog closes
+    const live = film.querySelector<HTMLButtonElement>('.film__live');
+    const dialog = film.querySelector<HTMLDialogElement>('.film__dialog');
+    if (live && dialog) {
+      const frame = dialog.querySelector<HTMLIFrameElement>('iframe')!;
+      let wasPlaying = false;
+      // Escape pressed inside the page (same origin) closes the dialog too;
+      // the browser only handles it when focus is outside the iframe
+      frame.addEventListener('load', () => {
+        frame.contentWindow?.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') dialog.close();
+        });
+      });
+      live.addEventListener('click', () => {
+        if (!frame.src) frame.src = frame.dataset.src!;
+        wasPlaying = !video.paused;
+        video.pause();
+        dialog.showModal();
+      });
+      dialog.addEventListener('close', () => {
+        if (wasPlaying && !held) video.play().catch(() => {});
+        live.focus();
+      });
+      // A click on the backdrop closes it too
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+    }
 
     // Private films
     const form = film.querySelector<HTMLFormElement>('.film__lock');

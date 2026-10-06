@@ -1,0 +1,634 @@
+---
+// Format's component build loop, in motion: the seven phases every component
+// went through (from Format's own component-build-workflow.md), each with the
+// artefact it produces. The phases sit on the left and only change colour
+// (words stay put); the artefact on the right lifts in on the spring, and a
+// rail fills while each phase plays. It loops while on screen and pauses
+// when it leaves. Clicking a phase jumps to it and holds there.
+// Reduced motion: no autoplay, no lift; the first phase shows, and the
+// phases are still buttons.
+// Built at the grid's 1416 × 812 and scaled as one piece (--u is one Figma
+// px), so it reads like an image at every width.
+// The example running through it is real: the Button padding regression from
+// the learning log (built px-2, Figma said px-3).
+const phases = [
+  { title: 'Read the rules', line: 'And every past mistake' },
+  { title: 'Get the spec', line: 'From Figma, not a screenshot' },
+  { title: 'Build', line: 'Tokens only, no raw values' },
+  { title: 'Check it renders', line: 'In the browser, against Figma' },
+  { title: 'Fix', line: 'Three tries, then it comes to me' },
+  { title: 'Approve', line: 'Nothing ships without it' },
+  { title: 'Write it down', line: 'The rule that stops it again' },
+];
+---
+
+<div class="build-loop" role="group" aria-label="The component build loop: seven phases, each with what it produces">
+  <div class="build-loop__frame">
+    <ol class="build-loop__phases" role="list">
+      {
+        phases.map((phase, i) => (
+          <li>
+            <button class="build-loop__phase" type="button" data-index={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+              <span class="build-loop__number">{String(i + 1).padStart(2, '0')}</span>
+              <span class="build-loop__text">
+                <span class="build-loop__title">{phase.title}</span>
+                <span class="build-loop__line">{phase.line}</span>
+              </span>
+              <span class="build-loop__rail" aria-hidden="true" />
+            </button>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="build-loop__stage" aria-live="off">
+      {/* 01 Read: the rules file and a learning-log entry */}
+      <section class="build-loop__card" data-card="0" data-active="">
+        <header class="bl-file"><span class="bl-dot" />design-system-rules.md</header>
+        <ul class="bl-rules" role="list">
+          <li><b>Tokens first.</b> No raw colours, spacing or radius in a component.</li>
+          <li><b>Code owns structure.</b> Variants, states and the API.</li>
+          <li><b>Figma owns values.</b> Fonts, padding, colour, radius.</li>
+        </ul>
+        <header class="bl-file"><span class="bl-dot bl-dot--log" />learning-log.md</header>
+        <blockquote class="bl-quote">
+          “A success response means the call was received, not that the change persisted.”
+        </blockquote>
+      </section>
+
+      {/* 02 Spec: the Figma component and its token mapping */}
+      <section class="build-loop__card" data-card="1">
+        <header class="bl-file"><span class="bl-dot bl-dot--figma" />Figma · Button · 173:755</header>
+        <div class="bl-buttons">
+          <span class="bl-button">Default</span>
+          <span class="bl-button bl-button--outline">Outline</span>
+          <span class="bl-button bl-button--ghost">Ghost</span>
+          <span class="bl-button bl-button--danger">Destructive</span>
+        </div>
+        <table class="bl-table">
+          <thead><tr><th>Figma</th><th>Code</th></tr></thead>
+          <tbody>
+            <tr><td>color/neutral/900</td><td>var(--neutral-900)</td></tr>
+            <tr><td>spacing/3</td><td>px-3 · 12px</td></tr>
+            <tr><td>radius/rounded</td><td>var(--radius)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      {/* 03 Build: the component, tokens only */}
+      <section class="build-loop__card" data-card="2">
+        <header class="bl-file"><span class="bl-dot bl-dot--code" />src/components/ui/button.tsx</header>
+        <pre class="bl-code"><code><span class="c-k">const</span> buttonVariants = <span class="c-f">cva</span>(base, {'{'}
+  variants: {'{'}
+    variant: {'{'}
+      default: <span class="c-s">'bg-primary text-primary-foreground'</span>,
+      ghost: <span class="c-s">'bg-[var(--surface-glass)] backdrop-blur'</span>,
+    {'}'},
+    size: {'{'}
+      default: <span class="c-s bl-flag">'h-9 px-2 gap-1'</span>,
+    {'}'},
+  {'}'},
+{'}'})</code></pre>
+      </section>
+
+      {/* 04 Check: Figma against the browser, the padding is wrong */}
+      <section class="build-loop__card" data-card="3">
+        <header class="bl-file"><span class="bl-dot bl-dot--qa" />Visual QA · /design/design-system</header>
+        <div class="bl-compare">
+          <figure>
+            <span class="bl-measure"><span class="bl-pad">12</span><span class="bl-button">Button</span><span class="bl-pad">12</span></span>
+            <figcaption>Figma</figcaption>
+          </figure>
+          <figure>
+            <span class="bl-measure bl-measure--wrong"><span class="bl-pad">8</span><span class="bl-button">Button</span><span class="bl-pad">8</span></span>
+            <figcaption>Browser (computed)</figcaption>
+          </figure>
+        </div>
+        <p class="bl-status bl-status--fail">1 issue · padding 8px, spec 12px</p>
+      </section>
+
+      {/* 05 Fix: the same check, passing */}
+      <section class="build-loop__card" data-card="4">
+        <header class="bl-file"><span class="bl-dot bl-dot--qa" />Visual QA · iteration 1 of 3</header>
+        <pre class="bl-code bl-code--diff"><code><span class="c-del">-  default: 'h-9 px-2 gap-1',</span>
+<span class="c-add">+  default: 'h-9 px-3 gap-1',</span></code></pre>
+        <div class="bl-compare">
+          <figure>
+            <span class="bl-measure"><span class="bl-pad">12</span><span class="bl-button">Button</span><span class="bl-pad">12</span></span>
+            <figcaption>Figma</figcaption>
+          </figure>
+          <figure>
+            <span class="bl-measure bl-measure--right"><span class="bl-pad">12</span><span class="bl-button">Button</span><span class="bl-pad">12</span></span>
+            <figcaption>Browser (computed)</figcaption>
+          </figure>
+        </div>
+        <p class="bl-status bl-status--pass">All variants match</p>
+      </section>
+
+      {/* 06 Approve: the gate */}
+      <section class="build-loop__card" data-card="5">
+        <header class="bl-file"><span class="bl-dot bl-dot--gate" />Approval gate</header>
+        <ul class="bl-checks" role="list">
+          <li>Every Figma variant built</li>
+          <li>Every state: hover, focus, pressed, disabled</li>
+          <li>Zero hardcoded colour, spacing or radius</li>
+          <li>Showcase page updated in the same PR</li>
+        </ul>
+        <p class="bl-status bl-status--pass">Approved</p>
+      </section>
+
+      {/* 07 Reflect: the new rule, back to the start */}
+      <section class="build-loop__card" data-card="6">
+        <header class="bl-file"><span class="bl-dot bl-dot--log" />learning-log.md · 19 Apr 2026</header>
+        <p class="bl-entry-title">Button padding regression</p>
+        <p class="bl-entry">Built <code>px-2</code> (8px). Figma says <code>px-3</code> (12px). The value was set without checking the spec.</p>
+        <p class="bl-entry bl-entry--rule"><b>Rule:</b> every height, padding and gap is checked against Figma before it's committed.</p>
+        <p class="bl-next">Read before the next build →</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style>
+  .build-loop {
+    container-type: inline-size;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--format-neutral-050);
+  }
+
+  /* --u is one Figma px at this width */
+  .build-loop__frame {
+    --u: calc(100cqw / 1416);
+    --ink: var(--format-neutral-900);
+    --muted: var(--format-neutral-500);
+    --line: var(--format-neutral-200);
+    display: grid;
+    grid-template-columns: calc(440 * var(--u)) 1fr;
+    gap: calc(48 * var(--u));
+    aspect-ratio: 1416 / 812;
+    padding: calc(72 * var(--u)) calc(72 * var(--u)) calc(72 * var(--u)) calc(64 * var(--u));
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-variation-settings: var(--sans-axes);
+  }
+
+  /* Phases: words stay put, only their colour changes */
+  .build-loop__phases {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .build-loop__phase {
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(48 * var(--u)) 1fr;
+    align-items: baseline;
+    width: 100%;
+    padding: calc(12 * var(--u)) 0 calc(14 * var(--u));
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: color var(--duration-m) var(--ease-out);
+  }
+
+  .build-loop__phase[aria-pressed='true'] {
+    color: var(--ink);
+  }
+
+  .build-loop__number {
+    font-size: calc(15 * var(--u));
+    font-feature-settings: 'tnum';
+  }
+
+  .build-loop__text {
+    display: grid;
+    gap: calc(2 * var(--u));
+  }
+
+  .build-loop__title {
+    font-size: calc(26 * var(--u));
+    line-height: 1.15;
+    font-weight: var(--weight-bold);
+  }
+
+  .build-loop__line {
+    font-size: calc(16 * var(--u));
+    line-height: 1.3;
+  }
+
+  /* The rail fills along the bottom of the playing phase */
+  .build-loop__rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background-color: var(--format-red-500);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .build-loop__phase:focus-visible {
+    outline: 2px solid var(--format-cyan-500);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .build-loop__phase:hover {
+      color: var(--ink);
+    }
+  }
+
+  /* Stage: the artefact cards, one at a time */
+  .build-loop__stage {
+    position: relative;
+    display: grid;
+    align-items: center;
+  }
+
+  .build-loop__card {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: calc(20 * var(--u));
+    padding: calc(36 * var(--u)) calc(40 * var(--u));
+    border: 1px solid var(--line);
+    border-radius: calc(12 * var(--u));
+    background-color: var(--format-neutral-000);
+    box-shadow: 0 calc(24 * var(--u)) calc(64 * var(--u)) oklch(25% 0.02 33 / 0.12);
+    font-size: calc(19 * var(--u));
+    line-height: 1.45;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .build-loop__card[data-active] {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Lift in on the spring, with a tinted shadow; leave quick */
+    .build-loop__card {
+      transform: translateY(calc(28 * var(--u))) scale(0.985);
+      transition:
+        opacity var(--duration-s) var(--ease-out),
+        transform var(--duration-s) var(--ease-out),
+        visibility 0s linear var(--duration-s);
+    }
+
+    .build-loop__card[data-active] {
+      transform: none;
+      transition:
+        opacity var(--duration-m) var(--ease-out) 80ms,
+        transform 720ms var(--ease-spring) 80ms,
+        visibility 0s;
+    }
+
+    .build-loop[data-playing] .build-loop__phase[aria-pressed='true'] .build-loop__rail {
+      transform: scaleX(1);
+      transition: transform var(--phase-ms, 4200ms) linear;
+    }
+  }
+
+  /* Artefact pieces */
+  .bl-file {
+    display: flex;
+    align-items: center;
+    gap: calc(10 * var(--u));
+    color: var(--muted);
+    font-size: calc(15 * var(--u));
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  .bl-dot {
+    width: calc(10 * var(--u));
+    height: calc(10 * var(--u));
+    border-radius: 50%;
+    background-color: var(--format-neutral-400);
+  }
+
+  .bl-dot--log { background-color: var(--format-yellow-500); }
+  .bl-dot--figma { background-color: var(--format-magenta-500); }
+  .bl-dot--code { background-color: var(--format-cyan-500); }
+  .bl-dot--qa { background-color: var(--format-red-500); }
+  .bl-dot--gate { background-color: var(--format-green-500); }
+
+  .bl-rules,
+  .bl-checks {
+    display: grid;
+    gap: calc(12 * var(--u));
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .bl-rules li {
+    padding-bottom: calc(12 * var(--u));
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bl-quote {
+    margin: 0;
+    padding-left: calc(18 * var(--u));
+    border-left: calc(3 * var(--u)) solid var(--format-yellow-500);
+    font-size: calc(24 * var(--u));
+    line-height: 1.3;
+  }
+
+  .bl-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(12 * var(--u));
+  }
+
+  .bl-button {
+    display: inline-block;
+    padding: calc(8 * var(--u)) calc(12 * var(--u));
+    border-radius: calc(6 * var(--u));
+    color: var(--format-neutral-000);
+    background-color: var(--format-neutral-900);
+    font-size: calc(17 * var(--u));
+    line-height: 1.2;
+  }
+
+  .bl-button--outline {
+    color: var(--ink);
+    background: none;
+    box-shadow: inset 0 0 0 1px var(--format-neutral-300);
+  }
+
+  .bl-button--ghost {
+    color: var(--ink);
+    background-color: var(--format-neutral-100);
+  }
+
+  .bl-button--danger {
+    background-color: var(--format-red-600);
+  }
+
+  .bl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: calc(16 * var(--u));
+  }
+
+  .bl-table th {
+    color: var(--muted);
+    font-weight: normal;
+    text-align: left;
+  }
+
+  .bl-table th,
+  .bl-table td {
+    padding: calc(10 * var(--u)) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bl-code {
+    margin: 0;
+    padding: calc(20 * var(--u)) calc(24 * var(--u));
+    border-radius: calc(8 * var(--u));
+    color: var(--format-neutral-100);
+    background-color: var(--format-neutral-900);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: calc(16 * var(--u));
+    line-height: 1.6;
+    white-space: pre;
+    overflow: hidden;
+  }
+
+  .c-k { color: var(--format-magenta-300); }
+  .c-f { color: var(--format-cyan-300); }
+  .c-s { color: var(--format-yellow-300); }
+  .c-del { color: var(--format-red-300); }
+  .c-add { color: var(--format-green-300); }
+
+  .bl-flag {
+    outline: calc(2 * var(--u)) solid var(--format-red-400);
+    outline-offset: calc(2 * var(--u));
+    border-radius: calc(3 * var(--u));
+  }
+
+  .bl-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(20 * var(--u));
+  }
+
+  .bl-compare figure {
+    display: grid;
+    justify-items: center;
+    gap: calc(12 * var(--u));
+    margin: 0;
+    padding: calc(40 * var(--u)) calc(12 * var(--u)) calc(20 * var(--u));
+    border-radius: calc(8 * var(--u));
+    background-color: var(--format-neutral-050);
+  }
+
+  .bl-compare figcaption {
+    color: var(--muted);
+    font-size: calc(15 * var(--u));
+  }
+
+  .bl-measure {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    font-size: calc(22 * var(--u));
+  }
+
+  .bl-measure .bl-button {
+    font-size: inherit;
+  }
+
+  .bl-pad {
+    min-width: calc(36 * var(--u));
+    padding: calc(4 * var(--u)) calc(6 * var(--u));
+    border-radius: calc(4 * var(--u));
+    color: var(--format-cyan-600);
+    background-color: var(--format-cyan-100);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: calc(18 * var(--u));
+    text-align: center;
+  }
+
+  .bl-measure--wrong .bl-pad {
+    color: var(--format-red-600);
+    background-color: var(--format-red-100);
+  }
+
+  .bl-measure--right .bl-pad {
+    color: var(--format-green-600);
+    background-color: var(--format-green-100);
+  }
+
+  .bl-status {
+    margin: 0;
+    font-size: calc(19 * var(--u));
+  }
+
+  .bl-status::before {
+    content: '';
+    display: inline-block;
+    width: calc(10 * var(--u));
+    height: calc(10 * var(--u));
+    margin-right: calc(10 * var(--u));
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+
+  .bl-status--fail { color: var(--format-red-600); }
+  .bl-status--fail::before { background-color: var(--format-red-500); }
+  .bl-status--pass { color: var(--format-green-600); }
+  .bl-status--pass::before { background-color: var(--format-green-500); }
+
+  .bl-checks li {
+    display: flex;
+    gap: calc(12 * var(--u));
+    padding-bottom: calc(12 * var(--u));
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bl-checks li::before {
+    content: '✓';
+    color: var(--format-green-600);
+  }
+
+  .bl-entry-title {
+    margin: 0;
+    font-size: calc(26 * var(--u));
+    font-weight: var(--weight-bold);
+    line-height: 1.2;
+  }
+
+  .bl-entry {
+    margin: 0;
+  }
+
+  .bl-entry code {
+    padding: 0 calc(4 * var(--u));
+    border-radius: calc(3 * var(--u));
+    background-color: var(--format-neutral-100);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.9em;
+  }
+
+  .bl-entry--rule {
+    padding-left: calc(18 * var(--u));
+    border-left: calc(3 * var(--u)) solid var(--format-yellow-500);
+  }
+
+  .bl-next {
+    margin: 0;
+    color: var(--muted);
+    font-size: calc(16 * var(--u));
+  }
+
+  /* Phones: the phases become a row of numbers above the card */
+  @container (max-width: 720px) {
+    .build-loop__frame {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      aspect-ratio: auto;
+      gap: 16px;
+      padding: 16px;
+      --u: calc(100cqw / 760);
+    }
+
+    .build-loop__phases {
+      flex-direction: row;
+      gap: 4px;
+    }
+
+    .build-loop__phases li {
+      flex: 1;
+    }
+
+    .build-loop__phase {
+      grid-template-columns: 1fr;
+      padding: 8px 0;
+    }
+
+    .build-loop__text {
+      display: none;
+    }
+
+    .build-loop__phase[aria-pressed='true'] .build-loop__text {
+      display: none;
+    }
+
+    .build-loop__number {
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .build-loop__card {
+      font-size: calc(22 * var(--u));
+    }
+  }
+</style>
+
+<script>
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const PHASE_MS = 4200;
+
+  for (const loop of document.querySelectorAll<HTMLElement>('.build-loop')) {
+    const buttons = [...loop.querySelectorAll<HTMLButtonElement>('.build-loop__phase')];
+    const cards = [...loop.querySelectorAll<HTMLElement>('.build-loop__card')];
+    loop.style.setProperty('--phase-ms', `${PHASE_MS}ms`);
+    let index = 0;
+    let timer = 0;
+    let inView = false;
+    // Set once someone picks a phase: it holds there
+    let held = reducedMotion.matches;
+
+    const show = (i: number) => {
+      index = i;
+      buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+      cards.forEach((c, j) => c.toggleAttribute('data-active', j === i));
+    };
+
+    const schedule = () => {
+      clearTimeout(timer);
+      loop.removeAttribute('data-playing');
+      if (held || !inView) return;
+      // Restart the rail: drop the playing state, then set it next frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => loop.setAttribute('data-playing', ''));
+      });
+      timer = window.setTimeout(() => {
+        show((index + 1) % cards.length);
+        schedule();
+      }, PHASE_MS);
+    };
+
+    buttons.forEach((button, i) =>
+      button.addEventListener('click', () => {
+        held = true;
+        show(i);
+        schedule();
+      }),
+    );
+
+    new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        schedule();
+      },
+      { threshold: 0.35 },
+    ).observe(loop);
+
+    show(0);
+  }
+</script>

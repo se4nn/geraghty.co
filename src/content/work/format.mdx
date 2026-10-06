@@ -34,6 +34,7 @@ import spotlightCompany from '../../assets/work/format/spotlight-company.png';
 import spotlightPerson from '../../assets/work/format/spotlight-person.png';
 import insightWorldPoster from '../../assets/work/format/insight-world-poster.png';
 
+
 <CaseIntro title="Reports you can check">
   <Fragment slot="lead">I joined Format in March 2026 as Lead Product Designer. It turned a company’s customer calls into a weekly report, with the quotes and the audio to back them up. That was all it did: you read the report, but you couldn’t click through to a company, find the person or see what was behind a claim.</Fragment>
 
@@ -156,24 +157,82 @@ The MCP and skills page is where that starts. Martin shipped a first version qui
 <Section title="A System That Checks Itself">
 <Column>
 
-When I arrived, the codebase had a set of colour tokens nothing used, colours that didn’t belong together, and about 65 stock shadcn components. I replaced them with five OKLCH hue ramps, an eleven-step neutral with a cool tint, and semantic names the components actually use.
+When I arrived, the codebase had a set of colour tokens nothing used, colours that didn’t belong together, and about 65 stock shadcn components. I replaced them with five OKLCH hue ramps and an eleven-step neutral with a cool tint, in two layers: primitives for the raw values, and semantic names the components actually use.
 
 </Column>
 <Column>
 
-Most of Format’s code was written by agents, mine included, so the system needed rules they’d read. I wrote three.
+Figma holds the same two layers as variables, so a colour has one name in both places. The charter is one line long. Code owns structure and behaviour, Figma owns visual values, and an argument is settled before it starts.
 
 </Column>
 </Section>
 
-<Pillars
-  label="How the design system stays honest"
-  items={[
-    { title: 'A charter', lines: ['Code owns structure and behaviour', 'Figma owns visual values', 'So an argument is settled before it starts'] },
-    { title: 'A rendered library', lines: ['The real components on one page, not screenshots', 'Every component change updates it in the same pull request'] },
-    { title: 'A learning log', lines: ['Every build records what went wrong', 'And the rule that stops it happening again'] },
-  ]}
-/>
+<Palette label="Format’s colour palette" columns={8} primary={[
+  { name: 'Neutral 000', hex: '#FCFCFD', color: 'var(--format-neutral-000)' },
+  { name: 'Neutral 100', hex: '#E7E8E9', color: 'var(--format-neutral-100)' },
+  { name: 'Neutral 300', hex: '#C1C2C3', color: 'var(--format-neutral-300)' },
+  { name: 'Neutral 500', hex: '#959799', color: 'var(--format-neutral-500)' },
+  { name: 'Neutral 700', hex: '#5D5F60', color: 'var(--format-neutral-700)', on: 'dark' },
+  { name: 'Neutral 900', hex: '#232424', color: 'var(--format-neutral-900)', on: 'dark' },
+]} secondary={[
+  { name: 'Red 050', hex: '#FDF5F5', color: 'var(--format-red-050)' },
+  { name: 'Red 100', hex: '#FCECEB', color: 'var(--format-red-100)' },
+  { name: 'Red 200', hex: '#F5C3BE', color: 'var(--format-red-200)' },
+  { name: 'Red 300', hex: '#F1A399', color: 'var(--format-red-300)' },
+  { name: 'Red 400', hex: '#EC6C4F', color: 'var(--format-red-400)' },
+  { name: 'Red 500', hex: '#EB4B27', color: 'var(--format-red-500)' },
+  { name: 'Red 600', hex: '#C24927', color: 'var(--format-red-600)' },
+  { name: 'Red 700', hex: '#933A1B', color: 'var(--format-red-700)' },
+  { name: 'Cyan 050', hex: '#F3F9FE', color: 'var(--format-cyan-050)' },
+  { name: 'Cyan 100', hex: '#E2F1FB', color: 'var(--format-cyan-100)' },
+  { name: 'Cyan 200', hex: '#B2DBF8', color: 'var(--format-cyan-200)' },
+  { name: 'Cyan 300', hex: '#8BC7F2', color: 'var(--format-cyan-300)' },
+  { name: 'Cyan 400', hex: '#70B8F2', color: 'var(--format-cyan-400)' },
+  { name: 'Cyan 500', hex: '#4B9EF7', color: 'var(--format-cyan-500)' },
+  { name: 'Cyan 600', hex: '#3C82D1', color: 'var(--format-cyan-600)' },
+  { name: 'Cyan 700', hex: '#2661A5', color: 'var(--format-cyan-700)' },
+  { name: 'Yellow 050', hex: '#FEFDF6', color: 'var(--format-yellow-050)' },
+  { name: 'Yellow 100', hex: '#FDFAE4', color: 'var(--format-yellow-100)' },
+  { name: 'Yellow 200', hex: '#FAF1AF', color: 'var(--format-yellow-200)' },
+  { name: 'Yellow 300', hex: '#F0E599', color: 'var(--format-yellow-300)' },
+  { name: 'Yellow 400', hex: '#F4E670', color: 'var(--format-yellow-400)' },
+  { name: 'Yellow 500', hex: '#E2D348', color: 'var(--format-yellow-500)' },
+  { name: 'Yellow 600', hex: '#B9A331', color: 'var(--format-yellow-600)' },
+  { name: 'Yellow 700', hex: '#7F6D24', color: 'var(--format-yellow-700)' },
+  { name: 'Magenta 050', hex: '#FCF5FB', color: 'var(--format-magenta-050)' },
+  { name: 'Magenta 100', hex: '#F9EAF7', color: 'var(--format-magenta-100)' },
+  { name: 'Magenta 200', hex: '#EFC4EA', color: 'var(--format-magenta-200)' },
+  { name: 'Magenta 300', hex: '#E5A2DF', color: 'var(--format-magenta-300)' },
+  { name: 'Magenta 400', hex: '#DF84D9', color: 'var(--format-magenta-400)' },
+  { name: 'Magenta 500', hex: '#D95ED2', color: 'var(--format-magenta-500)' },
+  { name: 'Magenta 600', hex: '#B64EB0', color: 'var(--format-magenta-600)' },
+  { name: 'Magenta 700', hex: '#8F378A', color: 'var(--format-magenta-700)' },
+  { name: 'Green 050', hex: '#F3FBF2', color: 'var(--format-green-050)' },
+  { name: 'Green 100', hex: '#E8F5E5', color: 'var(--format-green-100)' },
+  { name: 'Green 200', hex: '#C3E0BF', color: 'var(--format-green-200)' },
+  { name: 'Green 300', hex: '#A5D69F', color: 'var(--format-green-300)' },
+  { name: 'Green 400', hex: '#7AC072', color: 'var(--format-green-400)' },
+  { name: 'Green 500', hex: '#58A84F', color: 'var(--format-green-500)' },
+  { name: 'Green 600', hex: '#4D8E45', color: 'var(--format-green-600)' },
+  { name: 'Green 700', hex: '#3B6F34', color: 'var(--format-green-700)' },
+]} />
+
+<Section title="Seven Steps, Every Time">
+<Column>
+
+Most of Format’s code was written by agents, mine included. Agents are quick and confident, and they’ll tell you a change worked when it didn’t. So every component went through the same loop. Read the rules and every past mistake. Take the values from Figma, never from a screenshot. Build with tokens only. Then check what actually renders in the browser against the design.
+
+</Column>
+<Column>
+
+**Outcome:**
+
+Three tries to get it right, then it came back to me, and nothing shipped without my sign-off. The last step writes down what went wrong. When the Button came back with 8px of padding instead of 12, that became a rule every build now reads first.
+
+</Column>
+</Section>
+
+<BuildLoop />
 
 <Section title="Fifty Shades of Grey">
 <Column>
@@ -241,12 +300,12 @@ On the side, I built a 3D prototype in Claude Code to ask how you’d see what a
 </Column>
 <Column>
 
-It never became a feature, and it wasn’t meant to. It was a way to start a conversation about trust, and the team kept using it to look at their own data. The data here is invented, so you can [explore it live](/insight-world/).
+It never became a feature, and it wasn’t meant to. It was a way to start a conversation about trust, and the team kept using it to look at their own data. The data in it is invented, so it’s open to explore below.
 
 </Column>
 </Section>
 
-<Film video="/img/format/insight-world.mp4" poster={insightWorldPoster} ratio={[1416, 812]} posterWidth={1416} sound={false} loop={false} alt="Insight World: topic clusters of glowing points float in 3D. A cross-topic movement is clicked, the camera flies to it, its evidence lights up while everything else dims and a detail panel opens, then the view orbits around it" />
+<Film video="/img/format/insight-world.mp4" poster={insightWorldPoster} ratio={[1416, 812]} posterWidth={1416} sound={false} live="/insight-world/index.html" liveTitle="Insight World · drag to orbit, click a node" alt="Insight World: topic clusters of glowing points float in 3D. A cross-topic movement is clicked, the camera flies to it, its evidence lights up while everything else dims and a detail panel opens, the view orbits around it, then it closes and drifts back out to the whole universe" />
 
 <Section title="Looking Back">
 <Column>
