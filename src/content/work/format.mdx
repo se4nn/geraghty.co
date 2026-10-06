@@ -33,14 +33,8 @@ import spotlightCompany from '../../assets/work/format/spotlight-company.png';
 import spotlightPerson from '../../assets/work/format/spotlight-person.png';
 import insightWorldPoster from '../../assets/work/format/insight-world-poster.png';
 import personPage from '../../assets/work/format/person-page.png';
-import wallInsight from '../../assets/work/format/wall/insight.png';
 import wallConnections from '../../assets/work/format/wall/connections.png';
-import wallPopupCompany from '../../assets/work/format/wall/popup-company.png';
 import wallRecord from '../../assets/work/format/wall/record.png';
-import wallMcpConnect from '../../assets/work/format/wall/mcp-connect.png';
-import wallStories from '../../assets/work/format/wall/stories.png';
-import wallPopupPerson from '../../assets/work/format/wall/popup-person.png';
-import wallCrm from '../../assets/work/format/wall/crm-add.png';
 import wallInsightsDetail from '../../assets/work/format/wall/insights-detail.png';
 import wallRecords from '../../assets/work/format/wall/records.png';
 import wallStoriesInsights from '../../assets/work/format/wall/stories-insights.png';
@@ -80,26 +74,18 @@ But the pages weren’t the whole problem. Customers were already asking their o
 </Column>
 </Section>
 
-<PageWall label="Format’s pages: reports, insights, records, people, stories, connections and the MCP setup" columns={[
+<PageWall label="Format’s pages: reports, records, insights, stories, a record, a person, connections and the MCP setup" columns={[
   [
-    { src: reportsOverview, h: 420, alt: 'The reports page' },
-    { src: wallInsight, h: 330, alt: 'An insight, with its quote, audio and the record it came from' },
-    { src: wallInsightsDetail, h: 420, fx: 420, alt: 'An insight opened from the list: who said it, the quote and its audio, and what happened next' },
-    { src: wallConnections, h: 330, alt: 'Connections: Slack, Intercom, Fireflies, Zoom, Gong and more' },
-    { src: wallPopupCompany, h: 330, fx: 380, alt: 'A company card over a report' },
-  ],
-  [
+    { src: reportsOverview, h: 560, alt: 'The reports page' },
     { src: wallRecords, h: 420, alt: 'Records: every conversation, with its company, people, topics and source' },
-    { src: wallRecord, h: 330, alt: 'A record: one conversation and the insights taken from it' },
-    { src: wallStories, h: 420, alt: 'Stories: themes across every conversation' },
-    { src: personPage, h: 330, alt: 'A person page' },
-    { src: wallMcpConnect, h: 330, fx: 420, alt: 'Connecting Claude Code' },
+    { src: wallInsightsDetail, h: 420, alt: 'An insight opened from the list: who said it, the quote and its audio, and what happened next' },
+    { src: wallConnections, h: 380, alt: 'Connections: Slack, Intercom, Fireflies, Zoom, Gong and more' },
   ],
   [
-    { src: mcpSkills, h: 420, alt: 'MCP & Skills' },
-    { src: wallPopupPerson, h: 420, fx: 380, alt: 'A person card over a report' },
     { src: wallStoriesInsights, h: 420, alt: 'Insights: every one, with who said it, its topic and where it came from' },
-    { src: wallCrm, h: 330, alt: 'Mapping CRM fields for a connection' },
+    { src: wallRecord, h: 380, alt: 'A record: one conversation and the insights taken from it' },
+    { src: personPage, h: 420, alt: 'A person page' },
+    { src: mcpSkills, h: 520, alt: 'MCP & Skills' },
   ],
 ]} />
 
@@ -151,7 +137,7 @@ Reports are also shared as links. A teammate opens one and pulls it straight int
 </Crop>
 
 <Crop window={[1416, 509]} bg="var(--neutral-050)" caption="The insights behind a report, with its sources counted">
-  <CropImage src={connectedInsights} rect={[24, 30, 1368, 448.8]} frame="screen" alt="Connected (24): four insight cards, each starting with the customer’s name and summarising what they said, with play and expand buttons, and source counts of 68 records, 24 insights and 2 themes" />
+  <CropImage src={connectedInsights} rect={[96, 54, 1224, 401.5]} frame="screen" alt="Connected (24): four insight cards, each starting with the customer’s name and summarising what they said, with play and expand buttons, and source counts of 68 records, 24 insights and 2 themes" />
 </Crop>
 
 <Section title="Bring Your Own AI">
@@ -173,10 +159,14 @@ The MCP and skills page is where that starts. Martin shipped a first version qui
   <CropImage src={mcpSkills} rect={[96, 72, 1512, 1464]} frame="screen" alt="Format’s MCP & Skills page: a prompt to connect Format to an AI tool, skill cards (B2B Case Study, Voice-of-Customer Context for AI, CS Account Briefing and Define Your ICP), and a sidebar of connections and example prompts to paste into Claude" />
 </Crop>
 
-<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="Connecting Claude Code, and installing a skill">
-  <CropImage src={mcpConnectDialog} rect={[64, 72, 626, 416]} frame="screen" alt="A Claude Code dialog with three steps: run the add command in your terminal, run /mcp and sign in, then check the connection by asking Claude whether the Format MCP is working" />
-  <CropImage src={mcpSkillDialog} rect={[726, 72, 626, 964]} frame="screen" alt="The B2B Case Study skill: what it does, install instructions for Claude, Claude Code, ChatGPT and Cursor, and two prompts to try once it’s installed" />
-</Crop>
+<Pair>
+  <Crop window={[684, 812]} bg="var(--neutral-050)" caption="Connecting Claude Code">
+    <CropImage src={mcpConnectDialog} rect={[62, 220, 560, 372.2]} window={684} frame="screen" alt="A Claude Code dialog with three steps: run the add command in your terminal, run /mcp and sign in, then check the connection by asking Claude whether the Format MCP is working" />
+  </Crop>
+  <Crop window={[684, 812]} bg="var(--neutral-050)" caption="Installing a skill">
+    <CropImage src={mcpSkillDialog} rect={[62, 64, 560, 862.4]} window={684} frame="screen" alt="The B2B Case Study skill: what it does, install instructions for Claude, Claude Code, ChatGPT and Cursor, and two prompts to try once it’s installed" />
+  </Crop>
+</Pair>
 
 </Chapter>
 

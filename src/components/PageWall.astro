@@ -1,14 +1,12 @@
 ---
-// A wall of product pages: three columns of screen cards on a panel, each
-// card a window onto the top of one page at half its design size (big
-// enough to read the page's title and shape; a whole screen at a third of
-// its size turns into texture). The columns slide past each other as the
-// wall crosses the screen, the middle one the other way.
-// Built at 1416 × 1114 Figma px and scaled as one piece (--u).
+// A wall of product pages: two columns of screen cards on a panel, each
+// card a whole page across (nothing cut at the sides) at about 43% of its
+// design size, cropped only at the bottom. The columns slide past each
+// other as the wall crosses the screen.
+// Built at 1416 × 1416 Figma px and scaled as one piece (--u).
 //
-// screens: the image (a 1512-wide frame exported at 2x), its alt, the card
-// height in Figma px, and fx, the frame x to start from (for a dialog in
-// the middle of its page)
+// screens: the image (a 1512-wide frame exported at 2x), its alt, and the
+// card height in Figma px (how much of the page shows)
 // Reduced motion: the columns hold still.
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
@@ -17,20 +15,18 @@ interface Screen {
   src: ImageMetadata;
   alt: string;
   h: number;
-  fx?: number;
 }
 
 interface Props {
-  columns: [Screen[], Screen[], Screen[]];
+  columns: [Screen[], Screen[]];
   // Where each column starts, in Figma px (negative runs off the top)
-  offsets?: [number, number, number];
+  offsets?: [number, number];
   label: string;
 }
 
-const { columns, offsets = [-140, -260, -100], label } = Astro.props;
-const K = 0.5;
-// The card is a 424 wide window onto a 756 wide page
-const sizes = 'calc(0.5339 * min(100vw - 32px, 1416px))';
+const { columns, offsets = [-120, -300], label } = Astro.props;
+// Two 648 cards, 24 apart, 48 in from the panel's sides
+const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
 ---
 
 <div class="page-wall" role="group" aria-label={label}>
@@ -39,8 +35,8 @@ const sizes = 'calc(0.5339 * min(100vw - 32px, 1416px))';
       columns.map((column, c) => (
         <ul class="page-wall__column" role="list" style={`--top: ${offsets[c]}; --dir: ${c === 1 ? -1 : 1};`}>
           {column.map((screen) => (
-            <li class="page-wall__card" style={`--h: ${screen.h}; --fx: ${(screen.fx ?? 0) * K};`}>
-              <Image src={screen.src} alt={screen.alt} widths={[756, 1512, screen.src.width]} sizes={sizes} quality={90} loading="lazy" />
+            <li class="page-wall__card" style={`--h: ${screen.h};`}>
+              <Image src={screen.src} alt={screen.alt} widths={[648, 1296, 2268, screen.src.width]} sizes={sizes} quality={90} loading="lazy" />
             </li>
           ))}
         </ul>
@@ -61,13 +57,13 @@ const sizes = 'calc(0.5339 * min(100vw - 32px, 1416px))';
     --u: calc(100cqw / 1416);
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, calc(424 * var(--u)));
+    grid-template-columns: repeat(2, calc(648 * var(--u)));
     gap: calc(24 * var(--u));
     justify-content: center;
     align-items: start;
     /* A fixed height, not aspect-ratio: the columns run past the bottom
        and would stretch it */
-    height: calc(1114 * var(--u));
+    height: calc(1416 * var(--u));
     overflow: hidden;
   }
 
@@ -94,10 +90,8 @@ const sizes = 'calc(0.5339 * min(100vw - 32px, 1416px))';
   }
 
   .page-wall__card img {
-    position: absolute;
-    top: 0;
-    left: calc(var(--fx) * -1 * var(--u));
-    width: calc(756 * var(--u));
+    display: block;
+    width: 100%;
     max-width: none;
     height: auto;
   }
@@ -118,10 +112,10 @@ const sizes = 'calc(0.5339 * min(100vw - 32px, 1416px))';
 
   @keyframes page-wall-drift {
     from {
-      translate: 0 calc((var(--top) + 70 * var(--dir)) * var(--u));
+      translate: 0 calc((var(--top) + 80 * var(--dir)) * var(--u));
     }
     to {
-      translate: 0 calc((var(--top) - 70 * var(--dir)) * var(--u));
+      translate: 0 calc((var(--top) - 80 * var(--dir)) * var(--u));
     }
   }
 </style>

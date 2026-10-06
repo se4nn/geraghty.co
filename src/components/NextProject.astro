@@ -89,8 +89,6 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     aspect-ratio: 1416 / 508;
     min-height: 420px;
     overflow: clip;
-    /* Its own width isn't a container unit here, so 48 at 1416 by the page */
-    border-radius: clamp(24px, calc(48 / 1512 * 100vw), 48px);
     color: var(--text-on-dark);
   }
 
@@ -98,8 +96,10 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     grid-area: 1 / 1;
   }
 
+  /* Lower corners only: the top fades into the dark, and a rounded top
+     edge there shows a light fringe of the art through the fade */
   .next__tile :global(.next__art) {
-    border-radius: calc(48 / 1416 * 100cqi);
+    border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
   }
 
   /* Rises out of the dark above it */
@@ -140,7 +140,6 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     line-height: 0.8;
     white-space: nowrap;
     opacity: 0.04;
-    border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
     pointer-events: none;
   }
 
@@ -163,7 +162,7 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
   .next__tile:focus-visible {
     outline: 2px solid var(--neutral-000);
     outline-offset: 4px;
-    border-radius: calc(48 / 1416 * 100cqi);
+    border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
   }
 
   /* Phones: a squarer tile, the label still along the bottom */
