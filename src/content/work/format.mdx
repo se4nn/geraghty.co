@@ -62,7 +62,7 @@ import wallCrm from '../../assets/work/format/wall/crm-add.png';
 
 <Chapter label="The story">
 
-<FormatOpener alt="A cursor clicks through Format: from the reports page into a shared report, onto Leah in a table of customers, through her card to her page, and on to Unilever’s company page" />
+<FormatOpener alt="A cursor clicks through Format: from the reports page into a shared report, scrolls down to its table of customers and clicks Leah, hovers Unilever on her card to bring up the company’s card, then clicks through to Unilever’s page" />
 
 <Section title="The Brief Behind the Brief">
 <Column>
@@ -97,10 +97,6 @@ But the pages weren’t the whole problem. Customers were already asking their o
   ],
 ]} />
 
-<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page: its conversations, who was in them and what they keep raising">
-  <CropImage src={companyPage} rect={[96, 72, 1512, 1165]} frame="screen" alt="A company page for Unilever: what the company is, its records, insights and people, each conversation with who took part and when, and a sidebar of what they talk about most (pricing 47%, feature requests 24%, competition 12%)" />
-</Crop>
-
 </Chapter>
 
 <Chapter label="Asking twice" glow>
@@ -119,6 +115,10 @@ The model wasn’t wrong. The 329 insights behind the 59 sat under a topic that 
 
 </Column>
 </Section>
+
+<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page: its conversations, who was in them and what they keep raising">
+  <CropImage src={companyPage} rect={[96, 72, 1512, 1165]} frame="screen" alt="A company page for Unilever: what the company is, its records, insights and people, each conversation with who took part and when, and a sidebar of what they talk about most (pricing 47%, feature requests 24%, competition 12%)" />
+</Crop>
 
 <Stats>
   <Stat value="59" label="companies, counting the insights" />
@@ -140,7 +140,8 @@ Reports are also shared as links. A teammate opens one and pulls it straight int
 </Section>
 
 <Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A shared report, one button away from Claude">
-  <CropImage src={briefHeader} rect={[96, 72, 1512, 1336]} frame="screen" alt="A published report titled “What do people ask Claude before they ask Format?”, with Share on the left, “Ask about this report in: Claude” on the right, a byline, and a photo of people working at old computers in a meadow" />
+  <CropImage src={briefHeader} rect={[-150, 72, 1512, 1336]} frame="screen" alt="A published report titled “What do people ask Claude before they ask Format?”, with “Ask about this report in: Claude” at the top right, a byline, and a photo of people working at old computers in a meadow" />
+  <CropHighlight rect={[1166, 206, 109, 48]} />
 </Crop>
 
 <Crop window={[1416, 509]} bg="var(--neutral-050)" caption="The insights behind a report, with its sources counted">

@@ -1,0 +1,45 @@
+---
+// A highlight laid over part of an image inside a Crop: a ring around the
+// control the story is about, with a pointing hand resting on it, so the
+// eye finds a small button on a big screen. Placed by its Figma box
+// relative to the window, like CropLink. Decorative: the caption and alt
+// carry the meaning.
+interface Props {
+  rect: [number, number, number, number];
+}
+
+const { rect } = Astro.props;
+const [x, y, w, h] = rect;
+---
+
+<span class="crop-highlight" aria-hidden="true" style={`--x: ${x}; --y: ${y}; --iw: ${w}; --ih: ${h};`}>
+  <svg class="crop-highlight__hand" viewBox="0 0 24 24">
+    <path d="M9 2.5c-.8 0-1.5.7-1.5 1.5v8.3l-1.3-1.3a1.55 1.55 0 0 0-2.2 0 1.5 1.5 0 0 0 0 2.1l4.6 5.2c.9 1 2.1 1.6 3.4 1.6h3c2.2 0 4-1.8 4-4v-4.6a1.5 1.5 0 0 0-3 0v-1a1.5 1.5 0 0 0-3 0v-.6a1.5 1.5 0 0 0-3-.2V4c0-.8-.7-1.5-1.5-1.5z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round" />
+  </svg>
+</span>
+
+<style>
+  .crop-highlight {
+    position: absolute;
+    left: calc((var(--x) - var(--fx, 0) * var(--anchor)) * var(--s) + 50cqi * var(--anchor));
+    top: calc(var(--y) * var(--s));
+    width: calc(var(--iw) * var(--s));
+    height: calc(var(--ih) * var(--s));
+    border-radius: calc(10 * var(--s));
+    box-shadow:
+      0 0 0 calc(3 * var(--s)) var(--format-red-400),
+      0 0 0 calc(10 * var(--s)) oklch(68.09% 0.1649 34.16 / 0.18);
+    pointer-events: none;
+  }
+
+  .crop-highlight__hand {
+    position: absolute;
+    left: 62%;
+    top: 58%;
+    width: calc(30 * var(--s));
+    height: calc(30 * var(--s));
+    max-width: none;
+    margin-left: calc(-11 * var(--s));
+    filter: drop-shadow(0 calc(2 * var(--s)) calc(3 * var(--s)) oklch(0% 0 0 / 0.25));
+  }
+</style>

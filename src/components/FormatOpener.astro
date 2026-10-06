@@ -1,21 +1,31 @@
 ---
 // The Format opener: the click-through the product didn't have when I
-// joined. A report, a name in it, the card behind the name, that person's
-// page, then their company's. Real exports from Portfolio › Format - Case
-// Study Assets (invented data), on the grey ground with one screen card
-// (Sean's Studia pattern), 1416 × 812 Figma px, scaled by --u.
+// joined. Real exports from Portfolio › Format - Case Study Assets
+// (invented data), at their design size (one frame px is one Figma px) on
+// the grey ground, the screen running off the right and bottom.
 //
-// Motion: a cursor moves to the thing that leads somewhere and clicks it.
-// Pages lift in over the last one on the spring; the person card is an
-// overlay in the product, so it appears in place, quickly, as it does
-// there. The loop ends on the company page and the reports page lifts back
-// in over it. Plays only while on screen.
-// Reduced motion: the reports page, still, with no cursor.
+// The story, as a cursor tells it:
+// 1. The reports page. The cursor clicks the report on what people ask
+//    Claude before they ask Format.
+// 2. The report lifts in and scrolls down to its table of customers. The
+//    cursor clicks Leah.
+// 3. Leah's card opens over the report (an overlay in the product, so it
+//    appears in place). The cursor hovers Unilever on it...
+// 4. ...and Unilever's card replaces it, as the hover does in the product.
+//    The cursor clicks the company name.
+// 5. Unilever's page lifts in. A beat, then the reports page lifts back in
+//    over it and it goes round again.
+//
+// The cursor is always on screen. It's an arrow while it travels and a
+// pointing hand over anything that leads somewhere, and it presses when it
+// clicks. Plays only while on screen; leaving and coming back starts over.
+// Reduced motion: the reports page, still, no cursor.
 import { Image } from 'astro:assets';
 import overview from '../assets/work/format/reports-overview.png';
-import brief from '../assets/work/format/brief-mentions.png';
-import card from '../assets/work/format/wall/popup-person.png';
-import person from '../assets/work/format/person-page.png';
+import briefLong from '../assets/work/format/opener/brief-long.png';
+import briefNav from '../assets/work/format/opener/brief-nav.png';
+import personCard from '../assets/work/format/wall/popup-person.png';
+import companyCard from '../assets/work/format/wall/popup-company.png';
 import company from '../assets/work/format/company-page.png';
 
 interface Props {
@@ -23,49 +33,33 @@ interface Props {
 }
 const { alt } = Astro.props;
 
-// Screens sit at their design size (one frame px is one Figma px, so the
-// UI reads as it does in the product, not shrunk), 96,72 from the corner
-// and running off the right and bottom. at: the click target in frame px.
-// dy: how far the page has scrolled, so the target is in view.
-const steps = [
-  { src: overview, at: [939, 444], dy: 0, overlay: false },
-  { src: brief, at: [339, 525], dy: -120, overlay: false },
-  { src: card, at: [984, 784], dy: -120, overlay: true },
-  { src: person, at: [85, 222], dy: 0, overlay: false },
-  { src: company, at: [1180, 640], dy: 0, overlay: false },
-].map((step) => ({ ...step, x: 96 + step.at[0], y: 72 + step.dy + step.at[1] }));
-
 // 1512 of the 1416 window
 const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
+const widths = [1512, 2268, 3024];
 ---
 
 <div class="fo" role="img" aria-label={alt}>
   <div class="fo__window">
     <div class="fo__screen">
-      {
-        steps.map((step, i) => (
-          <Image
-            class:list={['fo__page', { 'fo__page--overlay': step.overlay }]}
-            src={step.src}
-            alt=""
-            widths={[1512, 2268, 3024]}
-            sizes={sizes}
-            quality={90}
-            loading={i === 0 ? 'eager' : 'lazy'}
-            fetchpriority={i === 0 ? 'high' : undefined}
-            data-x={step.x}
-            data-y={step.y}
-            data-shown={i === 0 ? '' : undefined}
-            style={`--dy: ${step.dy};${i === 0 ? ' z-index: 1' : ''}`}
-          />
-        ))
-      }
+      <Image class="fo__page" data-page="overview" src={overview} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="high" data-shown style="z-index: 1" />
+
+      <div class="fo__page fo__page--scroll" data-page="brief">
+        <Image class="fo__long" src={briefLong} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+        <Image class="fo__nav" src={briefNav} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      </div>
+
+      <Image class="fo__page fo__page--overlay" data-page="person" src={personCard} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      <Image class="fo__page fo__page--overlay" data-page="company-card" src={companyCard} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      <Image class="fo__page" data-page="company" src={company} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
     </div>
 
     <div class="fo__cursor" aria-hidden="true">
       <span class="fo__ring" />
-      <svg viewBox="0 0 24 24" width="24" height="24">
+      <svg class="fo__arrow" viewBox="0 0 24 24">
         <path d="M5 2.5v17.2l4.6-4.4 2.9 6.5 2.7-1.2-2.9-6.4h6.3z" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" />
+      </svg>
+      <svg class="fo__hand" viewBox="0 0 24 24">
+        <path d="M9 2.5c-.8 0-1.5.7-1.5 1.5v8.3l-1.3-1.3a1.55 1.55 0 0 0-2.2 0 1.5 1.5 0 0 0 0 2.1l4.6 5.2c.9 1 2.1 1.6 3.4 1.6h3c2.2 0 4-1.8 4-4v-4.6a1.5 1.5 0 0 0-3 0v-1a1.5 1.5 0 0 0-3 0v-.6a1.5 1.5 0 0 0-3-.2V4c0-.8-.7-1.5-1.5-1.5z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round" />
       </svg>
     </div>
   </div>
@@ -93,7 +87,10 @@ const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
     width: calc(1512 * var(--u));
     bottom: 0;
     overflow: hidden;
+    /* Its pages stack among themselves, always under the cursor */
+    isolation: isolate;
     border-radius: calc(12 * var(--u)) calc(12 * var(--u)) 0 0;
+    background-color: var(--neutral-000);
     box-shadow:
       0 0 0 1px oklch(0% 0 0 / 0.06),
       0 calc(12 * var(--u)) calc(40 * var(--u)) oklch(0% 0 0 / 0.1);
@@ -102,7 +99,7 @@ const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
   .fo__page {
     position: absolute;
     left: 0;
-    top: calc(var(--dy) * var(--u));
+    top: 0;
     width: 100%;
     height: auto;
     max-width: none;
@@ -113,52 +110,99 @@ const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
     visibility: visible;
   }
 
+  /* The report: a long page under its own nav, scrolled by --scroll */
+  .fo__page--scroll {
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--neutral-000);
+  }
+
+  .fo__long {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    transform: translateY(calc(var(--scroll, 0) * -1 * var(--u)));
+  }
+
+  .fo__nav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    max-width: none;
+  }
+
+  /* The cursor: its wrapper sits on the hotspot */
   .fo__cursor {
     position: absolute;
     left: 0;
     top: 0;
-    width: calc(24 * var(--u));
-    height: calc(24 * var(--u));
     z-index: 2;
     display: none;
-    filter: drop-shadow(0 calc(2 * var(--u)) calc(4 * var(--u)) oklch(0% 0 0 / 0.25));
+    transform: translate(calc(var(--cx, 1150) * var(--u)), calc(var(--cy, 560) * var(--u)));
+    filter: drop-shadow(0 calc(2 * var(--u)) calc(3 * var(--u)) oklch(0% 0 0 / 0.25));
   }
 
   .fo__cursor svg {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    width: calc(26 * var(--u));
+    max-width: none;
+    height: calc(26 * var(--u));
+    transform-origin: top left;
+  }
+
+  .fo__arrow {
+    left: calc(-5.4 * var(--u));
+    top: calc(-2.7 * var(--u));
+  }
+
+  .fo__hand {
+    left: calc(-9.75 * var(--u));
+    top: calc(-2.7 * var(--u));
+    visibility: hidden;
+  }
+
+  .fo[data-hand] .fo__arrow {
+    visibility: hidden;
+  }
+
+  .fo[data-hand] .fo__hand {
+    visibility: visible;
   }
 
   .fo__ring {
     position: absolute;
-    left: calc(-14 * var(--u));
-    top: calc(-14 * var(--u));
+    left: calc(-19 * var(--u));
+    top: calc(-19 * var(--u));
     width: calc(38 * var(--u));
     height: calc(38 * var(--u));
     border-radius: 50%;
     background-color: oklch(68.87% 0.1544 252.37 / 0.35);
     opacity: 0;
-    transform: scale(0.4);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .fo[data-live] .fo__cursor {
       display: block;
-      transform: translate(calc(var(--cx) * var(--u)), calc(var(--cy) * var(--u)));
-      transition: transform 900ms cubic-bezier(0.45, 0, 0.2, 1);
+      transition: transform var(--move, 900ms) cubic-bezier(0.45, 0, 0.2, 1);
     }
 
-    .fo[data-clicking] .fo__ring {
-      animation: fo-click 520ms var(--ease-out);
+    .fo__long {
+      transition: transform 3400ms cubic-bezier(0.45, 0, 0.25, 1);
     }
 
     .fo__cursor svg {
-      transition: transform 120ms var(--ease-out);
+      transition: scale 120ms var(--ease-out);
     }
 
-    .fo[data-clicking] .fo__cursor svg {
-      transform: scale(0.88);
+    .fo[data-pressing] .fo__cursor svg {
+      scale: 0.86;
+    }
+
+    .fo[data-pressing] .fo__ring {
+      animation: fo-click 520ms var(--ease-out);
     }
 
     /* Pages lift in on the spring over the one before */
@@ -166,9 +210,9 @@ const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
       animation: fo-lift 720ms var(--ease-spring) both;
     }
 
-    /* The card is an overlay in the product: it appears in place */
+    /* Cards are overlays in the product: they appear in place */
     .fo__page--overlay[data-arriving] {
-      animation: fo-appear 180ms var(--ease-out) both;
+      animation: fo-appear 200ms var(--ease-out) both;
     }
   }
 
@@ -202,71 +246,133 @@ const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
 
 <script>
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const MOVE = 900;
-  const SETTLE = 1100;
-  const HOLD_END = 2600;
+
+  // Targets in window px: the screen sits 96,72 in, at design size
+  const at = (x: number, y: number) => [96 + x, 72 + y] as const;
+  const REST = [1150, 560] as const;
+  // The report scrolls until the customers table sits where the cards
+  // were designed over it (their page content is 3693 down)
+  const SCROLL = 3693;
 
   for (const opener of document.querySelectorAll<HTMLElement>('.fo')) {
     if (reducedMotion.matches) continue;
-    const pages = [...opener.querySelectorAll<HTMLElement>('.fo__page')];
+    const page = (name: string) => opener.querySelector<HTMLElement>(`[data-page="${name}"]`)!;
     const cursor = opener.querySelector<HTMLElement>('.fo__cursor')!;
-    let index = 0;
+    const long = opener.querySelector<HTMLElement>('.fo__long')!;
+    let run = 0;
     let z = 1;
-    let timers: number[] = [];
-    let running = false;
 
-    const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
+    // Waits that end early if the loop has been stopped
+    const wait = (ms: number, id: number) =>
+      new Promise<void>((resolve, reject) => setTimeout(() => (id === run ? resolve() : reject()), ms));
 
-    const aim = (page: HTMLElement) => {
-      cursor.style.setProperty('--cx', page.dataset.x!);
-      cursor.style.setProperty('--cy', page.dataset.y!);
+    const move = async ([x, y]: readonly [number, number], ms: number, id: number) => {
+      cursor.style.setProperty('--move', `${ms}ms`);
+      cursor.style.setProperty('--cx', String(x));
+      cursor.style.setProperty('--cy', String(y));
+      await wait(ms, id);
     };
 
-    const show = (i: number) => {
-      const page = pages[i];
-      page.style.zIndex = String(++z);
-      page.toggleAttribute('data-shown', true);
-      page.removeAttribute('data-arriving');
-      void page.offsetWidth;
-      page.toggleAttribute('data-arriving', true);
+    const hand = (on: boolean) => opener.toggleAttribute('data-hand', on);
+
+    const press = async (id: number) => {
+      opener.toggleAttribute('data-pressing', true);
+      await wait(240, id);
+      opener.removeAttribute('data-pressing');
+    };
+
+    const show = (name: string, keep: string[] = []) => {
+      const el = page(name);
+      el.style.zIndex = String(++z);
+      el.toggleAttribute('data-shown', true);
+      el.removeAttribute('data-arriving');
+      void el.offsetWidth;
+      el.toggleAttribute('data-arriving', true);
       // Once it covers them, hide the pages underneath
-      later(() => pages.forEach((p, j) => j !== i && p.removeAttribute('data-shown')), 760);
-      index = i;
+      setTimeout(() => {
+        opener.querySelectorAll<HTMLElement>('.fo__page').forEach((p) => {
+          if (p !== el && !keep.includes(p.dataset.page!)) p.removeAttribute('data-shown');
+        });
+      }, 760);
     };
 
-    const step = () => {
-      const page = pages[index];
-      const last = index === pages.length - 1;
-      // Settle on the page, move to what leads on, click
-      later(() => aim(page), SETTLE);
-      if (last) {
-        later(() => show(0), SETTLE + MOVE + HOLD_END);
-        later(step, SETTLE + MOVE + HOLD_END);
-        return;
+    const scrollTo = (y: number) => long.style.setProperty('--scroll', String(y));
+
+    const loop = async (id: number) => {
+      while (id === run) {
+        // 1. Reports: click the report
+        await wait(900, id);
+        await move(at(1000, 470), 1000, id);
+        hand(true);
+        await wait(350, id);
+        await press(id);
+        hand(false);
+
+        // 2. The report lifts in, scrolls to the table, Leah is clicked
+        long.style.transition = 'none';
+        scrollTo(0);
+        void long.offsetWidth;
+        long.style.transition = '';
+        show('brief');
+        await move(at(760, 420), 700, id);
+        await wait(500, id);
+        scrollTo(SCROLL);
+        await wait(3500, id);
+        await move(at(339, 525), 800, id);
+        hand(true);
+        await wait(350, id);
+        await press(id);
+
+        // 3. Leah's card; hover Unilever on it
+        show('person', ['brief']);
+        hand(false);
+        await wait(900, id);
+        await move(at(493, 210), 700, id);
+        hand(true);
+        await wait(450, id);
+
+        // 4. The hover brings up Unilever's card; click the name
+        show('company-card', ['brief']);
+        await wait(1100, id);
+        await move(at(560, 237), 400, id);
+        await wait(250, id);
+        await press(id);
+        hand(false);
+
+        // 5. Unilever's page, then round again
+        show('company');
+        await wait(500, id);
+        await move(REST, 1100, id);
+        await wait(2400, id);
+        show('overview');
+        await wait(800, id);
       }
-      later(() => opener.toggleAttribute('data-clicking', true), SETTLE + MOVE + 120);
-      later(() => {
-        opener.removeAttribute('data-clicking');
-        show(index + 1);
-        step();
-      }, SETTLE + MOVE + 420);
     };
+
+    // Decode every page first, so none of them arrives blank
+    const ready = Promise.all([...opener.querySelectorAll('img')].map((img) => img.decode().catch(() => {})));
 
     const start = () => {
-      if (running) return;
-      running = true;
+      const id = ++run;
       opener.toggleAttribute('data-live', true);
-      // Start the cursor clear of the card, low on the right
-      cursor.style.setProperty('--cx', '1260');
-      cursor.style.setProperty('--cy', '700');
-      step();
+      ready.then(() => loop(id)).catch(() => {});
     };
 
     const stop = () => {
-      running = false;
-      timers.forEach(clearTimeout);
-      timers = [];
-      opener.removeAttribute('data-clicking');
+      run++;
+      hand(false);
+      opener.removeAttribute('data-pressing');
+      // Start over next time: the reports page, cursor at rest
+      z = 1;
+      opener.querySelectorAll<HTMLElement>('.fo__page').forEach((p) => {
+        const first = p.dataset.page === 'overview';
+        p.toggleAttribute('data-shown', first);
+        p.removeAttribute('data-arriving');
+        p.style.zIndex = first ? '1' : '';
+      });
+      cursor.style.setProperty('--move', '0ms');
+      cursor.style.setProperty('--cx', String(REST[0]));
+      cursor.style.setProperty('--cy', String(REST[1]));
     };
 
     new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), { threshold: 0.3 }).observe(opener);
