@@ -23,18 +23,20 @@ interface Props {
 }
 const { alt } = Astro.props;
 
-// Screen card: 96,72 and 1224 wide; frames are 1512 wide, so a frame px is
-// 1224 / 1512 of a Figma px here. at: the click target in frame px.
-const S = 1224 / 1512;
+// Screens sit at their design size (one frame px is one Figma px, so the
+// UI reads as it does in the product, not shrunk), 96,72 from the corner
+// and running off the right and bottom. at: the click target in frame px.
+// dy: how far the page has scrolled, so the target is in view.
 const steps = [
-  { src: overview, at: [939, 444], overlay: false },
-  { src: brief, at: [339, 525], overlay: false },
-  { src: card, at: [984, 784], overlay: true },
-  { src: person, at: [85, 222], overlay: false },
-  { src: company, at: [1180, 640], overlay: false },
-].map((step) => ({ ...step, x: +(96 + step.at[0] * S).toFixed(1), y: +(72 + step.at[1] * S).toFixed(1) }));
+  { src: overview, at: [939, 444], dy: 0, overlay: false },
+  { src: brief, at: [339, 525], dy: -120, overlay: false },
+  { src: card, at: [984, 784], dy: -120, overlay: true },
+  { src: person, at: [85, 222], dy: 0, overlay: false },
+  { src: company, at: [1180, 640], dy: 0, overlay: false },
+].map((step) => ({ ...step, x: 96 + step.at[0], y: 72 + step.dy + step.at[1] }));
 
-const sizes = 'calc(0.8644 * min(100vw - 32px, 1416px))';
+// 1512 of the 1416 window
+const sizes = 'calc(1.0678 * min(100vw - 32px, 1416px))';
 ---
 
 <div class="fo" role="img" aria-label={alt}>
@@ -46,7 +48,7 @@ const sizes = 'calc(0.8644 * min(100vw - 32px, 1416px))';
             class:list={['fo__page', { 'fo__page--overlay': step.overlay }]}
             src={step.src}
             alt=""
-            widths={[1224, 1600, 2448]}
+            widths={[1512, 2268, 3024]}
             sizes={sizes}
             quality={90}
             loading={i === 0 ? 'eager' : 'lazy'}
@@ -54,7 +56,7 @@ const sizes = 'calc(0.8644 * min(100vw - 32px, 1416px))';
             data-x={step.x}
             data-y={step.y}
             data-shown={i === 0 ? '' : undefined}
-            style={i === 0 ? 'z-index: 1' : undefined}
+            style={`--dy: ${step.dy};${i === 0 ? ' z-index: 1' : ''}`}
           />
         ))
       }
@@ -83,12 +85,12 @@ const sizes = 'calc(0.8644 * min(100vw - 32px, 1416px))';
     aspect-ratio: 1416 / 812;
   }
 
-  /* One card, running off the bottom, like the other openers */
+  /* One card at design size, running off the right and the bottom */
   .fo__screen {
     position: absolute;
     left: calc(96 * var(--u));
     top: calc(72 * var(--u));
-    width: calc(1224 * var(--u));
+    width: calc(1512 * var(--u));
     bottom: 0;
     overflow: hidden;
     border-radius: calc(12 * var(--u)) calc(12 * var(--u)) 0 0;
@@ -99,12 +101,11 @@ const sizes = 'calc(0.8644 * min(100vw - 32px, 1416px))';
 
   .fo__page {
     position: absolute;
-    inset: 0;
+    left: 0;
+    top: calc(var(--dy) * var(--u));
     width: 100%;
-    height: 100%;
+    height: auto;
     max-width: none;
-    object-fit: cover;
-    object-position: top;
     visibility: hidden;
   }
 

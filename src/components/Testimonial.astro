@@ -10,7 +10,8 @@ interface Props {
   photo: ImageMetadata;
   company: string;
   companyLogo: ImageMetadata;
-  link: string;
+  // Left out on the page it would link to
+  link?: string;
 }
 
 const { quote, name, role, photo, company, companyLogo, link } = Astro.props;
@@ -34,7 +35,7 @@ const { quote, name, role, photo, company, companyLogo, link } = Astro.props;
         />
       </div>
     </div>
-    <Button href={link} label={`View the ${company} case study`}>View</Button>
+    {link && <Button href={link} label={`View the ${company} case study`}>View</Button>}
   </figcaption>
 </figure>
 

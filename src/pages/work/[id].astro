@@ -31,6 +31,8 @@ import Film from '../../components/Film.astro';
 import BuildLoop from '../../components/BuildLoop.astro';
 import StudiaOpener from '../../components/StudiaOpener.astro';
 import FormatOpener from '../../components/FormatOpener.astro';
+import FormatVariables from '../../components/FormatVariables.astro';
+import PageWall from '../../components/PageWall.astro';
 import NextProject from '../../components/NextProject.astro';
 import Availability from '../../components/Availability.astro';
 import Testimonial from '../../components/Testimonial.astro';
@@ -92,6 +94,8 @@ const components = {
   BuildLoop,
   StudiaOpener,
   FormatOpener,
+  FormatVariables,
+  PageWall,
 };
 ---
 
@@ -108,7 +112,7 @@ const components = {
     </div>
 
     <Footer email={contactEmail} label="Testimonial and contact">
-      <Testimonial {...testimonial} />
+      <Testimonial {...testimonial} link={testimonial.link === `/work/${project.id}/` ? undefined : testimonial.link} />
     </Footer>
   </main>
 </Base>

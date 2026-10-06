@@ -1,0 +1,381 @@
+---
+// Format's variables, both layers at once: the Semantic collection on the
+// left (what components use) and the Primitives it points at on the right
+// (the five hue ramps and the neutral). Read from Format's Design System
+// file (), 6 Oct 2026: 156 primitives (51 colours),
+// 36 semantic colours, one mode.
+//
+// A semantic row is lit and its primitive ringed; while on screen the light
+// steps down the table on its own. Hover or focus a row to pick one (it
+// then holds). Words stay put: only colour and the ring change.
+// Reduced motion: the first row is lit and nothing steps.
+// Built at 1416 × 812 Figma px, scaled as one piece (--u).
+const semantic: [string, string][] = [
+  ['background', 'neutral/000'],
+  ['foreground', 'neutral/900'],
+  ['primary', 'neutral/900'],
+  ['primary-foreground', 'neutral/000'],
+  ['secondary', 'neutral/050'],
+  ['muted', 'neutral/100'],
+  ['muted-foreground', 'neutral/500'],
+  ['accent', 'neutral/050'],
+  ['border', 'neutral/200'],
+  ['input', 'neutral/200'],
+  ['ring', 'neutral/400'],
+  ['destructive', 'red/500'],
+  ['format-red', 'red/500'],
+  ['format-cyan', 'cyan/500'],
+  ['format-yellow', 'yellow/500'],
+  ['format-magenta', 'magenta/500'],
+  ['chart-3', 'neutral/600'],
+  ['card', 'neutral/000'],
+  ['card-foreground', 'neutral/900'],
+  ['popover', 'neutral/000'],
+  ['sidebar', 'neutral/050'],
+  ['sidebar-border', 'neutral/200'],
+];
+
+const ramps: [string, string[]][] = [
+  ['neutral', ['000', '050', '100', '200', '300', '400', '500', '600', '700', '800', '900']],
+  ['red', ['050', '100', '200', '300', '400', '500', '600', '700']],
+  ['cyan', ['050', '100', '200', '300', '400', '500', '600', '700']],
+  ['yellow', ['050', '100', '200', '300', '400', '500', '600', '700']],
+  ['magenta', ['050', '100', '200', '300', '400', '500', '600', '700']],
+  ['green', ['050', '100', '200', '300', '400', '500', '600', '700']],
+];
+
+const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
+---
+
+<div class="fv" role="group" aria-label="Format’s variables: semantic colours on the left, each pointing at a primitive on the right">
+  <div class="fv__frame">
+    <div class="fv__window">
+      <header class="fv__head">
+        <span class="fv__title">Variables</span>
+        <span class="fv__tab fv__tab--on">Semantic <em>36</em></span>
+        <span class="fv__tab">Primitives <em>156</em></span>
+        <span class="fv__mode">Light</span>
+      </header>
+
+      <div class="fv__body">
+        <div class="fv__table">
+          <div class="fv__row fv__row--head"><span>Name</span><span>Value</span></div>
+          {
+            semantic.map(([name, target], i) => (
+              <button class="fv__row" type="button" data-target={target} aria-pressed={i === 0 ? 'true' : 'false'}>
+                <span class="fv__name">{name}</span>
+                <span class="fv__alias">
+                  <span class="fv__chip" style={`--c: ${color(target)}`} />
+                  {target}
+                </span>
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="fv__ramps" aria-hidden="true">
+          {
+            ramps.map(([hue, steps]) => (
+              <div class="fv__ramp">
+                <span class="fv__hue">{hue}</span>
+                <div class="fv__steps" style={`--n: ${steps.length}`}>
+                  {steps.map((step) => (
+                    <span class="fv__step" data-path={`${hue}/${step}`} style={`--c: ${color(`${hue}/${step}`)}`}>
+                      <span class="fv__swatch" />
+                      <span class="fv__label">{step}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fv {
+    container-type: inline-size;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--neutral-050);
+  }
+
+  .fv__frame {
+    --u: calc(100cqw / 1416);
+    --ink: var(--format-neutral-900);
+    --muted: var(--format-neutral-500);
+    --line: var(--format-neutral-100);
+    position: relative;
+    aspect-ratio: 1416 / 812;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-variation-settings: var(--sans-axes);
+  }
+
+  /* One window, running off the bottom like the screens */
+  .fv__window {
+    position: absolute;
+    left: calc(96 * var(--u));
+    right: calc(96 * var(--u));
+    top: calc(72 * var(--u));
+    bottom: 0;
+    border-radius: calc(12 * var(--u)) calc(12 * var(--u)) 0 0;
+    background-color: var(--format-neutral-000);
+    box-shadow:
+      0 0 0 1px oklch(0% 0 0 / 0.06),
+      0 calc(12 * var(--u)) calc(40 * var(--u)) oklch(0% 0 0 / 0.1);
+  }
+
+  .fv__head {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    height: calc(72 * var(--u));
+    padding: 0 calc(32 * var(--u));
+    border-bottom: 1px solid var(--line);
+    font-size: calc(17 * var(--u));
+  }
+
+  .fv__title {
+    margin-right: calc(24 * var(--u));
+    font-size: calc(22 * var(--u));
+    font-weight: var(--weight-bold);
+  }
+
+  .fv__tab {
+    padding: calc(6 * var(--u)) calc(14 * var(--u));
+    border-radius: calc(8 * var(--u));
+    color: var(--muted);
+  }
+
+  .fv__tab em {
+    margin-left: calc(4 * var(--u));
+    font-style: normal;
+    color: var(--format-neutral-400);
+  }
+
+  .fv__tab--on {
+    color: var(--ink);
+    background-color: var(--format-neutral-050);
+  }
+
+  .fv__mode {
+    margin-left: auto;
+    color: var(--muted);
+  }
+
+  .fv__body {
+    display: grid;
+    grid-template-columns: calc(500 * var(--u)) 1fr;
+    height: calc(100% - 72 * var(--u));
+  }
+
+  .fv__table {
+    display: flex;
+    flex-direction: column;
+    padding: calc(12 * var(--u)) calc(16 * var(--u));
+    border-right: 1px solid var(--line);
+  }
+
+  .fv__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    flex: none;
+    height: calc(38 * var(--u));
+    padding: 0 calc(16 * var(--u));
+    border: 0;
+    border-radius: calc(6 * var(--u));
+    color: var(--ink);
+    background: none;
+    font: inherit;
+    font-size: calc(16 * var(--u));
+    text-align: left;
+    cursor: default;
+    transition: background-color var(--duration-s) var(--ease-out);
+  }
+
+  .fv__row--head {
+    color: var(--muted);
+    font-size: calc(14 * var(--u));
+  }
+
+  .fv__row[aria-pressed='true'] {
+    background-color: var(--format-cyan-050);
+  }
+
+  .fv__row:focus-visible {
+    outline: 2px solid var(--format-cyan-500);
+    outline-offset: -2px;
+  }
+
+  .fv__name,
+  .fv__alias {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: calc(15 * var(--u));
+  }
+
+  .fv__alias {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    justify-self: start;
+    padding: calc(3 * var(--u)) calc(10 * var(--u)) calc(3 * var(--u)) calc(6 * var(--u));
+    border-radius: calc(6 * var(--u));
+    background-color: var(--format-neutral-050);
+  }
+
+  .fv__chip {
+    width: calc(16 * var(--u));
+    height: calc(16 * var(--u));
+    border-radius: calc(4 * var(--u));
+    background-color: var(--c);
+    box-shadow: inset 0 0 0 1px oklch(0% 0 0 / 0.08);
+  }
+
+  .fv__ramps {
+    display: flex;
+    flex-direction: column;
+    gap: calc(22 * var(--u));
+    padding: calc(28 * var(--u)) calc(40 * var(--u));
+  }
+
+  .fv__ramp {
+    display: grid;
+    gap: calc(8 * var(--u));
+  }
+
+  .fv__hue {
+    color: var(--muted);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: calc(14 * var(--u));
+  }
+
+  .fv__steps {
+    display: grid;
+    grid-template-columns: repeat(11, calc(50 * var(--u)));
+    gap: calc(8 * var(--u));
+  }
+
+  .fv__step {
+    display: grid;
+    justify-items: center;
+    gap: calc(4 * var(--u));
+  }
+
+  .fv__swatch {
+    width: 100%;
+    height: calc(40 * var(--u));
+    border-radius: calc(6 * var(--u));
+    background-color: var(--c);
+    box-shadow: inset 0 0 0 1px oklch(0% 0 0 / 0.06);
+    outline: calc(2 * var(--u)) solid transparent;
+    outline-offset: calc(3 * var(--u));
+    transition: outline-color var(--duration-s) var(--ease-out);
+  }
+
+  .fv__label {
+    color: var(--format-neutral-400);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: calc(12 * var(--u));
+    transition: color var(--duration-s) var(--ease-out);
+  }
+
+  .fv__step[data-on] .fv__swatch {
+    outline-color: var(--format-cyan-500);
+  }
+
+  .fv__step[data-on] .fv__label {
+    color: var(--ink);
+  }
+
+  @media (hover: hover) {
+    .fv__row:not(.fv__row--head) {
+      cursor: pointer;
+    }
+  }
+
+  /* Phones: the ramps alone are too small to read beside the table */
+  @container (max-width: 640px) {
+    .fv__frame {
+      --u: calc(100cqw / 900);
+      aspect-ratio: 900 / 1000;
+    }
+
+    .fv__window {
+      left: calc(32 * var(--u));
+      right: calc(32 * var(--u));
+      top: calc(32 * var(--u));
+    }
+
+    .fv__body {
+      grid-template-columns: 1fr;
+    }
+
+    .fv__table {
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .fv__row:nth-of-type(n + 9) {
+      display: none;
+    }
+
+    .fv__steps {
+      grid-template-columns: repeat(11, 1fr);
+    }
+  }
+</style>
+
+<script>
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const STEP_MS = 1800;
+  // Rows the light walks through on its own, one from each kind
+  const TOUR = [0, 1, 4, 5, 6, 8, 11, 13, 14, 15];
+
+  for (const root of document.querySelectorAll<HTMLElement>('.fv')) {
+    const rows = [...root.querySelectorAll<HTMLButtonElement>('button.fv__row')];
+    const steps = [...root.querySelectorAll<HTMLElement>('.fv__step')];
+    let tour = 0;
+    let timer = 0;
+    let held = reducedMotion.matches;
+    let inView = false;
+
+    const light = (i: number) => {
+      rows.forEach((row, j) => row.setAttribute('aria-pressed', String(j === i)));
+      const target = rows[i].dataset.target;
+      steps.forEach((step) => step.toggleAttribute('data-on', step.dataset.path === target));
+    };
+
+    const run = () => {
+      clearInterval(timer);
+      if (held || !inView) return;
+      timer = window.setInterval(() => {
+        tour = (tour + 1) % TOUR.length;
+        light(TOUR[tour]);
+      }, STEP_MS);
+    };
+
+    rows.forEach((row, i) => {
+      const pick = () => {
+        held = true;
+        clearInterval(timer);
+        light(i);
+      };
+      row.addEventListener('pointerenter', pick);
+      row.addEventListener('focus', pick);
+      row.addEventListener('click', pick);
+    });
+
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      run();
+    }, { threshold: 0.35 }).observe(root);
+
+    light(0);
+  }
+</script>
