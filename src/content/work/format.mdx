@@ -33,6 +33,15 @@ import connectedInsights from '../../assets/work/format/connected-insights.png';
 import spotlightCompany from '../../assets/work/format/spotlight-company.png';
 import spotlightPerson from '../../assets/work/format/spotlight-person.png';
 import insightWorldPoster from '../../assets/work/format/insight-world-poster.png';
+import personPage from '../../assets/work/format/person-page.png';
+import wallInsight from '../../assets/work/format/wall/insight.png';
+import wallConnections from '../../assets/work/format/wall/connections.png';
+import wallPopupCompany from '../../assets/work/format/wall/popup-company.png';
+import wallRecord from '../../assets/work/format/wall/record.png';
+import wallMcpConnect from '../../assets/work/format/wall/mcp-connect.png';
+import wallStories from '../../assets/work/format/wall/stories.png';
+import wallPopupPerson from '../../assets/work/format/wall/popup-person.png';
+import wallCrm from '../../assets/work/format/wall/crm-add.png';
 
 
 <CaseIntro title="Reports you can check">
@@ -71,6 +80,22 @@ But the pages weren’t the whole problem. Customers were already asking their o
 
 </Column>
 </Section>
+
+<Crop window={[1416, 1114]} bg="var(--format-neutral-100)" motion="scroll" caption="Most of the pages, with invented data">
+  <CropImage src={reportsOverview} rect={[48, -120, 424, 630.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="The reports overview" />
+  <CropImage src={wallInsight} rect={[48, 534.4, 424, 275.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="An insight, with its quote, audio and the record it came from" />
+  <CropImage src={wallConnections} rect={[48, 833.8, 424, 275.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="Connections: Slack, Intercom, Fireflies, Zoom, Gong and more" />
+  <CropImage src={wallPopupCompany} rect={[48, 1133.2, 424, 275.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="A company card over a report" />
+  <CropImage src={briefHeader} rect={[496, -260, 424, 374.6]} from={[0, -60]} to={[0, 60]} window={1416} frame="screen" alt="A shared brief" />
+  <CropImage src={companyPage} rect={[496, 138.6, 424, 326.7]} from={[0, -60]} to={[0, 60]} window={1416} frame="screen" alt="A company page" />
+  <CropImage src={wallRecord} rect={[496, 489.3, 424, 252.1]} from={[0, -60]} to={[0, 60]} window={1416} frame="screen" alt="A record: one conversation and the insights taken from it" />
+  <CropImage src={wallMcpConnect} rect={[496, 765.4, 424, 275.4]} from={[0, -60]} to={[0, 60]} window={1416} frame="screen" alt="Connecting Claude Code" />
+  <CropImage src={personPage} rect={[496, 1064.8, 424, 247.1]} from={[0, -60]} to={[0, 60]} window={1416} frame="screen" alt="A person page" />
+  <CropImage src={wallStories} rect={[944, -100, 424, 275.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="Stories: themes across every conversation" />
+  <CropImage src={mcpSkills} rect={[944, 199.4, 424, 410.5]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="MCP & Skills" />
+  <CropImage src={wallPopupPerson} rect={[944, 633.9, 424, 275.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="A person card over a report" />
+  <CropImage src={wallCrm} rect={[944, 933.3, 424, 275.4]} from={[0, 60]} to={[0, -60]} window={1416} frame="screen" alt="Mapping CRM fields for a connection" />
+</Crop>
 
 <Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page">
   <CropImage src={companyPage} rect={[96, 72, 1224, 943.1]} frame="screen" alt="A company page for Unilever: what the company is, its records, insights and people, each conversation with who took part and when, and a sidebar of what they talk about most (pricing 47%, feature requests 24%, competition 12%)" />
