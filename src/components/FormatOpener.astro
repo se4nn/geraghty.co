@@ -1,0 +1,273 @@
+---
+// The Format opener: the click-through the product didn't have when I
+// joined. A report, a name in it, the card behind the name, that person's
+// page, then their company's. Real exports from Portfolio › Format - Case
+// Study Assets (invented data), on the grey ground with one screen card
+// (Sean's Studia pattern), 1416 × 812 Figma px, scaled by --u.
+//
+// Motion: a cursor moves to the thing that leads somewhere and clicks it.
+// Pages lift in over the last one on the spring; the person card is an
+// overlay in the product, so it appears in place, quickly, as it does
+// there. The loop ends on the company page and the reports page lifts back
+// in over it. Plays only while on screen.
+// Reduced motion: the reports page, still, with no cursor.
+import { Image } from 'astro:assets';
+import overview from '../assets/work/format/reports-overview.png';
+import brief from '../assets/work/format/brief-mentions.png';
+import card from '../assets/work/format/wall/popup-person.png';
+import person from '../assets/work/format/person-page.png';
+import company from '../assets/work/format/company-page.png';
+
+interface Props {
+  alt: string;
+}
+const { alt } = Astro.props;
+
+// Screen card: 96,72 and 1224 wide; frames are 1512 wide, so a frame px is
+// 1224 / 1512 of a Figma px here. at: the click target in frame px.
+const S = 1224 / 1512;
+const steps = [
+  { src: overview, at: [939, 444], overlay: false },
+  { src: brief, at: [339, 525], overlay: false },
+  { src: card, at: [984, 784], overlay: true },
+  { src: person, at: [85, 222], overlay: false },
+  { src: company, at: [1180, 640], overlay: false },
+].map((step) => ({ ...step, x: +(96 + step.at[0] * S).toFixed(1), y: +(72 + step.at[1] * S).toFixed(1) }));
+
+const sizes = 'calc(0.8644 * min(100vw - 32px, 1416px))';
+---
+
+<div class="fo" role="img" aria-label={alt}>
+  <div class="fo__window">
+    <div class="fo__screen">
+      {
+        steps.map((step, i) => (
+          <Image
+            class:list={['fo__page', { 'fo__page--overlay': step.overlay }]}
+            src={step.src}
+            alt=""
+            widths={[1224, 1600, 2448]}
+            sizes={sizes}
+            quality={90}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+            data-x={step.x}
+            data-y={step.y}
+            data-shown={i === 0 ? '' : undefined}
+            style={i === 0 ? 'z-index: 1' : undefined}
+          />
+        ))
+      }
+    </div>
+
+    <div class="fo__cursor" aria-hidden="true">
+      <span class="fo__ring" />
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M5 2.5v17.2l4.6-4.4 2.9 6.5 2.7-1.2-2.9-6.4h6.3z" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fo {
+    container-type: inline-size;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--neutral-050);
+  }
+
+  .fo__window {
+    --u: calc(100cqw / 1416);
+    position: relative;
+    aspect-ratio: 1416 / 812;
+  }
+
+  /* One card, running off the bottom, like the other openers */
+  .fo__screen {
+    position: absolute;
+    left: calc(96 * var(--u));
+    top: calc(72 * var(--u));
+    width: calc(1224 * var(--u));
+    bottom: 0;
+    overflow: hidden;
+    border-radius: calc(12 * var(--u)) calc(12 * var(--u)) 0 0;
+    box-shadow:
+      0 0 0 1px oklch(0% 0 0 / 0.06),
+      0 calc(12 * var(--u)) calc(40 * var(--u)) oklch(0% 0 0 / 0.1);
+  }
+
+  .fo__page {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: top;
+    visibility: hidden;
+  }
+
+  .fo__page[data-shown] {
+    visibility: visible;
+  }
+
+  .fo__cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(24 * var(--u));
+    height: calc(24 * var(--u));
+    z-index: 2;
+    display: none;
+    filter: drop-shadow(0 calc(2 * var(--u)) calc(4 * var(--u)) oklch(0% 0 0 / 0.25));
+  }
+
+  .fo__cursor svg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .fo__ring {
+    position: absolute;
+    left: calc(-14 * var(--u));
+    top: calc(-14 * var(--u));
+    width: calc(38 * var(--u));
+    height: calc(38 * var(--u));
+    border-radius: 50%;
+    background-color: oklch(68.87% 0.1544 252.37 / 0.35);
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fo[data-live] .fo__cursor {
+      display: block;
+      transform: translate(calc(var(--cx) * var(--u)), calc(var(--cy) * var(--u)));
+      transition: transform 900ms cubic-bezier(0.45, 0, 0.2, 1);
+    }
+
+    .fo[data-clicking] .fo__ring {
+      animation: fo-click 520ms var(--ease-out);
+    }
+
+    .fo__cursor svg {
+      transition: transform 120ms var(--ease-out);
+    }
+
+    .fo[data-clicking] .fo__cursor svg {
+      transform: scale(0.88);
+    }
+
+    /* Pages lift in on the spring over the one before */
+    .fo__page[data-arriving] {
+      animation: fo-lift 720ms var(--ease-spring) both;
+    }
+
+    /* The card is an overlay in the product: it appears in place */
+    .fo__page--overlay[data-arriving] {
+      animation: fo-appear 180ms var(--ease-out) both;
+    }
+  }
+
+  @keyframes fo-lift {
+    from {
+      transform: translateY(calc(48 * var(--u)));
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fo-appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fo-click {
+    0% {
+      opacity: 1;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.4);
+    }
+  }
+</style>
+
+<script>
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const MOVE = 900;
+  const SETTLE = 1100;
+  const HOLD_END = 2600;
+
+  for (const opener of document.querySelectorAll<HTMLElement>('.fo')) {
+    if (reducedMotion.matches) continue;
+    const pages = [...opener.querySelectorAll<HTMLElement>('.fo__page')];
+    const cursor = opener.querySelector<HTMLElement>('.fo__cursor')!;
+    let index = 0;
+    let z = 1;
+    let timers: number[] = [];
+    let running = false;
+
+    const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
+
+    const aim = (page: HTMLElement) => {
+      cursor.style.setProperty('--cx', page.dataset.x!);
+      cursor.style.setProperty('--cy', page.dataset.y!);
+    };
+
+    const show = (i: number) => {
+      const page = pages[i];
+      page.style.zIndex = String(++z);
+      page.toggleAttribute('data-shown', true);
+      page.removeAttribute('data-arriving');
+      void page.offsetWidth;
+      page.toggleAttribute('data-arriving', true);
+      // Once it covers them, hide the pages underneath
+      later(() => pages.forEach((p, j) => j !== i && p.removeAttribute('data-shown')), 760);
+      index = i;
+    };
+
+    const step = () => {
+      const page = pages[index];
+      const last = index === pages.length - 1;
+      // Settle on the page, move to what leads on, click
+      later(() => aim(page), SETTLE);
+      if (last) {
+        later(() => show(0), SETTLE + MOVE + HOLD_END);
+        later(step, SETTLE + MOVE + HOLD_END);
+        return;
+      }
+      later(() => opener.toggleAttribute('data-clicking', true), SETTLE + MOVE + 120);
+      later(() => {
+        opener.removeAttribute('data-clicking');
+        show(index + 1);
+        step();
+      }, SETTLE + MOVE + 420);
+    };
+
+    const start = () => {
+      if (running) return;
+      running = true;
+      opener.toggleAttribute('data-live', true);
+      // Start the cursor clear of the card, low on the right
+      cursor.style.setProperty('--cx', '1260');
+      cursor.style.setProperty('--cy', '700');
+      step();
+    };
+
+    const stop = () => {
+      running = false;
+      timers.forEach(clearTimeout);
+      timers = [];
+      opener.removeAttribute('data-clicking');
+    };
+
+    new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), { threshold: 0.3 }).observe(opener);
+  }
+</script>
