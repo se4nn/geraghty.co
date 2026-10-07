@@ -2,10 +2,8 @@
 // Figma: Portfolio › v2 › "Next Project" (2428:6520, hover 2428:6549). The
 // next project's tile art across the grid on the dark background, rising
 // out of the dark above (a Neutral/1000 fade at the top), lower corners
-// rounded 48. Its logo sits in the middle at the homepage tile's own
-// proportion: there it's logoScale of a square tile's width, here
-// logoScale of this tile's height, so every project's logo keeps the size
-// it has on the homepage. Tags bottom left, dates bottom right, as in the
+// rounded 48. Its logo sits in the middle at the size the case study hero
+// shows it, so it doesn't change size when the project opens. Tags bottom left, dates bottom right, as in the
 // case study hero. On hover or focus the logo flips over (top edge away)
 // to "Next project" on its back. Touch screens show the logo with the
 // label beneath. The whole tile links.
@@ -43,7 +41,7 @@ const href = link ?? `/#work-${project.id}`;
         widths={[820, 1640, 2832]}
         showLogo={false}
       />
-      <div class="next__content" style={`--logo-scale: ${tile.logoScale}`}>
+      <div class="next__content">
         <div class="next__flip">
           <img class="next__logo" src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
           <p class="next__label" aria-hidden="true">Next project</p>
@@ -140,12 +138,14 @@ const href = link ?? `/#work-${project.id}`;
     backface-visibility: hidden;
   }
 
-  /* The homepage tile's proportion: logoScale of a square side, which here
-     is the tile's height (508 at 1416) */
+  /* The size it opens at: CaseHero's rule (432 wide at 1512, a tall logo
+     capped at 55% of the hero's 80svh), and never taller than 85% of this
+     tile */
   .next__logo {
-    width: calc(var(--logo-scale) * 508 / 1416 * 100cqi);
-    min-width: calc(var(--logo-scale) * 420px);
+    width: clamp(200px, calc(432 / 1512 * 100vw), 640px);
     height: auto;
+    max-height: min(calc(max(80svh, 440px) * 0.55), calc(508 / 1416 * 100cqi * 0.85));
+    object-fit: contain;
   }
 
   .next__label {
