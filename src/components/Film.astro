@@ -58,7 +58,7 @@ const {
 const posterImage = await getImage({ src: poster, width: posterWidth, format: 'webp', quality: 90 });
 ---
 
-<figure class="film" style={`aspect-ratio: ${ratio[0]} / ${ratio[1]}`} data-encrypted={encrypted} data-locked={encrypted ? '' : undefined}>
+<figure class="film" style={`aspect-ratio: ${ratio[0]} / ${ratio[1]}`} data-encrypted={encrypted} data-locked={encrypted ? '' : undefined} data-live={live ? '' : undefined}>
   <video class="film__video" poster={posterImage.src} aria-label={alt} muted={!encrypted} loop={loop} playsinline preload="none">
     {video && <source src={video} type="video/mp4" />}
   </video>
@@ -146,8 +146,10 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     opacity: 1;
   }
 
-  /* A film that has finished shows its last frame, not a play button */
-  .film[data-ended] .film__icon {
+  /* A film that has finished shows its last frame, not a play button; one
+     with a live version opens that on click, so it never shows one either */
+  .film[data-ended] .film__icon,
+  .film[data-live] .film__icon {
     opacity: 0;
   }
 
@@ -376,6 +378,9 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
     const button = film.querySelector<HTMLButtonElement>('.film__sound');
     const replay = film.querySelector<HTMLButtonElement>('.film__replay');
+    // A film with a live version opens it from a click anywhere on it,
+    // rather than pausing
+    const liveButton = film.querySelector<HTMLButtonElement>('.film__live');
     // Set once someone pauses it, so scrolling back doesn't restart it.
     // A locked film waits for its password.
     let held = reducedMotion.matches || film.hasAttribute('data-locked');
@@ -383,7 +388,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     const sync = () => {
       film.toggleAttribute('data-paused', video.paused);
       film.toggleAttribute('data-ended', video.ended);
-      toggle.setAttribute('aria-label', video.paused ? 'Play the film' : 'Pause the film');
+      toggle.setAttribute('aria-label', liveButton ? liveButton.textContent?.trim() || 'Explore it live' : video.paused ? 'Play the film' : 'Pause the film');
       if (button) {
         button.textContent = video.muted ? 'Sound on' : 'Sound off';
         button.setAttribute('aria-pressed', String(!video.muted));
@@ -426,6 +431,10 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     ).observe(video);
 
     toggle.addEventListener('click', () => {
+      if (liveButton) {
+        liveButton.click();
+        return;
+      }
       if (video.paused) {
         held = false;
         video.play().catch(() => {});
