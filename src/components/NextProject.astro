@@ -1,11 +1,14 @@
 ---
 // Figma: Portfolio › v2 › "Next Project" (2428:6520, hover 2428:6549). The
 // next project's tile art across the grid on the dark background, rising
-// out of the dark above (a Neutral/1000 fade at the top), corners rounded
-// 48. Its stacked logo sits in the middle. "Next project" runs along the
-// bottom in huge type, cut off by the edge, at 4% white; on hover or focus
-// it comes up to half, a colour change only (labels don't move). The whole
-// tile links.
+// out of the dark above (a Neutral/1000 fade at the top), lower corners
+// rounded 48. Its logo sits in the middle at the homepage tile's own
+// proportion: there it's logoScale of a square tile's width, here
+// logoScale of this tile's height, so every project's logo keeps the size
+// it has on the homepage. Tags bottom left, dates bottom right, as in the
+// case study hero. On hover or focus the logo flips over (top edge away)
+// to "Next project" on its back. Touch screens show the logo with the
+// label beneath. The whole tile links.
 import type { CollectionEntry } from 'astro:content';
 import type { ImageMetadata } from 'astro';
 import TileArt from './TileArt.astro';
@@ -16,16 +19,13 @@ interface Props {
   logo: ImageMetadata;
 }
 
-const { project, logo } = Astro.props;
-const { title, tile, link } = project.data;
+const { project } = Astro.props;
+const { title, tile, link, tags, dates } = project.data;
+// The homepage tile's logo, at its homepage proportion
+const logo: ImageMetadata = tile.logo;
 // No case study yet: go to the project's tile on the homepage
 const href = link ?? `/#work-${project.id}`;
 
-// Logos carry the same visual weight whatever their shape: each covers the
-// area of the Format stacked logo in the Figma tile (240 tall, 186 wide, at
-// 1416), so a wide wordmark sits lower and longer instead of 240 tall
-const LOGO_AREA = 240 * (240 * 217) / 280;
-const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height)));
 ---
 
 <section class="next" aria-label="Next project">
@@ -43,10 +43,20 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
         widths={[820, 1640, 2832]}
         showLogo={false}
       />
-      <div class="next__content">
-        <img class="next__logo" style={`--logo-h: ${logoHeight.toFixed(1)}`} src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
+      <div class="next__content" style={`--logo-scale: ${tile.logoScale}`}>
+        <div class="next__flip">
+          <img class="next__logo" src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
+          <p class="next__label" aria-hidden="true">Next project</p>
+        </div>
       </div>
-      <p class="next__label" aria-hidden="true">Next project</p>
+      <div class="next__meta t-h3">
+        <p class="next__tags t-h3-bold">
+          {tags.map((tag, i) => (
+            <>{i > 0 && <span class="next__sep" aria-hidden="true">|</span>}<span>{tag}</span></>
+          ))}
+        </p>
+        <p class="next__dates">{dates}</p>
+      </div>
     </a>
   </div>
 </section>
@@ -115,77 +125,124 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     position: relative;
     display: grid;
     place-items: center;
-    padding: clamp(24px, calc(64 / 1416 * 100cqi), 64px);
+    perspective: 900px;
   }
 
-  /* Scales with the tile, from half size up to its Figma size */
+  /* Logo on the front, "Next project" on the back, in one cell */
+  .next__flip {
+    display: grid;
+    place-items: center;
+    transform-style: preserve-3d;
+  }
+
+  .next__flip > * {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+  }
+
+  /* The homepage tile's proportion: logoScale of a square side, which here
+     is the tile's height (508 at 1416) */
   .next__logo {
-    width: auto;
-    height: clamp(calc(var(--logo-h) * 0.5px), calc(var(--logo-h) / 1416 * 100cqi), calc(var(--logo-h) * 1px));
-  }
-
-  /* "Next project", in full, under the logo. At rest only the logo shows;
-     on hover or focus the logo rises and the label comes up beneath it.
-     Touch screens show both. Sizes in --q, one Figma px of the tile. */
-  .next__content {
-    --q: calc(100cqi / 1416);
+    width: calc(var(--logo-scale) * 508 / 1416 * 100cqi);
+    min-width: calc(var(--logo-scale) * 420px);
+    height: auto;
   }
 
   .next__label {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
     margin: 0;
     color: var(--text-on-dark);
     font-family: var(--font-sans);
     font-variation-settings: var(--sans-axes);
     font-weight: var(--weight-bold);
-    font-size: clamp(28px, calc(72 / 1416 * 100cqi), 72px);
+    font-size: clamp(32px, calc(88 / 1416 * 100cqi), 88px);
     line-height: 1;
-    text-align: center;
     white-space: nowrap;
-    translate: 0 calc(84 / 1416 * 100cqi);
-    opacity: 0;
-    pointer-events: none;
+    transform: rotateX(180deg);
   }
 
-  .next__tile:focus-visible .next__label {
-    opacity: 1;
-  }
-
-  .next__tile:focus-visible .next__logo {
-    translate: 0 calc(-56 / 1416 * 100cqi);
+  .next__tile:focus-visible .next__flip {
+    transform: rotateX(180deg);
   }
 
   @media (hover: hover) {
-    .next__tile:hover .next__label {
-      opacity: 1;
-    }
-
-    .next__tile:hover .next__logo {
-      translate: 0 calc(-56 / 1416 * 100cqi);
-    }
-  }
-
-  @media (hover: none) {
-    .next__label {
-      opacity: 1;
-    }
-
-    .next__logo {
-      translate: 0 calc(-56 / 1416 * 100cqi);
+    .next__tile:hover .next__flip {
+      transform: rotateX(180deg);
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .next__logo {
-      transition: translate 720ms var(--ease-spring);
+    .next__flip {
+      transition: transform 760ms var(--ease-spring);
+    }
+  }
+
+  /* Reduced motion: no turn, the back simply replaces the front */
+  @media (prefers-reduced-motion: reduce) {
+    .next__label {
+      transform: none;
+      opacity: 0;
+    }
+
+    .next__tile:focus-visible .next__flip,
+    .next__tile:hover .next__flip {
+      transform: none;
+    }
+
+    .next__tile:focus-visible .next__logo,
+    .next__tile:hover .next__logo {
+      opacity: 0;
+    }
+
+    .next__tile:focus-visible .next__label,
+    .next__tile:hover .next__label {
+      opacity: 1;
+    }
+  }
+
+  /* Touch: the logo, with the label beneath it */
+  @media (hover: none) {
+    .next__flip {
+      gap: 16px;
+    }
+
+    .next__flip > * {
+      grid-area: auto;
     }
 
     .next__label {
-      transition: opacity var(--duration-m) var(--ease-out) 80ms;
+      transform: none;
+      font-size: 22px;
     }
+  }
+
+  /* Tags and dates along the bottom, as in the case study hero */
+  .next__meta {
+    position: relative;
+    align-self: end;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-m);
+    padding: clamp(24px, calc(48 / 1416 * 100cqi), 48px) clamp(24px, calc(64 / 1416 * 100cqi), 64px);
+    pointer-events: none;
+  }
+
+  .next__meta p {
+    margin: 0;
+  }
+
+  .next__tags {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .next__sep {
+    margin-inline: 0.5em;
+  }
+
+  .next__dates {
+    color: var(--neutral-050);
+    white-space: nowrap;
   }
 
   .next__tile:focus-visible {
@@ -200,5 +257,10 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
       aspect-ratio: 4 / 5;
     }
 
+    .next__meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2xs);
+    }
   }
 </style>
