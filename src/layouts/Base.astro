@@ -47,6 +47,10 @@ const ogImage = new URL(image, Astro.site);
         const from = fromUrl && new URL(fromUrl).origin === location.origin ? new URL(fromUrl).pathname : undefined;
         if (to.startsWith('/work/') && !from?.startsWith('/work/')) transition.types.add('open');
         else if (from?.startsWith('/work/')) transition.types.add('close');
+        // One case study to the next (the Next Project tile, from the dark
+        // footer): the old page holds as the dark backdrop while the art
+        // morphs into the new hero, then hands over
+        if (to.startsWith('/work/') && from?.startsWith('/work/') && to !== from) transition.types.add('next');
       });
     </script>
     <link rel="icon" href="/img/favicon.png" type="image/png" />

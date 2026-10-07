@@ -223,6 +223,23 @@ html:active-view-transition-type(open)::view-transition-new(.logo) {
   animation: logo-burn 700ms var(--ease-out) 720ms both;
 }
 
+/* Next: the old page (scrolled to its dark footer) stays as the backdrop
+   while the art grows into the new hero, then the two cross over, so the
+   light page doesn't flash in under the morph */
+html:active-view-transition-type(next)::view-transition-old(root) {
+  animation: fade-out 420ms var(--ease-out) 560ms both;
+}
+
+html:active-view-transition-type(next)::view-transition-new(root) {
+  animation: fade-in 420ms var(--ease-out) 560ms both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes screen-off {
   to {
     filter: brightness(0);

@@ -1,0 +1,50 @@
+---
+// The step's name under BuildLoop's cards: H1 serif over an H3 line
+interface Props {
+  title: string;
+  line: string;
+}
+const { title, line } = Astro.props;
+---
+
+<div class="caption">
+  <p class="title">{title}</p>
+  <p class="sub">{line}</p>
+</div>
+
+<style>
+  .caption {
+    display: grid;
+    gap: calc(8 * var(--u));
+    justify-items: center;
+    text-align: center;
+  }
+
+  .title {
+    margin: 0;
+    color: var(--neutral-900);
+    font-family: var(--font-serif);
+    font-size: calc(57 * var(--u));
+    line-height: calc(72 / 57);
+    letter-spacing: -0.012em;
+    font-variation-settings: normal;
+  }
+
+  .sub {
+    margin: 0;
+    color: var(--neutral-600);
+    font-size: calc(33 * var(--u));
+    line-height: calc(40 / 33);
+    font-weight: 260;
+  }
+
+  @container (max-width: 720px) {
+    .title {
+      font-size: 32px;
+    }
+
+    .sub {
+      font-size: 17px;
+    }
+  }
+</style>

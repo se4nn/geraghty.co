@@ -124,38 +124,67 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     height: clamp(calc(var(--logo-h) * 0.5px), calc(var(--logo-h) / 1416 * 100cqi), calc(var(--logo-h) * 1px));
   }
 
-  /* 200 at 1416, its top 120 above the bottom edge, the rest cut off */
+  /* "Next project", in full, under the logo. At rest only the logo shows;
+     on hover or focus the logo rises and the label comes up beneath it.
+     Touch screens show both. Sizes in --q, one Figma px of the tile. */
+  .next__content {
+    --q: calc(100cqi / 1416);
+  }
+
   .next__label {
-    position: relative;
-    align-self: end;
-    justify-self: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
     margin: 0;
-    overflow: hidden;
-    height: calc(120 / 1416 * 100cqi);
     color: var(--text-on-dark);
     font-family: var(--font-sans);
     font-variation-settings: var(--sans-axes);
     font-weight: var(--weight-bold);
-    font-size: max(64px, calc(200 / 1416 * 100cqi));
-    line-height: 0.8;
+    font-size: clamp(28px, calc(72 / 1416 * 100cqi), 72px);
+    line-height: 1;
+    text-align: center;
     white-space: nowrap;
-    opacity: 0.04;
+    translate: 0 calc(84 / 1416 * 100cqi);
+    opacity: 0;
     pointer-events: none;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .next__label {
-      transition: opacity var(--duration-m) var(--ease-out);
-    }
+  .next__tile:focus-visible .next__label {
+    opacity: 1;
   }
 
-  .next__tile:focus-visible .next__label {
-    opacity: 0.5;
+  .next__tile:focus-visible .next__logo {
+    translate: 0 calc(-56 / 1416 * 100cqi);
   }
 
   @media (hover: hover) {
     .next__tile:hover .next__label {
-      opacity: 0.5;
+      opacity: 1;
+    }
+
+    .next__tile:hover .next__logo {
+      translate: 0 calc(-56 / 1416 * 100cqi);
+    }
+  }
+
+  @media (hover: none) {
+    .next__label {
+      opacity: 1;
+    }
+
+    .next__logo {
+      translate: 0 calc(-56 / 1416 * 100cqi);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .next__logo {
+      transition: translate 720ms var(--ease-spring);
+    }
+
+    .next__label {
+      transition: opacity var(--duration-m) var(--ease-out) 80ms;
     }
   }
 
@@ -165,14 +194,11 @@ const logoHeight = Math.min(240, Math.sqrt(LOGO_AREA / (logo.width / logo.height
     border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
   }
 
-  /* Phones: a squarer tile, the label still along the bottom */
+  /* Phones: a squarer tile */
   @media (max-width: 700px) {
     .next__tile {
       aspect-ratio: 4 / 5;
     }
 
-    .next__label {
-      height: 0.6em;
-    }
   }
 </style>

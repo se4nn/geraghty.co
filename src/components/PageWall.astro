@@ -9,7 +9,9 @@
 // card height in Figma px (how much of the page shows)
 // Arrival: the first time the wall comes into view, the cards cascade in,
 // row by row across both columns, each lifting on the spring and settling,
-// like pages being laid out on a desk. Then the drift takes over.
+// like pages being laid out on a desk (quick: about a second in all).
+// Then a gentle parallax takes over, driven from scroll in script so it
+// works in Safari too (no scroll timelines there yet).
 // Reduced motion: no cascade, and the columns hold still.
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
@@ -77,7 +79,7 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
     margin: 0;
     padding: 0;
     list-style: none;
-    translate: 0 calc(var(--top) * var(--u));
+    translate: 0 calc((var(--top) + var(--p, 0) * 64 * var(--dir)) * var(--u));
   }
 
   .page-wall__card {
@@ -102,43 +104,46 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
   @media (prefers-reduced-motion: no-preference) {
     .page-wall__card {
       opacity: 0;
-      transform: translateY(calc(96 * var(--u))) scale(0.96);
+      transform: translateY(calc(64 * var(--u))) scale(0.97);
     }
 
     .page-wall[data-arrived] .page-wall__card {
       opacity: 1;
       transform: none;
       transition:
-        opacity 480ms var(--ease-out) calc(var(--i) * 90ms),
-        transform 900ms var(--ease-spring) calc(var(--i) * 90ms);
+        opacity 400ms var(--ease-out) calc(var(--i) * 60ms),
+        transform 720ms var(--ease-spring) calc(var(--i) * 60ms);
     }
 
-    @supports (animation-timeline: view()) {
-      .page-wall {
-        view-timeline-name: --wall;
-      }
-
-      .page-wall__column {
-        animation: page-wall-drift linear both;
-        animation-timeline: --wall;
-        animation-range: cover 0% cover 100%;
-      }
-    }
   }
 
-  @keyframes page-wall-drift {
-    from {
-      translate: 0 calc((var(--top) + 80 * var(--dir)) * var(--u));
-    }
-    to {
-      translate: 0 calc((var(--top) - 80 * var(--dir)) * var(--u));
-    }
-  }
 </style>
 
 <script>
-  // Cascade in once, when a fifth of the wall is on screen
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   for (const wall of document.querySelectorAll<HTMLElement>('.page-wall')) {
+    // Parallax: --p runs from 1 as the wall enters to -1 as it leaves, and
+    // the columns slide by 64 Figma px either way, in opposite directions
+    if (!still) {
+      let frame = 0;
+      const update = () => {
+        frame = 0;
+        const r = wall.getBoundingClientRect();
+        const p = (r.top + r.height / 2 - innerHeight / 2) / ((innerHeight + r.height) / 2);
+        wall.style.setProperty('--p', Math.max(-1, Math.min(1, p)).toFixed(3));
+      };
+      const onScroll = () => {
+        if (!frame) frame = requestAnimationFrame(update);
+      };
+      new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) addEventListener('scroll', onScroll, { passive: true });
+        else removeEventListener('scroll', onScroll);
+      }).observe(wall);
+      update();
+    }
+
+    // Cascade in once, when a fifth of the wall is on screen
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
