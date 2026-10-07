@@ -163,11 +163,12 @@ const phases = [
     --ink: var(--format-neutral-900);
     --muted: var(--format-neutral-500);
     --line: var(--format-neutral-200);
+    /* A timeline of the seven steps across the top, the card beneath */
     display: grid;
-    grid-template-columns: calc(440 * var(--u)) 1fr;
-    gap: calc(48 * var(--u));
+    grid-template-rows: auto 1fr;
+    gap: calc(40 * var(--u));
     aspect-ratio: 1416 / 812;
-    padding: calc(72 * var(--u)) calc(72 * var(--u)) calc(72 * var(--u)) calc(64 * var(--u));
+    padding: calc(56 * var(--u)) calc(64 * var(--u));
     color: var(--ink);
     font-family: var(--font-sans);
     font-variation-settings: var(--sans-axes);
@@ -176,20 +177,25 @@ const phases = [
   /* Phases: words stay put, only their colour changes */
   .build-loop__phases {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    gap: calc(16 * var(--u));
     list-style: none;
     padding: 0;
     margin: 0;
   }
 
+  .build-loop__phases li {
+    flex: 1;
+    min-width: 0;
+  }
+
   .build-loop__phase {
     position: relative;
     display: grid;
-    grid-template-columns: calc(48 * var(--u)) 1fr;
-    align-items: baseline;
+    gap: calc(8 * var(--u));
+    align-content: start;
     width: 100%;
-    padding: calc(12 * var(--u)) 0 calc(14 * var(--u));
+    height: 100%;
+    padding: 0 0 calc(16 * var(--u));
     border: 0;
     border-bottom: 1px solid var(--line);
     color: var(--muted);
@@ -215,13 +221,13 @@ const phases = [
   }
 
   .build-loop__title {
-    font-size: calc(26 * var(--u));
+    font-size: calc(21 * var(--u));
     line-height: 1.15;
     font-weight: var(--weight-bold);
   }
 
   .build-loop__line {
-    font-size: calc(16 * var(--u));
+    font-size: calc(14 * var(--u));
     line-height: 1.3;
   }
 
@@ -253,10 +259,12 @@ const phases = [
     position: relative;
     display: grid;
     align-items: center;
+    justify-items: center;
   }
 
   .build-loop__card {
     grid-area: 1 / 1;
+    width: min(100%, calc(820 * var(--u)));
     display: flex;
     flex-direction: column;
     gap: calc(20 * var(--u));
