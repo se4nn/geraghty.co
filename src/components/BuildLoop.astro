@@ -1,39 +1,179 @@
 ---
-// Format's component build loop, in motion: the seven phases every component
-// went through (from Format's own component-build-workflow.md), each with the
-// artefact it produces. The phases sit on the left and only change colour
-// (words stay put); the artefact on the right lifts in on the spring, and a
-// rail fills while each phase plays. It loops while on screen and pauses
-// when it leaves. Clicking a phase jumps to it and holds there.
-// Reduced motion: no autoplay, no lift; the first phase shows, and the
-// phases are still buttons.
-// Built at the grid's 1416 × 812 and scaled as one piece (--u is one Figma
-// px), so it reads like an image at every width.
-// The example running through it is real: the Button padding regression from
-// the learning log (built px-2, Figma said px-3).
-const phases = [
-  { title: 'Read the rules', line: 'And every past mistake' },
-  { title: 'Get the spec', line: 'From Figma, not a screenshot' },
-  { title: 'Build', line: 'Tokens only, no raw values' },
-  { title: 'Check it renders', line: 'In the browser, against Figma' },
-  { title: 'Fix', line: 'Three tries, then it comes to me' },
-  { title: 'Approve', line: 'Nothing ships without it' },
-  { title: 'Write it down', line: 'The rule that stops it again' },
+// Format's component build loop, in motion (Figma: Portfolio › "Steps",
+// 2439:20237). Seven steps as a row of numbers along the top; under them,
+// the artefacts that step produces (one or two cards); under those, the
+// step's name in the serif with a line beneath. The steps come from
+// Format's component-build-workflow.md, the examples from its learning log.
+//
+// Motion: while on screen it plays through the steps, 4.8s each, the active
+// step's underline filling in Brand/Blue. Words stay put (the numbers only
+// change colour, the step's name swaps in place); the cards lift in on the
+// spring, the second a beat after the first. Clicking a number jumps to it
+// and holds there.
+// Reduced motion: no autoplay and no lift; the numbers still work.
+// Built at the grid's 1416 × 812 and scaled as one piece (--u).
+
+interface Line {
+  k: string;
+  v: string;
+}
+
+interface Card {
+  file: string;
+  lines?: Line[];
+  code?: string;
+  // Mark this snippet in the code (the value that's wrong)
+  mark?: string;
+  compare?: 'wrong' | 'right';
+}
+
+interface Step {
+  title: string;
+  line: string;
+  cards: Card[];
+}
+
+const steps: Step[] = [
+  {
+    title: 'Read every rule',
+    line: 'And the log of past mistakes',
+    cards: [
+      {
+        file: 'design-system-rules.md',
+        lines: [
+          { k: 'Tokens first.', v: 'No raw colours, spacing or radius in a component.' },
+          { k: 'Code owns structure.', v: 'Variants, states and the API.' },
+          { k: 'Figma owns values.', v: 'Fonts, padding, colour, radius.' },
+        ],
+      },
+      {
+        file: 'learning-log.md',
+        lines: [
+          { k: 'Mistake:', v: 'Icon stroke width set by reasoning from code.' },
+          { k: 'Fix:', v: 'Inspect the rendered SVG.' },
+          { k: 'Rule:', v: 'Check what renders before calling an SVG change done.' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Spec from Figma',
+    line: 'Never from a screenshot',
+    cards: [
+      {
+        file: 'figma · Select',
+        lines: [
+          { k: 'Assumed:', v: '4 states.' },
+          { k: 'In Figma:', v: '6 states.' },
+          { k: 'Rule:', v: 'List every variant and state before building.' },
+        ],
+      },
+      {
+        file: 'token-mapping',
+        lines: [
+          { k: 'color/neutral/900', v: '→ var(--neutral-900)' },
+          { k: 'spacing/3', v: '→ px-3 · 12px' },
+          { k: 'radius/rounded', v: '→ var(--radius)' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Build with tokens',
+    line: 'No raw values, the standard shadcn API',
+    cards: [
+      {
+        file: 'src/components/ui/button.tsx',
+        code: `const buttonVariants = cva(base, {
+  variants: {
+    variant: { default: 'bg-primary text-primary-foreground' },
+    size: { default: 'h-9 px-2 gap-1' },
+  },
+})`,
+        mark: `'h-9 px-2 gap-1'`,
+      },
+    ],
+  },
+  {
+    title: 'Check what renders',
+    line: 'In the browser, against Figma',
+    cards: [{ file: 'visual QA · /design/design-system', compare: 'wrong' }],
+  },
+  {
+    title: 'Fix and recheck',
+    line: 'Three tries, then it comes to me',
+    cards: [
+      {
+        file: 'button.tsx · iteration 1 of 3',
+        code: `-  default: 'h-9 px-2 gap-1',
++  default: 'h-9 px-3 gap-1',`,
+      },
+      { file: 'visual QA · recheck', compare: 'right' },
+    ],
+  },
+  {
+    title: 'Two approval gates',
+    line: 'Nothing ships on the AI’s say-so',
+    cards: [
+      {
+        file: 'before building',
+        lines: [
+          { k: 'Token mapping', v: 'approved' },
+          { k: 'Changes to stock shadcn', v: 'approved' },
+          { k: 'Proposed API', v: 'approved' },
+        ],
+      },
+      {
+        file: 'before it’s done',
+        lines: [
+          { k: 'Code and live page', v: 'reviewed' },
+          { k: 'QA results', v: 'reviewed' },
+          { k: 'Known deviations', v: 'reviewed' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Write it down',
+    line: 'So it can’t happen twice',
+    cards: [
+      {
+        file: 'learning-log.md',
+        lines: [
+          { k: 'Mistake:', v: 'A merge conflict set a colour token wrong.' },
+          { k: 'Rule:', v: 'Check Figma before accepting either side.' },
+        ],
+      },
+      {
+        file: 'same pull request',
+        lines: [
+          { k: 'Component write-up', v: 'added' },
+          { k: 'Rulebook and log', v: 'updated' },
+          { k: 'Live component library', v: 'updated' },
+        ],
+      },
+    ],
+  },
 ];
+
+const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const codeHtml = (card: Card) => {
+  let html = escape(card.code!);
+  if (card.mark) html = html.replace(escape(card.mark), `<mark>${escape(card.mark)}</mark>`);
+  return html
+    .replace(/^(-.*)$/gm, '<span class="del">$1</span>')
+    .replace(/^(\+.*)$/gm, '<span class="add">$1</span>');
+};
 ---
 
-<div class="build-loop" role="group" aria-label="The component build loop: seven phases, each with what it produces">
+<div class="build-loop" role="group" aria-label="The component build loop: seven steps, each with what it produces">
   <div class="build-loop__frame">
-    <ol class="build-loop__phases" role="list">
+    <ol class="build-loop__steps" role="list">
       {
-        phases.map((phase, i) => (
+        steps.map((step, i) => (
           <li>
-            <button class="build-loop__phase" type="button" data-index={i} aria-pressed={i === 0 ? 'true' : 'false'}>
-              <span class="build-loop__number">{String(i + 1).padStart(2, '0')}</span>
-              <span class="build-loop__text">
-                <span class="build-loop__title">{phase.title}</span>
-                <span class="build-loop__line">{phase.line}</span>
-              </span>
+            <button class="build-loop__step" type="button" aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`${i + 1}. ${step.title}`}>
+              {String(i + 1).padStart(2, '0')}
               <span class="build-loop__rail" aria-hidden="true" />
             </button>
           </li>
@@ -41,110 +181,55 @@ const phases = [
       }
     </ol>
 
-    <div class="build-loop__stage" aria-live="off">
-      {/* 01 Read: the rules file and a learning-log entry */}
-      <section class="build-loop__card" data-card="0" data-active="">
-        <header class="bl-file"><span class="bl-dot" />design-system-rules.md</header>
-        <ul class="bl-rules" role="list">
-          <li><b>Tokens first.</b> No raw colours, spacing or radius in a component.</li>
-          <li><b>Code owns structure.</b> Variants, states and the API.</li>
-          <li><b>Figma owns values.</b> Fonts, padding, colour, radius.</li>
-        </ul>
-        <header class="bl-file"><span class="bl-dot bl-dot--log" />learning-log.md</header>
-        <blockquote class="bl-quote">
-          “A success response means the call was received, not that the change persisted.”
-        </blockquote>
-      </section>
-
-      {/* 02 Spec: the Figma component and its token mapping */}
-      <section class="build-loop__card" data-card="1">
-        <header class="bl-file"><span class="bl-dot bl-dot--figma" />Figma · Button · 173:755</header>
-        <div class="bl-buttons">
-          <span class="bl-button">Default</span>
-          <span class="bl-button bl-button--outline">Outline</span>
-          <span class="bl-button bl-button--ghost">Ghost</span>
-          <span class="bl-button bl-button--danger">Destructive</span>
-        </div>
-        <table class="bl-table">
-          <thead><tr><th>Figma</th><th>Code</th></tr></thead>
-          <tbody>
-            <tr><td>color/neutral/900</td><td>var(--neutral-900)</td></tr>
-            <tr><td>spacing/3</td><td>px-3 · 12px</td></tr>
-            <tr><td>radius/rounded</td><td>var(--radius)</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      {/* 03 Build: the component, tokens only */}
-      <section class="build-loop__card" data-card="2">
-        <header class="bl-file"><span class="bl-dot bl-dot--code" />src/components/ui/button.tsx</header>
-        <pre class="bl-code"><code><span class="c-k">const</span> buttonVariants = <span class="c-f">cva</span>(base, {'{'}
-  variants: {'{'}
-    variant: {'{'}
-      default: <span class="c-s">'bg-primary text-primary-foreground'</span>,
-      ghost: <span class="c-s">'bg-[var(--surface-glass)] backdrop-blur'</span>,
-    {'}'},
-    size: {'{'}
-      default: <span class="c-s bl-flag">'h-9 px-2 gap-1'</span>,
-    {'}'},
-  {'}'},
-{'}'})</code></pre>
-      </section>
-
-      {/* 04 Check: Figma against the browser, the padding is wrong */}
-      <section class="build-loop__card" data-card="3">
-        <header class="bl-file"><span class="bl-dot bl-dot--qa" />Visual QA · /design/design-system</header>
-        <div class="bl-compare">
-          <figure>
-            <span class="bl-measure"><span class="bl-pad">12</span><span class="bl-button">Button</span><span class="bl-pad">12</span></span>
-            <figcaption>Figma</figcaption>
-          </figure>
-          <figure>
-            <span class="bl-measure bl-measure--wrong"><span class="bl-pad">8</span><span class="bl-button">Button</span><span class="bl-pad">8</span></span>
-            <figcaption>Browser (computed)</figcaption>
-          </figure>
-        </div>
-        <p class="bl-status bl-status--fail">1 issue · padding 8px, spec 12px</p>
-      </section>
-
-      {/* 05 Fix: the same check, passing */}
-      <section class="build-loop__card" data-card="4">
-        <header class="bl-file"><span class="bl-dot bl-dot--qa" />Visual QA · iteration 1 of 3</header>
-        <pre class="bl-code bl-code--diff"><code><span class="c-del">-  default: 'h-9 px-2 gap-1',</span>
-<span class="c-add">+  default: 'h-9 px-3 gap-1',</span></code></pre>
-        <div class="bl-compare">
-          <figure>
-            <span class="bl-measure"><span class="bl-pad">12</span><span class="bl-button">Button</span><span class="bl-pad">12</span></span>
-            <figcaption>Figma</figcaption>
-          </figure>
-          <figure>
-            <span class="bl-measure bl-measure--right"><span class="bl-pad">12</span><span class="bl-button">Button</span><span class="bl-pad">12</span></span>
-            <figcaption>Browser (computed)</figcaption>
-          </figure>
-        </div>
-        <p class="bl-status bl-status--pass">All variants match</p>
-      </section>
-
-      {/* 06 Approve: the gate */}
-      <section class="build-loop__card" data-card="5">
-        <header class="bl-file"><span class="bl-dot bl-dot--gate" />Approval gate</header>
-        <ul class="bl-checks" role="list">
-          <li>Every Figma variant built</li>
-          <li>Every state: hover, focus, pressed, disabled</li>
-          <li>Zero hardcoded colour, spacing or radius</li>
-          <li>Showcase page updated in the same PR</li>
-        </ul>
-        <p class="bl-status bl-status--pass">Approved</p>
-      </section>
-
-      {/* 07 Reflect: the new rule, back to the start */}
-      <section class="build-loop__card" data-card="6">
-        <header class="bl-file"><span class="bl-dot bl-dot--log" />learning-log.md · 19 Apr 2026</header>
-        <p class="bl-entry-title">Button padding regression</p>
-        <p class="bl-entry">Built <code>px-2</code> (8px). Figma says <code>px-3</code> (12px). The value was set without checking the spec.</p>
-        <p class="bl-entry bl-entry--rule"><b>Rule:</b> every height, padding and gap is checked against Figma before it's committed.</p>
-        <p class="bl-next">Read before the next build →</p>
-      </section>
+    <div class="build-loop__stage">
+      {
+        steps.map((step, i) => (
+          <section class="build-loop__scene" data-active={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>
+            <div class:list={['build-loop__cards', { 'build-loop__cards--one': step.cards.length === 1 }]}>
+              {step.cards.map((card) => (
+                <div class="build-loop__card">
+                  <p class="build-loop__file">{card.file}</p>
+                  {card.lines &&
+                    card.lines.map((line) => (
+                      <p class="build-loop__line">
+                        <b>{line.k}</b> {line.v}
+                      </p>
+                    ))}
+                  {card.code && (
+                    <pre class="build-loop__code">
+                      <code set:html={codeHtml(card)} />
+                    </pre>
+                  )}
+                  {card.compare && (
+                    <div class="build-loop__compare">
+                      <figure>
+                        <span class="build-loop__measure">
+                          <span class="pad">12</span>
+                          <span class="btn">Button</span>
+                          <span class="pad">12</span>
+                        </span>
+                        <figcaption>Figma</figcaption>
+                      </figure>
+                      <figure>
+                        <span class:list={['build-loop__measure', `build-loop__measure--${card.compare}`]}>
+                          <span class="pad">{card.compare === 'wrong' ? '8' : '12'}</span>
+                          <span class="btn">Button</span>
+                          <span class="pad">{card.compare === 'wrong' ? '8' : '12'}</span>
+                        </span>
+                        <figcaption>Browser, computed</figcaption>
+                      </figure>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div class="build-loop__caption">
+              <p class="build-loop__title">{step.title}</p>
+              <p class="build-loop__sub">{step.line}</p>
+            </div>
+          </section>
+        ))
+      }
     </div>
   </div>
 </div>
@@ -154,313 +239,223 @@ const phases = [
     container-type: inline-size;
     border-radius: var(--radius-s);
     overflow: hidden;
-    background-color: var(--format-neutral-050);
+    background-color: var(--neutral-050);
   }
 
   /* --u is one Figma px at this width */
   .build-loop__frame {
     --u: calc(100cqw / 1416);
-    --ink: var(--format-neutral-900);
-    --muted: var(--format-neutral-500);
-    --line: var(--format-neutral-200);
-    /* A timeline of the seven steps across the top, the card beneath */
     display: grid;
     grid-template-rows: auto 1fr;
-    gap: calc(40 * var(--u));
+    gap: calc(48 * var(--u));
     aspect-ratio: 1416 / 812;
-    padding: calc(56 * var(--u)) calc(64 * var(--u));
-    color: var(--ink);
+    padding: calc(64 * var(--u));
+    color: var(--text-strong);
     font-family: var(--font-sans);
     font-variation-settings: var(--sans-axes);
   }
 
-  /* Phases: words stay put, only their colour changes */
-  .build-loop__phases {
+  /* Steps: numbers that only change colour */
+  .build-loop__steps {
     display: flex;
     gap: calc(16 * var(--u));
-    list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .build-loop__phases li {
+  .build-loop__steps li {
     flex: 1;
     min-width: 0;
   }
 
-  .build-loop__phase {
+  .build-loop__step {
     position: relative;
-    display: grid;
-    gap: calc(8 * var(--u));
-    align-content: start;
     width: 100%;
-    height: 100%;
-    padding: 0 0 calc(16 * var(--u));
+    padding: calc(8 * var(--u));
     border: 0;
-    border-bottom: 1px solid var(--line);
-    color: var(--muted);
+    border-bottom: 2px solid var(--neutral-300);
+    color: var(--neutral-600);
     background: none;
     font: inherit;
-    text-align: left;
+    font-size: calc(33 * var(--u));
+    line-height: calc(40 / 33);
+    font-weight: var(--weight-bold);
+    font-feature-settings: 'tnum';
     cursor: pointer;
     transition: color var(--duration-m) var(--ease-out);
   }
 
-  .build-loop__phase[aria-pressed='true'] {
-    color: var(--ink);
+  .build-loop__step[aria-pressed='true'] {
+    color: var(--neutral-900);
   }
 
-  .build-loop__number {
-    font-size: calc(15 * var(--u));
-    font-feature-settings: 'tnum';
-  }
-
-  .build-loop__text {
-    display: grid;
-    gap: calc(2 * var(--u));
-  }
-
-  .build-loop__title {
-    font-size: calc(21 * var(--u));
-    line-height: 1.15;
-    font-weight: var(--weight-bold);
-  }
-
-  .build-loop__line {
-    font-size: calc(14 * var(--u));
-    line-height: 1.3;
-  }
-
-  /* The rail fills along the bottom of the playing phase */
+  /* The underline: Brand/Blue under the active step, filling while it plays */
   .build-loop__rail {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -1px;
+    bottom: -2px;
     height: 2px;
-    background-color: var(--format-red-500);
+    background-color: var(--brand-blue);
     transform: scaleX(0);
     transform-origin: left;
   }
 
-  .build-loop__phase:focus-visible {
-    outline: 2px solid var(--format-cyan-500);
+  .build-loop__step[aria-pressed='true'] .build-loop__rail {
+    transform: scaleX(1);
+  }
+
+  .build-loop__step:focus-visible {
+    outline: 2px solid var(--brand-blue);
     outline-offset: 2px;
   }
 
   @media (hover: hover) {
-    .build-loop__phase:hover {
-      color: var(--ink);
+    .build-loop__step:hover {
+      color: var(--neutral-900);
     }
   }
 
-  /* Stage: the artefact cards, one at a time */
+  /* Scenes: one step's cards and name at a time */
   .build-loop__stage {
-    position: relative;
     display: grid;
+    min-height: 0;
+  }
+
+  .build-loop__scene {
+    grid-area: 1 / 1;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: calc(48 * var(--u));
+    min-height: 0;
+    visibility: hidden;
+  }
+
+  .build-loop__scene[data-active] {
+    visibility: visible;
+  }
+
+  .build-loop__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(48 * var(--u));
     align-items: center;
-    justify-items: center;
+    min-height: 0;
+  }
+
+  .build-loop__cards--one {
+    grid-template-columns: minmax(0, calc(820 * var(--u)));
+    justify-content: center;
   }
 
   .build-loop__card {
-    grid-area: 1 / 1;
-    width: min(100%, calc(820 * var(--u)));
-    display: flex;
-    flex-direction: column;
-    gap: calc(20 * var(--u));
-    padding: calc(36 * var(--u)) calc(40 * var(--u));
-    border: 1px solid var(--line);
-    border-radius: calc(12 * var(--u));
-    background-color: var(--format-neutral-000);
-    box-shadow: 0 calc(24 * var(--u)) calc(64 * var(--u)) oklch(25% 0.02 33 / 0.12);
-    font-size: calc(19 * var(--u));
-    line-height: 1.45;
-    visibility: hidden;
-    opacity: 0;
-  }
-
-  .build-loop__card[data-active] {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    /* Lift in on the spring, with a tinted shadow; leave quick */
-    .build-loop__card {
-      transform: translateY(calc(28 * var(--u))) scale(0.985);
-      transition:
-        opacity var(--duration-s) var(--ease-out),
-        transform var(--duration-s) var(--ease-out),
-        visibility 0s linear var(--duration-s);
-    }
-
-    .build-loop__card[data-active] {
-      transform: none;
-      transition:
-        opacity var(--duration-m) var(--ease-out) 80ms,
-        transform 720ms var(--ease-spring) 80ms,
-        visibility 0s;
-    }
-
-    .build-loop[data-playing] .build-loop__phase[aria-pressed='true'] .build-loop__rail {
-      transform: scaleX(1);
-      transition: transform var(--phase-ms, 4200ms) linear;
-    }
-  }
-
-  /* Artefact pieces */
-  .bl-file {
-    display: flex;
-    align-items: center;
-    gap: calc(10 * var(--u));
-    color: var(--muted);
-    font-size: calc(15 * var(--u));
-    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  }
-
-  .bl-dot {
-    width: calc(10 * var(--u));
-    height: calc(10 * var(--u));
-    border-radius: 50%;
-    background-color: var(--format-neutral-400);
-  }
-
-  .bl-dot--log { background-color: var(--format-yellow-500); }
-  .bl-dot--figma { background-color: var(--format-magenta-500); }
-  .bl-dot--code { background-color: var(--format-cyan-500); }
-  .bl-dot--qa { background-color: var(--format-red-500); }
-  .bl-dot--gate { background-color: var(--format-green-500); }
-
-  .bl-rules,
-  .bl-checks {
     display: grid;
-    gap: calc(12 * var(--u));
-    list-style: none;
-    padding: 0;
+    gap: calc(16 * var(--u));
+    align-content: start;
+    min-width: 0;
+    padding: calc(32 * var(--u));
+    border: 0.5px solid var(--neutral-300);
+    border-radius: calc(8 * var(--u));
+    background-color: var(--neutral-000);
+    box-shadow:
+      0 calc(9.8 * var(--u)) calc(9.8 * var(--u)) calc(-6.5 * var(--u)) oklch(from var(--neutral-900) l c h / 0.15),
+      0 calc(1.6 * var(--u)) calc(1.6 * var(--u)) calc(-1.6 * var(--u)) oklch(from var(--neutral-900) l c h / 0.2);
+  }
+
+  .build-loop__file {
     margin: 0;
-  }
-
-  .bl-rules li {
-    padding-bottom: calc(12 * var(--u));
-    border-bottom: 1px solid var(--line);
-  }
-
-  .bl-quote {
-    margin: 0;
-    padding-left: calc(18 * var(--u));
-    border-left: calc(3 * var(--u)) solid var(--format-yellow-500);
-    font-size: calc(24 * var(--u));
-    line-height: 1.3;
-  }
-
-  .bl-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: calc(12 * var(--u));
-  }
-
-  .bl-button {
-    display: inline-block;
-    padding: calc(8 * var(--u)) calc(12 * var(--u));
-    border-radius: calc(6 * var(--u));
-    color: var(--format-neutral-000);
-    background-color: var(--format-neutral-900);
-    font-size: calc(17 * var(--u));
-    line-height: 1.2;
-  }
-
-  .bl-button--outline {
-    color: var(--ink);
-    background: none;
-    box-shadow: inset 0 0 0 1px var(--format-neutral-300);
-  }
-
-  .bl-button--ghost {
-    color: var(--ink);
-    background-color: var(--format-neutral-100);
-  }
-
-  .bl-button--danger {
-    background-color: var(--format-red-600);
-  }
-
-  .bl-table {
-    width: 100%;
-    border-collapse: collapse;
+    color: var(--neutral-600);
     font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-    font-size: calc(16 * var(--u));
+    font-size: calc(17 * var(--u));
+    line-height: calc(24 / 17);
   }
 
-  .bl-table th {
-    color: var(--muted);
-    font-weight: normal;
-    text-align: left;
+  .build-loop__line {
+    margin: 0;
+    padding-bottom: calc(16 * var(--u));
+    border-bottom: 1px solid var(--neutral-100);
+    color: var(--neutral-700);
+    font-size: calc(23 * var(--u));
+    line-height: calc(32 / 23);
+    font-weight: 260;
   }
 
-  .bl-table th,
-  .bl-table td {
-    padding: calc(10 * var(--u)) 0;
-    border-bottom: 1px solid var(--line);
+  .build-loop__line:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
   }
 
-  .bl-code {
+  .build-loop__line b {
+    color: var(--neutral-900);
+    font-weight: var(--weight-bold);
+  }
+
+  .build-loop__code {
     margin: 0;
     padding: calc(20 * var(--u)) calc(24 * var(--u));
-    border-radius: calc(8 * var(--u));
-    color: var(--format-neutral-100);
-    background-color: var(--format-neutral-900);
+    border-radius: calc(6 * var(--u));
+    color: var(--neutral-100);
+    background-color: var(--neutral-900);
     font-family: ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: calc(16 * var(--u));
-    line-height: 1.6;
+    line-height: 1.55;
     white-space: pre;
     overflow: hidden;
   }
 
-  .c-k { color: var(--format-magenta-300); }
-  .c-f { color: var(--format-cyan-300); }
-  .c-s { color: var(--format-yellow-300); }
-  .c-del { color: var(--format-red-300); }
-  .c-add { color: var(--format-green-300); }
-
-  .bl-flag {
+  .build-loop__code :global(mark) {
+    color: inherit;
+    background: none;
     outline: calc(2 * var(--u)) solid var(--format-red-400);
     outline-offset: calc(2 * var(--u));
     border-radius: calc(3 * var(--u));
   }
 
-  .bl-compare {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: calc(20 * var(--u));
+  .build-loop__code :global(.del) {
+    color: var(--format-red-300);
   }
 
-  .bl-compare figure {
+  .build-loop__code :global(.add) {
+    color: var(--format-green-300);
+  }
+
+  .build-loop__compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(16 * var(--u));
+  }
+
+  .build-loop__compare figure {
     display: grid;
     justify-items: center;
     gap: calc(12 * var(--u));
     margin: 0;
-    padding: calc(40 * var(--u)) calc(12 * var(--u)) calc(20 * var(--u));
-    border-radius: calc(8 * var(--u));
-    background-color: var(--format-neutral-050);
+    padding: calc(32 * var(--u)) calc(12 * var(--u)) calc(16 * var(--u));
+    border-radius: calc(6 * var(--u));
+    background-color: var(--neutral-050);
   }
 
-  .bl-compare figcaption {
-    color: var(--muted);
-    font-size: calc(15 * var(--u));
+  .build-loop__compare figcaption {
+    color: var(--neutral-600);
+    font-size: calc(17 * var(--u));
   }
 
-  .bl-measure {
+  .build-loop__measure {
     display: inline-flex;
     align-items: center;
     gap: calc(8 * var(--u));
     font-size: calc(22 * var(--u));
   }
 
-  .bl-measure .bl-button {
-    font-size: inherit;
+  .build-loop__measure .btn {
+    padding: calc(8 * var(--u)) calc(12 * var(--u));
+    border-radius: calc(6 * var(--u));
+    color: var(--neutral-000);
+    background-color: var(--neutral-900);
   }
 
-  .bl-pad {
+  .build-loop__measure .pad {
     min-width: calc(36 * var(--u));
     padding: calc(4 * var(--u)) calc(6 * var(--u));
     border-radius: calc(4 * var(--u));
@@ -471,154 +466,163 @@ const phases = [
     text-align: center;
   }
 
-  .bl-measure--wrong .bl-pad {
+  .build-loop__measure--wrong .pad {
     color: var(--format-red-600);
     background-color: var(--format-red-100);
   }
 
-  .bl-measure--right .bl-pad {
+  .build-loop__measure--right .pad {
     color: var(--format-green-600);
     background-color: var(--format-green-100);
   }
 
-  .bl-status {
+  /* The step's name: H1 serif over an H3 line */
+  .build-loop__caption {
+    display: grid;
+    gap: calc(8 * var(--u));
+    justify-items: center;
+    text-align: center;
+  }
+
+  .build-loop__title {
     margin: 0;
-    font-size: calc(19 * var(--u));
+    color: var(--neutral-900);
+    font-family: var(--font-serif);
+    font-size: calc(57 * var(--u));
+    line-height: calc(72 / 57);
+    letter-spacing: -0.012em;
+    font-variation-settings: normal;
   }
 
-  .bl-status::before {
-    content: '';
-    display: inline-block;
-    width: calc(10 * var(--u));
-    height: calc(10 * var(--u));
-    margin-right: calc(10 * var(--u));
-    border-radius: 50%;
-    vertical-align: middle;
-  }
-
-  .bl-status--fail { color: var(--format-red-600); }
-  .bl-status--fail::before { background-color: var(--format-red-500); }
-  .bl-status--pass { color: var(--format-green-600); }
-  .bl-status--pass::before { background-color: var(--format-green-500); }
-
-  .bl-checks li {
-    display: flex;
-    gap: calc(12 * var(--u));
-    padding-bottom: calc(12 * var(--u));
-    border-bottom: 1px solid var(--line);
-  }
-
-  .bl-checks li::before {
-    content: '✓';
-    color: var(--format-green-600);
-  }
-
-  .bl-entry-title {
+  .build-loop__sub {
     margin: 0;
-    font-size: calc(26 * var(--u));
-    font-weight: var(--weight-bold);
-    line-height: 1.2;
+    color: var(--neutral-600);
+    font-size: calc(33 * var(--u));
+    line-height: calc(40 / 33);
+    font-weight: 260;
   }
 
-  .bl-entry {
-    margin: 0;
-  }
-
-  .bl-entry code {
-    padding: 0 calc(4 * var(--u));
-    border-radius: calc(3 * var(--u));
-    background-color: var(--format-neutral-100);
-    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-    font-size: 0.9em;
-  }
-
-  .bl-entry--rule {
-    padding-left: calc(18 * var(--u));
-    border-left: calc(3 * var(--u)) solid var(--format-yellow-500);
-  }
-
-  .bl-next {
-    margin: 0;
-    color: var(--muted);
-    font-size: calc(16 * var(--u));
-  }
-
-  /* Phones: the phases become a row of numbers above the card */
-  @container (max-width: 720px) {
-    .build-loop__frame {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
-      aspect-ratio: auto;
-      gap: 16px;
-      padding: 16px;
-      --u: calc(100cqw / 760);
+  @media (prefers-reduced-motion: no-preference) {
+    /* Cards lift in on the spring, the second a beat later; they leave quick */
+    .build-loop__card {
+      opacity: 0;
+      transform: translateY(calc(28 * var(--u)));
+      transition:
+        opacity var(--duration-s) var(--ease-out),
+        transform var(--duration-s) var(--ease-out);
     }
 
-    .build-loop__phases {
-      flex-direction: row;
+    .build-loop__scene[data-active] .build-loop__card {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity var(--duration-m) var(--ease-out) 80ms,
+        transform 720ms var(--ease-spring) 80ms;
+    }
+
+    .build-loop__scene[data-active] .build-loop__card:nth-child(2) {
+      transition-delay: 200ms;
+    }
+
+    .build-loop[data-playing] .build-loop__step[aria-pressed='true'] .build-loop__rail {
+      transform: scaleX(0);
+      animation: build-loop-fill var(--step-ms, 4800ms) linear forwards;
+    }
+  }
+
+  @keyframes build-loop-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Phones: the cards stack and the frame grows to fit them */
+  @container (max-width: 720px) {
+    .build-loop__frame {
+      --u: calc(100cqw / 760);
+      aspect-ratio: auto;
+      gap: 24px;
+      padding: 16px;
+    }
+
+    .build-loop__steps {
       gap: 4px;
     }
 
-    .build-loop__phases li {
-      flex: 1;
+    .build-loop__step {
+      padding: 6px 0;
+      font-size: 15px;
     }
 
-    .build-loop__phase {
+    .build-loop__scene {
+      gap: 24px;
+    }
+
+    .build-loop__cards {
       grid-template-columns: 1fr;
-      padding: 8px 0;
+      gap: 16px;
     }
 
-    .build-loop__text {
-      display: none;
-    }
-
-    .build-loop__phase[aria-pressed='true'] .build-loop__text {
-      display: none;
-    }
-
-    .build-loop__number {
-      font-size: 14px;
-      text-align: center;
+    .build-loop__cards--one {
+      grid-template-columns: 1fr;
     }
 
     .build-loop__card {
-      font-size: calc(22 * var(--u));
+      padding: 20px;
+    }
+
+    .build-loop__line {
+      font-size: 15px;
+    }
+
+    .build-loop__file {
+      font-size: 12px;
+    }
+
+    .build-loop__title {
+      font-size: 32px;
+    }
+
+    .build-loop__sub {
+      font-size: 17px;
     }
   }
 </style>
 
 <script>
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const PHASE_MS = 4200;
+  const STEP_MS = 4800;
 
   for (const loop of document.querySelectorAll<HTMLElement>('.build-loop')) {
-    const buttons = [...loop.querySelectorAll<HTMLButtonElement>('.build-loop__phase')];
-    const cards = [...loop.querySelectorAll<HTMLElement>('.build-loop__card')];
-    loop.style.setProperty('--phase-ms', `${PHASE_MS}ms`);
+    const buttons = [...loop.querySelectorAll<HTMLButtonElement>('.build-loop__step')];
+    const scenes = [...loop.querySelectorAll<HTMLElement>('.build-loop__scene')];
+    loop.style.setProperty('--step-ms', `${STEP_MS}ms`);
     let index = 0;
     let timer = 0;
     let inView = false;
-    // Set once someone picks a phase: it holds there
+    // Set once someone picks a step: it holds there
     let held = reducedMotion.matches;
 
     const show = (i: number) => {
       index = i;
       buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
-      cards.forEach((c, j) => c.toggleAttribute('data-active', j === i));
+      scenes.forEach((s, j) => {
+        s.toggleAttribute('data-active', j === i);
+        if (j === i) s.removeAttribute('aria-hidden');
+        else s.setAttribute('aria-hidden', 'true');
+      });
     };
 
     const schedule = () => {
       clearTimeout(timer);
       loop.removeAttribute('data-playing');
       if (held || !inView) return;
-      // Restart the rail: drop the playing state, then set it next frame
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => loop.setAttribute('data-playing', ''));
-      });
+      // Restart the underline: drop the playing state, then set it next frame
+      requestAnimationFrame(() => requestAnimationFrame(() => loop.setAttribute('data-playing', '')));
       timer = window.setTimeout(() => {
-        show((index + 1) % cards.length);
+        show((index + 1) % scenes.length);
         schedule();
-      }, PHASE_MS);
+      }, STEP_MS);
     };
 
     buttons.forEach((button, i) =>

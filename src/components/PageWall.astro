@@ -7,7 +7,10 @@
 //
 // screens: the image (a 1512-wide frame exported at 2x), its alt, and the
 // card height in Figma px (how much of the page shows)
-// Reduced motion: the columns hold still.
+// Arrival: the first time the wall comes into view, the cards cascade in,
+// row by row across both columns, each lifting on the spring and settling,
+// like pages being laid out on a desk. Then the drift takes over.
+// Reduced motion: no cascade, and the columns hold still.
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -34,8 +37,8 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
     {
       columns.map((column, c) => (
         <ul class="page-wall__column" role="list" style={`--top: ${offsets[c]}; --dir: ${c === 1 ? -1 : 1};`}>
-          {column.map((screen) => (
-            <li class="page-wall__card" style={`--h: ${screen.h};`}>
+          {column.map((screen, r) => (
+            <li class="page-wall__card" style={`--h: ${screen.h}; --i: ${r * columns.length + c};`}>
               <Image src={screen.src} alt={screen.alt} widths={[648, 1296, 2268, screen.src.width]} sizes={sizes} quality={90} loading="lazy" />
             </li>
           ))}
@@ -97,6 +100,19 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    .page-wall__card {
+      opacity: 0;
+      transform: translateY(calc(96 * var(--u))) scale(0.96);
+    }
+
+    .page-wall[data-arrived] .page-wall__card {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 480ms var(--ease-out) calc(var(--i) * 90ms),
+        transform 900ms var(--ease-spring) calc(var(--i) * 90ms);
+    }
+
     @supports (animation-timeline: view()) {
       .page-wall {
         view-timeline-name: --wall;
@@ -119,3 +135,18 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
     }
   }
 </style>
+
+<script>
+  // Cascade in once, when a fifth of the wall is on screen
+  for (const wall of document.querySelectorAll<HTMLElement>('.page-wall')) {
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        wall.toggleAttribute('data-arrived', true);
+        io.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(wall);
+  }
+</script>

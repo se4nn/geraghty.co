@@ -24,6 +24,7 @@
   /* Colour: brand (Figma: Brand/Neon) */
   --brand-neon: oklch(92.41% 0.2601 121.58);       /* #d6fc00 */
   --brand-neon-edge: oklch(78.82% 0.2217 121.54);  /* #adcc00 */
+  --brand-blue: oklch(37.80% 0.2421 267.64);       /* #1810bf (Figma: Brand/Blue) */
 
   /* Colour: project chips */
   --chip-format: oklch(65.05% 0.2376 33.31);       /* #eb4c27 */

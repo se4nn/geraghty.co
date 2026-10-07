@@ -106,36 +106,14 @@ The model wasn’t the problem. Those insights were filed under a topic that had
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page: every conversation, who was in it and what they keep raising">
-  <CropImage src={companyPage} rect={[96, 72, 1512, 1165]} frame="screen" alt="A company page for Unilever: what the company is, its records, insights and people, each conversation with who took part and when, and a sidebar of what they talk about most (pricing 47%, feature requests 24%, competition 12%)" />
-</Crop>
-
 <Stats>
   <Stat value="59" label="companies had raised it">Counted <strong>insight by insight</strong></Stat>
   <Stat value="4" label="in Format’s own answer">Which called the theme <strong>dormant</strong></Stat>
   <Stat value="28%" label="of what customers said">Under topics Format <strong>still counted</strong></Stat>
 </Stats>
 
-<Section title="Show Your Working">
-<Column>
-
-I wrote that research up as a report through Format’s MCP, in the report design I was working on: sources counted, every quote a click from its conversation, the insights it drew on underneath. Then I used it to show the team why reports should show their working, and how we could sell it. The product doing the exact job the report was arguing for.
-
-</Column>
-<Column>
-
-Reports are shared as links, too. Whoever opens one can take it into Claude or ChatGPT with one button and keep asking, so the product shows what it can do before anyone has set it up.
-
-</Column>
-</Section>
-
-<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="The report I wrote through Format, one button away from Claude">
-  <CropImage src={briefHeader} rect={[-150, 72, 1512, 1336]} frame="screen" alt="A published report titled “What do people ask Claude before they ask Format?”, with “Ask about this report in: Claude” at the top right, a byline, and a photo of people working at old computers in a meadow" />
-  <CropHighlight rect={[1166, 206, 109, 48]} />
-</Crop>
-
-<Crop window={[1416, 509]} bg="var(--neutral-050)" caption="The insights behind a report, with its sources counted">
-  <CropImage src={connectedInsights} rect={[96, 54, 1224, 401.5]} frame="screen" alt="Connected (24): four insight cards, each starting with the customer’s name and summarising what they said, with play and expand buttons, and source counts of 68 records, 24 insights and 2 themes" />
+<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="A company page: every conversation, who was in it and what they keep raising">
+  <CropImage src={companyPage} rect={[96, 72, 1512, 1165]} frame="screen" alt="A company page for Unilever: what the company is, its records, insights and people, each conversation with who took part and when, and a sidebar of what they talk about most (pricing 47%, feature requests 24%, competition 12%)" />
 </Crop>
 
 <Section title="Bring Your Own AI">
@@ -158,13 +136,32 @@ Martin shipped a quiet first version of Format’s MCP page on 10 June, built ar
 </Crop>
 
 <Pair>
-  <Crop window={[684, 812]} bg="var(--neutral-050)" caption="Connecting Claude Code">
+  <Crop window={[684, 812]} bg="var(--format-neutral-600)" caption="Connecting Claude Code">
     <CropImage src={mcpConnectDialog} rect={[62, 220, 560, 372.2]} window={684} frame="screen" alt="A Claude Code dialog with three steps: run the add command in your terminal, run /mcp and sign in, then check the connection by asking Claude whether the Format MCP is working" />
   </Crop>
-  <Crop window={[684, 812]} bg="var(--neutral-050)" caption="Installing a skill">
+  <Crop window={[684, 812]} bg="var(--format-neutral-600)" caption="Installing a skill">
     <CropImage src={mcpSkillDialog} rect={[62, 64, 560, 862.4]} window={684} frame="screen" alt="The B2B Case Study skill: what it does, install instructions for Claude, Claude Code, ChatGPT and Cursor, and two prompts to try once it’s installed" />
   </Crop>
 </Pair>
+
+<Section title="Show Your Working">
+<Column>
+
+I wrote that research up as a report through Format’s MCP, in the report design I was working on: sources counted, every quote a click from its conversation, the insights it drew on underneath. Then I used it to show the team why reports should show their working, and how we could sell it. The product doing the exact job the report was arguing for.
+
+</Column>
+<Column>
+
+Reports are shared as links, too. Whoever opens one can take it into Claude or ChatGPT with one button and keep asking, so the product shows what it can do before anyone has set it up.
+
+</Column>
+</Section>
+
+<ReportZoom caption="The report I wrote through Format, one button away from Claude" alt="The report “What do people ask Claude before they ask Format?”, shown across its full width. The view zooms in on “Ask about this report in: Claude” at the top right, and a cursor clicks the Claude button" />
+
+<Crop window={[1416, 509]} bg="var(--neutral-050)" caption="The insights behind a report, with its sources counted">
+  <CropImage src={connectedInsights} rect={[96, 54, 1224, 401.5]} frame="screen" alt="Connected (24): four insight cards, each starting with the customer’s name and summarising what they said, with play and expand buttons, and source counts of 68 records, 24 insights and 2 themes" />
+</Crop>
 
 </Chapter>
 

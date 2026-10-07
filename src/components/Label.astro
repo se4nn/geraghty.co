@@ -11,16 +11,21 @@ const { class: className } = Astro.props;
 <p class:list={['label', 't-body', className]}><slot /></p>
 
 <style>
+  /* Plain inline text, so the spaces around a bold run stay single (as
+     flex items, each run took the gap and lost its own spaces) */
   .label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xs);
+    display: inline-block;
+    text-align: center;
     padding: var(--space-xs) var(--space-s);
     border: var(--border-width) solid var(--border-default);
     border-radius: var(--radius-l);
     color: var(--text-label);
     white-space: nowrap;
+  }
+
+  .label :global(.badge) {
+    margin-inline-start: var(--space-xs);
+    vertical-align: middle;
   }
 
   .label :global(strong) {
