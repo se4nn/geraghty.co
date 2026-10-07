@@ -45,12 +45,16 @@ const ogImage = new URL(image, Astro.site);
         const to = location.pathname;
         const fromUrl = window.navigation?.activation?.from?.url || document.referrer;
         const from = fromUrl && new URL(fromUrl).origin === location.origin ? new URL(fromUrl).pathname : undefined;
-        if (to.startsWith('/work/') && !from?.startsWith('/work/')) transition.types.add('open');
-        else if (from?.startsWith('/work/')) transition.types.add('close');
         // One case study to the next (the Next Project tile, from the dark
-        // footer): the old page holds as the dark backdrop while the art
-        // morphs into the new hero, then hands over
-        if (to.startsWith('/work/') && from?.startsWith('/work/') && to !== from) transition.types.add('next');
+        // footer) opens like a case study from the homepage, the CRT
+        // power-on, and also holds the old page as the dark backdrop until
+        // the hero has lit ('next')
+        const next = to.startsWith('/work/') && from?.startsWith('/work/') && to !== from;
+        if (next) {
+          transition.types.add('open');
+          transition.types.add('next');
+        } else if (to.startsWith('/work/') && !from?.startsWith('/work/')) transition.types.add('open');
+        else if (from?.startsWith('/work/')) transition.types.add('close');
       });
     </script>
     <link rel="icon" href="/img/favicon.png" type="image/png" />
