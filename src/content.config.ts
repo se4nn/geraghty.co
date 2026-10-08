@@ -49,7 +49,8 @@ const work = defineCollection({
           // Top right of the hero, e.g. App Store and Website
           links: z.array(z.object({ label: z.string(), href: z.url() })).default([]),
           // The project the Next Project tile shows (a file name in this
-          // folder). Defaults to the next one down the homepage grid.
+          // folder). Leave it out: the default is the next case study down
+          // the homepage grid, which is the order Sean wants (8 Oct 2026).
           next: z.string().optional(),
         })
         .optional(),

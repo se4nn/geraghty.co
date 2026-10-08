@@ -47,11 +47,13 @@ export async function getStaticPaths() {
   return projects
     .filter((project) => project.data.caseStudy)
     .map((project) => {
-      // The chosen next project, or the next one along the homepage grid,
-      // wrapping to the top
-      const i = projects.indexOf(project);
+      // The chosen next project, or the next case study along the homepage
+      // grid, wrapping to the top. Projects without a case study yet (a
+      // tile with no link) are skipped, so the tile always leads somewhere.
+      const studies = projects.filter((p) => p.data.caseStudy);
+      const i = studies.indexOf(project);
       const chosen = projects.find((p) => p.id === project.data.caseStudy!.next);
-      const next = chosen ?? projects[(i + 1) % projects.length];
+      const next = chosen ?? studies[(i + 1) % studies.length];
       return { params: { id: project.id }, props: { project, next } };
     });
 }
