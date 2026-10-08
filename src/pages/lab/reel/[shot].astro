@@ -1,0 +1,63 @@
+---
+// The showreel's stage (docs/SHOWREEL-PLAN.md). One shot full frame at the
+// reel's 1416 × 800, no page chrome, for scripts/reel/capture.mjs to film.
+// Dev only: nothing here is built for the live site.
+//
+// A shot starts off the stage and is brought on when capture starts
+// (window.reelStart()), so components that arrive when first seen play
+// their arrival on camera.
+import Base from '../../../layouts/Base.astro';
+import StudiaOpener from '../../../components/StudiaOpener.astro';
+
+export function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+  return ['studia-opener'].map((shot) => ({ params: { shot } }));
+}
+
+const { shot } = Astro.params;
+---
+
+<Base title={`Reel · ${shot}`} description="Showreel stage.">
+  <meta name="robots" content="noindex" slot="head" />
+  <div class="reel-stage">
+    <div class="reel-shot">
+      {shot === 'studia-opener' && <StudiaOpener alt="" />}
+    </div>
+  </div>
+</Base>
+
+<style is:global>
+  html,
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: var(--neutral-1000);
+  }
+
+  .reel-stage {
+    position: fixed;
+    inset: 0;
+    width: 1416px;
+    height: 800px;
+    overflow: hidden;
+    /* Full frame: no rounded corners on the shot */
+    --radius-s: 0px;
+  }
+
+  /* Built at 1416 × 812: centred, so 6px goes top and bottom */
+  .reel-shot {
+    position: absolute;
+    left: 0;
+    top: -6px;
+    width: 1416px;
+    translate: 0 2000px;
+  }
+
+  [data-reel='on'] .reel-shot {
+    translate: none;
+  }
+</style>
+
+<script is:inline>
+  window.reelStart = () => (document.documentElement.dataset.reel = 'on');
+</script>

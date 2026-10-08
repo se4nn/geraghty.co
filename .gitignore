@@ -3,3 +3,6 @@ dist/
 .astro/
 .DS_Store
 .playwright-mcp/
+
+# Showreel shots filmed by scripts/reel/capture.mjs
+scripts/reel/out/
