@@ -1,18 +1,35 @@
 ---
-// Figma: "Video". The showreel from the original site, muted and looping.
-// It only starts once it's scrolled into view and pauses when it leaves.
-// The Figma still is the poster, since the video opens on a blank frame.
+// Figma: "Video". The showreel, muted and looping (docs/SHOWREEL-PLAN.md;
+// made by scripts/reel/). It only plays while it's on screen.
+//
+// `intro`: on a first visit the reel opens the site. The page loads finished
+// under a dark glass panel; the reel plays full screen as soon as it can (its
+// own first frames are the dark glass, then the power-on), and at `handoff`
+// seconds it settles into its place under the hero, still playing, and the
+// page is yours. Scroll, a key, a click or Skip settles it straight away.
+// The head script in the page (introScript) decides before the first paint
+// whether it plays: once a session, never coming back to the page, never
+// with reduced motion or Save-Data. Not playable in time: the panel steps
+// aside and the reel plays in its place when it's ready.
 import type { ImageMetadata } from 'astro';
 import { Image, getImage } from 'astro:assets';
 
 interface Props {
   poster: ImageMetadata;
   alt: string;
+  // Path without extension: <video>.webm (AV1) and .hevc.mp4, -720 versions
+  // of both for phones, and <video>-720.mp4 (H.264) for anything older
   video?: string;
+  intro?: boolean;
+  // Seconds into the reel where it settles into its place
+  handoff?: number;
 }
 
-const { poster, alt, video } = Astro.props;
+const { poster, alt, video, intro = false, handoff = 4 } = Astro.props;
 const posterImage = await getImage({ src: poster, width: 2000, format: 'webp' });
+const phone = '(max-width: 699px)';
+const av1 = 'video/webm; codecs="av01.0.08M.08"';
+const hevc = 'video/mp4; codecs="hvc1"';
 ---
 
 <div class="showreel">
@@ -26,11 +43,26 @@ const posterImage = await getImage({ src: poster, width: 2000, format: 'webp' })
         loop
         playsinline
         preload="metadata"
+        data-handoff={intro ? handoff : undefined}
       >
-        <source src={video} type="video/mp4" />
+        <source src={`${video}-720.webm`} type={av1} media={phone} />
+        <source src={`${video}-720.hevc.mp4`} type={hevc} media={phone} />
+        <source src={`${video}.webm`} type={av1} />
+        <source src={`${video}.hevc.mp4`} type={hevc} />
+        <source src={`${video}-720.mp4`} type="video/mp4" />
       </video>
     ) : (
       <Image class="showreel__media" src={poster} alt={alt} widths={[750, 1416, 2832]} sizes="94vw" loading="eager" />
+    )
+  }
+  {
+    intro && video && (
+      <>
+        <div class="showreel__glass" aria-hidden="true" />
+        <button class="showreel__skip t-label" type="button">
+          Skip
+        </button>
+      </>
     )
   }
 </div>
@@ -49,25 +81,188 @@ const posterImage = await getImage({ src: poster, width: 2000, format: 'webp' })
     height: 100%;
     object-fit: cover;
   }
+
+  .showreel__glass,
+  .showreel__skip {
+    display: none;
+  }
+
+  /* The intro. The page underneath is finished and still; it's only
+     covered, and can't scroll until the reel has settled */
+  :global(html[data-intro]) {
+    overflow: hidden;
+  }
+
+  :global(html[data-intro]) .showreel__glass {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: var(--neutral-1000);
+  }
+
+  :global(html[data-intro]) .showreel__media {
+    position: fixed;
+    inset: 0;
+    z-index: 101;
+    border-radius: 0;
+    /* Hidden until it plays: its first frames are the dark glass itself, so
+       it appears without a seam (the poster would flash) */
+    opacity: 0;
+  }
+
+  /* On a phone it plays in a box the slot's shape, so settling is short */
+  @media (max-width: 699px) {
+    :global(html[data-intro]) .showreel__media {
+      inset: 0;
+      width: calc(100vw - 2 * var(--page-gutter));
+      height: auto;
+      aspect-ratio: 1416 / 800;
+      margin: auto;
+    }
+  }
+
+  :global(html[data-intro='playing']) .showreel__media,
+  :global(html[data-intro='settling']) .showreel__media {
+    opacity: 1;
+  }
+
+  :global(html[data-intro='playing']) .showreel__skip {
+    display: block;
+    position: fixed;
+    right: var(--page-gutter);
+    bottom: var(--page-gutter);
+    z-index: 102;
+    padding: var(--space-xs) var(--space-s);
+    border: 0;
+    background: none;
+    color: var(--neutral-300);
+    cursor: pointer;
+    transition: color var(--duration-s) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    :global(html[data-intro='playing']) .showreel__skip:hover {
+      color: var(--neutral-000);
+    }
+  }
+
+  /* The panel lifts as the reel settles */
+  :global(html[data-intro='settling']) .showreel__glass {
+    opacity: 0;
+    transition: opacity var(--duration-l) var(--ease-out);
+  }
 </style>
 
 <script>
-  // Play while at least a third is on screen. Reduced motion keeps the poster.
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const root = document.documentElement;
 
   for (const video of document.querySelectorAll<HTMLVideoElement>('.showreel__media')) {
     if (video.tagName !== 'VIDEO') continue;
+
+    // Play once at least a third is on screen; pause only once it's gone
+    // altogether, so a reel that has just settled half on screen keeps
+    // playing. Reduced motion keeps the poster.
+    let seen = false;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !reducedMotion.matches) {
+        if (entry.intersectionRatio >= 0.33 && !reducedMotion.matches) {
+          seen = true;
           // Muted, so browsers allow it; ignore the rare refusal
           video.play().catch(() => {});
-        } else {
+        } else if (!entry.isIntersecting && seen) {
           video.pause();
         }
       },
-      { threshold: 0.33 },
+      { threshold: [0, 0.33] },
     );
     io.observe(video);
+
+    if (video.dataset.handoff && root.hasAttribute('data-intro')) intro(video, Number(video.dataset.handoff));
+  }
+
+  function intro(video: HTMLVideoElement, handoff: number) {
+    const slot = video.parentElement!;
+    const skip = slot.querySelector<HTMLButtonElement>('.showreel__skip');
+    let done = false;
+
+    const finish = () => {
+      root.removeAttribute('data-intro');
+      video.style.cssText = '';
+      removeEventListener('wheel', settle);
+      removeEventListener('touchmove', settle);
+      removeEventListener('keydown', onKey);
+      document.dispatchEvent(new CustomEvent('intro:done'));
+    };
+
+    // Not playable in time, or refused: the panel steps aside, and the reel
+    // plays in its place when it's ready
+    const abandon = () => {
+      if (done) return;
+      done = true;
+      finish();
+    };
+
+    // Into its place, still playing: from where it is on screen to the
+    // slot, the tile morph in reverse. Left, top, width and height rather
+    // than a transform, so the picture is cropped, never squashed, between
+    // the screen's shape and the slot's.
+    function settle() {
+      if (done) return;
+      if (root.dataset.intro !== 'playing') return abandon();
+      done = true;
+      const from = video.getBoundingClientRect();
+      const to = slot.getBoundingClientRect();
+      const radius = getComputedStyle(slot).borderRadius;
+      const ease = getComputedStyle(root).getPropertyValue('--ease-out-expo').trim() || 'ease-out';
+      root.dataset.intro = 'settling';
+      const box = (r: DOMRect, corner: string) => ({
+        inset: 'auto',
+        margin: '0',
+        aspectRatio: 'auto',
+        left: `${r.left}px`,
+        top: `${r.top}px`,
+        width: `${r.width}px`,
+        height: `${r.height}px`,
+        borderRadius: corner,
+      });
+      Object.assign(video.style, box(to, radius));
+      video.animate([box(from, '0px'), box(to, radius)], { duration: 700, easing: ease }).finished.then(finish, finish);
+    }
+
+    // Any key settles it; only Tab goes on to do its job
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') event.preventDefault();
+      settle();
+    };
+    addEventListener('wheel', settle, { passive: true });
+    addEventListener('touchmove', settle, { passive: true });
+    addEventListener('keydown', onKey);
+    skip?.addEventListener('click', settle);
+    video.addEventListener('click', settle);
+
+    // Play as soon as it can; it shows only once it's actually playing
+    video.preload = 'auto';
+    video.addEventListener(
+      'playing',
+      () => {
+        if (!done) root.dataset.intro = 'playing';
+      },
+      { once: true },
+    );
+    video.play().catch(abandon);
+    setTimeout(() => {
+      if (root.dataset.intro !== 'playing') abandon();
+    }, 1800);
+
+    // Settle at the handoff, timed by the frames themselves
+    const watch = () => {
+      if (done) return;
+      if (video.currentTime >= handoff) settle();
+      else if ('requestVideoFrameCallback' in video) video.requestVideoFrameCallback(watch);
+      else requestAnimationFrame(watch);
+    };
+    watch();
   }
 </script>

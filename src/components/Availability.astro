@@ -101,8 +101,11 @@ const { label, email } = Astro.props;
       }
     });
     heroGone.observe(heroCircle);
-    // Never later than this, in case the scribble doesn't play
-    window.setTimeout(enter, ENTER_AT_MOST);
+    // Never later than this, in case the scribble doesn't play; counted
+    // from when the showreel's intro has settled, if it's playing
+    const fallback = () => window.setTimeout(enter, ENTER_AT_MOST);
+    if (document.documentElement.hasAttribute('data-intro')) document.addEventListener('intro:done', fallback, { once: true });
+    else fallback();
   });
 
   document.querySelectorAll<HTMLButtonElement>('.availability').forEach((button) => {

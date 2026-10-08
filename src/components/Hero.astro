@@ -101,6 +101,12 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
         0.659, 0.688, 0.718, 0.751, 0.786, 0.823, 0.864, 0.908, 0.954, 1
       );
     }
+
+    /* Under the showreel's intro the scribble waits, and draws once the
+       reel has settled and the hero can be seen */
+    :global(html[data-intro]) .hero__circle.is-drawing .hero__pen {
+      animation-play-state: paused;
+    }
   }
 
   @keyframes hero-pen {
