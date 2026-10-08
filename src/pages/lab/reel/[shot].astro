@@ -1,28 +1,97 @@
 ---
 // The showreel's stage (docs/SHOWREEL-PLAN.md). One shot full frame at the
 // reel's 1416 × 800, no page chrome, for scripts/reel/capture.mjs to film.
-// Dev only: nothing here is built for the live site.
+// Dev only: nothing here is built for the live site. scripts/reel/stage.sh
+// builds it on its own (REEL_STAGE=1) to film from, away from hot reloads.
 //
 // A shot starts off the stage and is brought on when capture starts
 // (window.reelStart()), so components that arrive when first seen play
 // their arrival on camera.
+//
+// A project's tile art, full frame, logo at the case study hero's size:
+// - tile-<project>: switching on the way its case study opens (the CRT
+//   power-on, then the logo burns in)
+// - on-<project>: the power-on alone, no logo (the reel's first frames)
+// - flare-<project>: already on, no logo (the opener's channel changes)
+// - burn-<project>: already on, the logo burns in (where the opener lands)
+// ending: the six homepage tiles, switching off one after another.
+import { getCollection } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
+import TileArt from '../../../components/TileArt.astro';
 import StudiaOpener from '../../../components/StudiaOpener.astro';
+import FormatOpener from '../../../components/FormatOpener.astro';
+import ReportZoom from '../../../components/ReportZoom.astro';
+import FormatVariables from '../../../components/FormatVariables.astro';
+import BuildLoop from '../../../components/BuildLoop.astro';
+import MarkBuild from '../../../components/MarkBuild.astro';
 
-export function getStaticPaths() {
-  if (!import.meta.env.DEV) return [];
-  return ['studia-opener'].map((shot) => ({ params: { shot } }));
+export async function getStaticPaths() {
+  if (!import.meta.env.DEV && process.env.REEL_STAGE !== '1') return [];
+  const projects = await getCollection('work');
+  return [
+    ...['studia-opener', 'format-opener', 'report-zoom', 'format-variables', 'build-loop', 'mark-build', 'ending'],
+    ...['tile', 'on', 'flare', 'burn'].flatMap((mode) => projects.map((p) => `${mode}-${p.id}`)),
+  ].map((shot) => ({ params: { shot } }));
 }
 
 const { shot } = Astro.params;
+const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const [, mode, id] = shot.match(/^(tile|on|flare|burn)-(.+)$/) ?? [];
+const project = projects.find((p) => p.id === id);
 ---
 
 <Base title={`Reel · ${shot}`} description="Showreel stage.">
   <meta name="robots" content="noindex" slot="head" />
-  <div class="reel-stage">
-    <div class="reel-shot">
-      {shot === 'studia-opener' && <StudiaOpener alt="" />}
-    </div>
+  <div class="reel-stage" data-mode={mode}>
+    {
+      project && (
+        <TileArt
+          class="reel-tile"
+          image={project.data.tile.image}
+          logo={project.data.tile.logo}
+          logoScale={project.data.tile.logoScale}
+          grain={project.data.tile.grain}
+          gradient={project.data.tile.gradient}
+          showLogo={mode !== 'on' && mode !== 'flare'}
+          alt=""
+          sizes="1416px"
+          widths={[2832]}
+          eager
+        />
+      )
+    }
+    {
+      shot === 'ending' && (
+        <div class="reel-grid">
+          {projects.map((p) => (
+            <TileArt
+              class="reel-grid__tile"
+              image={p.data.tile.image}
+              logo={p.data.tile.logo}
+              logoScale={p.data.tile.logoScale}
+              grain={p.data.tile.grain}
+              gradient={p.data.tile.gradient}
+              alt=""
+              sizes="680px"
+              widths={[680]}
+              eager
+            />
+          ))}
+        </div>
+      )
+    }
+    {
+      !project && shot !== 'ending' && (
+        <div class="reel-shot">
+          {shot === 'studia-opener' && <StudiaOpener alt="" />}
+          {shot === 'format-opener' && <FormatOpener alt="" />}
+          {shot === 'report-zoom' && <ReportZoom alt="" />}
+          {shot === 'format-variables' && <FormatVariables />}
+          {shot === 'build-loop' && <BuildLoop />}
+          {shot === 'mark-build' && <MarkBuild />}
+        </div>
+      )
+    }
   </div>
 </Base>
 
@@ -55,6 +124,99 @@ const { shot } = Astro.params;
 
   [data-reel='on'] .reel-shot {
     translate: none;
+  }
+
+  /* Tile art, full frame */
+  .reel-stage .reel-tile.tile-art {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* The case study hero's logo: 432 wide at 1512 */
+  .reel-tile .tile-art__logo {
+    width: calc(432 / 1512 * 100%);
+    max-height: 55%;
+    object-fit: contain;
+  }
+
+  /* The still under a live gradient never shows on film */
+  .reel-tile .lens-flare__canvas,
+  .reel-grid .lens-flare__canvas {
+    transition: none;
+  }
+
+  /* Dark glass until the capture starts, then the case study's power-on */
+  [data-mode='tile'] .tile-art__image,
+  [data-mode='tile'] .tile-art__logo,
+  [data-mode='on'] .tile-art__image,
+  [data-mode='burn'] .tile-art__logo {
+    visibility: hidden;
+  }
+
+  [data-reel='on'] [data-mode='tile'] .tile-art__image,
+  [data-reel='on'] [data-mode='on'] .tile-art__image {
+    visibility: visible;
+    animation: screen-on 1000ms 200ms both;
+  }
+
+  [data-reel='on'] [data-mode='tile'] .tile-art__logo {
+    visibility: visible;
+    animation: logo-burn 700ms var(--ease-out) 720ms both;
+  }
+
+  [data-reel='on'] [data-mode='burn'] .tile-art__logo {
+    visibility: visible;
+    animation: logo-burn 700ms var(--ease-out) 200ms both;
+  }
+
+  /* The ending: the homepage's square tiles, three by two, each switching
+     off in homepage order the way the reel's chapters do (collapse to a
+     bright line, the line to a dot, out) */
+  .reel-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 340px);
+    grid-auto-rows: 340px;
+    gap: 24px;
+    place-content: center;
+  }
+
+  .reel-stage .reel-grid__tile.tile-art {
+    --radius-s: 8px;
+  }
+
+  [data-reel='on'] .reel-grid__tile {
+    animation: crt-off 333ms calc(400ms + var(--i, 0) * 240ms) both;
+  }
+
+  .reel-grid__tile:nth-child(2) { --i: 1; }
+  .reel-grid__tile:nth-child(3) { --i: 2; }
+  .reel-grid__tile:nth-child(4) { --i: 3; }
+  .reel-grid__tile:nth-child(5) { --i: 4; }
+  .reel-grid__tile:nth-child(6) { --i: 5; }
+
+  @keyframes crt-off {
+    0% {
+      transform: none;
+      filter: none;
+      animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+    }
+    50% {
+      transform: scale(1, 0.006);
+      filter: brightness(4) saturate(0);
+      animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+    }
+    85% {
+      transform: scale(0.012, 0.006);
+      filter: brightness(4) saturate(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.012, 0.006);
+      filter: brightness(4) saturate(0);
+      opacity: 0;
+    }
   }
 </style>
 

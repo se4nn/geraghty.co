@@ -33,7 +33,9 @@ if (!shot || !seconds) {
 const out = outArg || `scripts/reel/out/${shot}.mp4`;
 mkdirSync(path.dirname(out), { recursive: true });
 
-const browser = await chromium.launch();
+// The Mac's GPU through Metal: the WebGL gradients draw ten times faster
+// than in software
+const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: 1416, height: 800 }, deviceScaleFactor: 2 });
 page.on('pageerror', (e) => console.log('pageerror:', e.message));
 
@@ -51,6 +53,12 @@ await page.addInitScript((s) => {
 await page.clock.install({ time: new Date('2026-10-08T09:00:00Z') });
 
 await page.goto(`${base}/lab/reel/${shot}/`, { waitUntil: 'networkidle' });
+// The dev server can reload a page once while it optimises new
+// dependencies; a reload mid-film would restart the shot, so stop instead
+let reloaded = false;
+page.on('framenavigated', (frame) => {
+  if (frame === page.mainFrame()) reloaded = true;
+});
 await page.evaluate(() => document.fonts.ready);
 await page.evaluate(() => Promise.all([...document.images].map((img) => img.decode().catch(() => {}))));
 // The clock runs in real time until it's paused; from here only runFor moves it
@@ -95,6 +103,7 @@ const ff = spawn(
 
 const step = 1000 / fps;
 for (let i = 0; i < frames; i++) {
+  if (reloaded) throw new Error(`${shot}: the page reloaded while filming; film it again`);
   if (i > 0) await page.clock.runFor(step);
   await page.evaluate(() => window.reelSync());
   const buf = await page.screenshot({ type: 'png' });

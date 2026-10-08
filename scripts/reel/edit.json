@@ -1,0 +1,49 @@
+{
+  "size": [1920, 1084],
+  "fps": 60,
+  "bg": "#080807",
+  "cut": [
+    { "shot": "on-minimum", "out": 1.3 },
+    { "shot": "flare-shuffle", "dur": 0.25 },
+    { "shot": "flare-studia", "dur": 0.25 },
+    { "shot": "flare-delli", "dur": 0.25 },
+    { "shot": "flare-fertifa", "dur": 0.25 },
+    { "shot": "burn-format", "out": 1.6 },
+
+    { "shot": "format-opener", "in": 8.1, "out": 14.0 },
+    { "film": "public/img/format/insight-world.mp4", "in": 0, "out": 4.0, "fit": "cover" },
+    { "shot": "report-zoom", "in": 1.4, "out": 5.9, "off": true },
+
+    { "shot": "tile-fertifa", "out": 1.7 },
+    { "shot": "mark-build", "out": 1.0 },
+    { "still": "src/assets/work/fertifa/menopause-posters.jpg", "dur": 0.8 },
+    { "still": "src/assets/work/fertifa/billboard-stigma.jpg", "dur": 0.8 },
+    { "still": "src/assets/work/fertifa/ivf-card.jpg", "dur": 0.8, "off": true },
+
+    { "shot": "tile-delli", "out": 2.2, "off": true },
+
+    { "shot": "tile-studia", "out": 1.7 },
+    { "shot": "studia-opener", "in": 0, "out": 3.0 },
+    { "film": "public/img/studia/system-motion.mp4", "in": 0, "out": 1.8, "fit": "cover" },
+    { "film": "public/img/studia/system-motion.mp4", "in": 30.25, "out": 32.25, "fit": "cover", "off": true },
+
+    { "film": "public/img/shuffle/logo.mp4", "fit": "contain", "bg": "#efedeb", "scale": 0.9 },
+    { "still": "src/assets/work/shuffle/poster-billboard.jpg", "dur": 0.8 },
+    { "still": "src/assets/work/shuffle/onboarding-phones.png", "dur": 0.8, "off": true },
+
+    { "shot": "tile-minimum", "out": 1.7 },
+    { "still": "src/assets/work/minimum/social-grid.png", "dur": 0.8 },
+    { "still": "src/assets/work/minimum/poster-corridor.jpg", "dur": 0.8 },
+    { "still": "src/assets/work/minimum/tablet.jpg", "dur": 0.8, "off": true },
+
+    { "still": "public/img/knoma/image 7.jpg", "dur": 0.5 },
+    { "still": "public/img/knoma/image 1.jpg", "dur": 0.5 },
+    { "still": "public/img/builtopen/image 2.png", "dur": 0.5 },
+    { "still": "public/img/builtopen/image 5.png", "dur": 0.5 },
+    { "still": "public/img/steepclub/image 4.jpg", "dur": 0.5 },
+    { "still": "public/img/steepclub/image 6.jpg", "dur": 0.5 },
+    { "still": "public/img/quicknode/image 4.jpg", "dur": 0.5, "off": true },
+
+    { "shot": "ending", "out": 2.6 }
+  ]
+}
