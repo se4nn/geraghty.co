@@ -1,0 +1,124 @@
+---
+title: The Steep Club
+tags: [Food & Drink, D2C]
+# [?] Sean to supply the dates (the old page was online by March 2024)
+dates: ''
+order: 7
+# Off the homepage work grid: a 7th tile would start a second pass of the
+# grid's six-slot pattern. The Branding skill chip links here instead
+inGrid: false
+tile:
+  image: ../../assets/work/steepclub-tile.png
+  logo: ../../assets/logos/steepclub.svg
+  # The skill chip hover card's logo size, which comes from here
+  logoScale: 0.3
+  # No live gradient: the logo is dark, and the gradient's moving crease
+  # runs through it. The still (rendered in the lens flare lab from
+  # oklch(62% 0.16 118) to oklch(45% 0.2 305), seed 7, warm fringe, phase
+  # 0.35) keeps the crease clear, as on the hover card
+link: /work/steepclub/
+caseStudy:
+  summary: Packaging for a two-range tea subscription, where colour tells morning from night.
+  # [?] Sean to confirm his role (Fertifa and Minimum say Brand Lead)
+  role: ''
+---
+
+import boxesPartea from '../../assets/work/steepclub/boxes-partea.jpg';
+import packsFlat from '../../assets/work/steepclub/packs-flat.png';
+import pouches from '../../assets/work/steepclub/pouches.jpg';
+import tinUnwind from '../../assets/work/steepclub/tin-unwind.jpg';
+import timeToUnwind from '../../assets/work/steepclub/time-to-unwind.jpg';
+import posterTeaSpirit from '../../assets/work/steepclub/poster-tea-spirit.jpg';
+import posterLooseLeaf from '../../assets/work/steepclub/poster-loose-leaf.jpg';
+import boxTape from '../../assets/work/steepclub/box-tape.jpg';
+
+<CaseIntro title="Packaging that tells the time">
+  <Fragment slot="lead">**Heather** founded The Steep Club, a tea subscription sold direct to customers. She’d spotted a gap in a growing tea market and wanted to bring her D2C experience to it, with a brand that felt nothing like the tea already out there and spoke to Millennials and Gen Z. There were two ranges, Rise to wake you up and Unwind to settle you down. Could they look like one brand and still be told apart at a glance?</Fragment>
+
+  <Stats>
+    <Stat value="2 ranges" label="Rise and Unwind" />
+    <Stat value="2 gradients" label="for morning and night" />
+    <Stat value="1 grid" label="on every pack" />
+  </Stats>
+
+  <Skills items={[
+    { label: 'Brand', logos: [] },
+    { label: 'Packaging', logos: [] },
+    { label: 'Art Direction', logos: [] },
+    { label: 'Typography', logos: [] },
+  ]} />
+</CaseIntro>
+
+<Chapter label="The story">
+
+<Crop window={[1416, 812]} src={boxesPartea} rect={[0, -66, 1416, 944]} eager alt="Two Steep Club shipping boxes stacked on a table, one acid yellow and one purple, each covered edge to edge in “Join the Partea” in heavy black capitals" />
+
+<Section title="Steeped, Not Brewed">
+<Column>
+
+It turns out tea isn’t brewed, as I’d always thought. It’s steeped. Brewing puts the heat in direct contact with the water, while steeping just soaks the leaves until their flavour comes out.
+
+</Column>
+<Column>
+
+So the brand draws out what’s inside too. Each range leads with one bold colour that tells you what’s in the box before you’ve read a word, so you know whether you’re reaching for morning or night.
+
+</Column>
+</Section>
+
+<Crop window={[1416, 812]} src={packsFlat} rect={[-127.5, -151, 1671, 1114]} alt="The Unwind and Rise packs laid flat on cream: a black grid over a gradient, pale lilac deepening to violet for Unwind, pale yellow deepening to acid yellow for Rise, each with the range and the tea’s name in a black tab up the side" />
+
+<Section title="Rise and Unwind">
+<Column>
+
+The two ranges do opposite jobs. They had to be different enough to tell apart, and close enough to read as one club. So I gave both the same pack: a grid with a gradient running down it, for the hours passing through the day.
+
+</Column>
+<Column>
+
+The colour is the difference. Rise is acid yellow, a nod to the morning sun, and Unwind is purple, for the night drawing in. Everything else stays the same, down to the black tab the tea’s name sits in.
+
+</Column>
+</Section>
+
+<Crop window={[1416, 812]} src={pouches} rect={[0, -32, 1416, 944]} alt="A purple Unwind pouch and an acid yellow Rise pouch falling against a lilac wall, both printed with the same black grid" />
+
+<Pair>
+  <Crop window={[684, 812]} src={tinUnwind} rect={[-267, 0, 1218, 812]} alt="A purple Unwind tea tin on a purple background, the gridded gradient running round it and the Unwind name in a black tab" />
+  <Crop window={[684, 812]} src={timeToUnwind} rect={[-279, 0, 1218, 812]} alt="A purple “Time to Unwind” sticker seen half through a sheet of reeded glass, the letters breaking up behind the ridges" />
+</Pair>
+
+<Section title="Join the Partea">
+<Column>
+
+The type is a heavy condensed sans in capitals, set big enough to fill the side of a box. On the shipping boxes, “Join the Partea” repeats until it runs off every edge. On the packs it turns on its side.
+
+</Column>
+<Column>
+
+The rest of the copy is the same kind of joke: “Smells like tea spirit” on one poster, “Let the loose-leaf tea loose” on another, and “Brew can do it” along the packing tape.
+
+</Column>
+</Section>
+
+<Pair>
+  <Crop window={[684, 812]} src={posterTeaSpirit} rect={[-7, 0, 698, 812]} alt="A framed purple poster, “Smells like tea spirit”, above a dark dining table with cane-backed chairs" />
+  <Crop window={[684, 812]} src={posterLooseLeaf} rect={[-194, 0, 1218, 812]} alt="A framed acid yellow poster, “Let the loose-leaf tea loose”, leaning against a white wall on a wooden floor" />
+</Pair>
+
+<Section title="Brew Can Do It">
+<Column>
+
+The box is the first thing a subscriber sees each month, so it carries the brand on its own: plain kraft card, “Your monthly tea subscription” in black, and a band of green tape across the top, the one colour that belongs to neither range.
+
+</Column>
+<Column>
+
+From the tin to the tape, it’s the same few parts: one grid, one typeface, two gradients and a pun.
+
+</Column>
+</Section>
+
+<Crop window={[1416, 812]} src={boxTape} rect={[0, -66, 1416, 944]} alt="A kraft Steep Club box, “Your monthly tea subscription” printed on its side, sealed with bright green tape reading “Brew can do it”" />
+
+</Chapter>

@@ -19,8 +19,6 @@ import florence from '../assets/logos/previous/florence.svg';
 import nested from '../assets/logos/previous/nested.svg';
 import burberry from '../assets/logos/previous/burberry.svg';
 
-import steepClubTile from '../assets/work/steepclub-tile.png';
-import steepClubLogo from '../assets/logos/steepclub.svg';
 import fewVenturesTile from '../assets/work/fewventures-tile.png';
 import fewVenturesLogo from '../assets/logos/few-ventures.svg';
 
@@ -53,21 +51,9 @@ const chip = {
   studia: { name: 'Studia', project: 'studia', src: chipStudia, bg: 'var(--chip-studia)', width: 20, height: 6 },
   fertifa: { name: 'Fertifa', project: 'fertifa', src: chipFertifa, bg: 'var(--chip-fertifa)', width: 20, height: 20 },
   shuffle: { name: 'Shuffle', project: 'shuffle', src: chipShuffle },
-  steepClub: {
-    name: 'The Steep Club',
-    href: '/steepclub.html',
-    src: chipSteepClub,
-    // Still rendered in the lens flare lab: from oklch(62% 0.16 118) to
-    // oklch(45% 0.2 305), seed 7, warm fringe, phase 0.35
-    card: {
-      image: steepClubTile,
-      logo: steepClubLogo,
-      logoScale: 0.3,
-      grain: true,
-      tint: 'var(--chip-steepclub)',
-      alt: 'The Steep Club',
-    },
-  },
+  // Its card comes from the tile in src/content/work/steepclub.mdx (kept off
+  // the work grid)
+  steepClub: { name: 'The Steep Club', project: 'steepclub', src: chipSteepClub },
   minimum: { name: 'Minimum', project: 'minimum', src: chipMinimum },
   fewVentures: {
     name: 'Few Ventures',

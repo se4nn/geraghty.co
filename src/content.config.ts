@@ -14,6 +14,9 @@ const work = defineCollection({
       dates: z.string(),
       // Newest first on the homepage
       order: z.number(),
+      // false keeps the project off the homepage work grid. Its case study,
+      // skill chips and Next Project tile still work
+      inGrid: z.boolean().default(true),
       tile: z.object({
         image: image(),
         logo: image(),

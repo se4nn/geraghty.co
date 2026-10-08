@@ -104,7 +104,7 @@ const skillsWithLinks = skills.map((skill) => ({
             {workIntro.text}<br />
             {workIntro.text2} <strong class="t-h3-bold">{workIntro.emphasis}</strong>.
           </p>
-          <WorkGrid projects={projects} />
+          <WorkGrid projects={projects.filter((p) => p.data.inGrid)} />
           <LogoStrip heading={previous.heading} logos={previous.logos} />
         </div>
       </section>
