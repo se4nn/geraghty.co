@@ -93,8 +93,8 @@ export const skills: { label: string; logos: LogoChip[] }[] = [
     label: 'Product Design',
     logos: [
       { ...chip.format, rotate: -11 },
-      { ...chip.delli, rotate: 12 },
-      { ...chip.shuffle, rotate: -4 },
+      { ...chip.shuffle, rotate: 12 },
+      { ...chip.delli, rotate: -4 },
       { ...chip.studia, rotate: 14 },
     ],
   },
