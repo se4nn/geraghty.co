@@ -11,6 +11,7 @@ import LogoStrip from '../components/LogoStrip.astro';
 import Testimonial from '../components/Testimonial.astro';
 import Footer from '../components/Footer.astro';
 import showreelPoster from '../assets/home/reel-poster.jpg';
+import reelLoader from '../data/reel-loader.json';
 import {
   availability,
   contactEmail,
@@ -57,7 +58,7 @@ const skillsWithLinks = skills.map((skill) => ({
   description="Sean Geraghty leads design at startups where product is built, not briefed. Product design, brand and code."
 >
   <script is:inline slot="head">
-    // The showreel's intro (Showreel.astro), decided before the first paint
+    // The showreel's loader (Showreel.astro), decided before the first paint
     // so the page never shows and then hides. Once a session; not coming
     // back to the page (Close on a case study, a reload, a link within the
     // site, a #fragment); not with reduced motion or Save-Data. If session
@@ -74,7 +75,12 @@ const skillsWithLinks = skills.map((skill) => ({
         !navigator.connection?.saveData
       ) {
         sessionStorage.setItem('reel-intro', '1');
-        document.documentElement.dataset.intro = '';
+        const root = document.documentElement;
+        root.dataset.intro = '';
+        // Never leave the page covered: not if the page's script never starts
+        // the loader, nor if it fails part-way (it ends within ~6s itself)
+        setTimeout(() => root.dataset.intro === '' && root.removeAttribute('data-intro'), 3000);
+        setTimeout(() => root.removeAttribute('data-intro'), 8000);
       }
     } catch {}
   </script>
@@ -86,7 +92,7 @@ const skillsWithLinks = skills.map((skill) => ({
       </section>
 
       <section class="home-about container">
-        <Showreel poster={showreelPoster} alt="Showreel of recent work" video="/img/reel/reel" intro handoff={3.4} />
+        <Showreel poster={showreelPoster} alt="Showreel of recent work" video="/img/reel/reel" loader={reelLoader} />
         <IntroLine lead={intro.lead} links={intro.links} />
         <Skills items={skillsWithLinks} />
       </section>

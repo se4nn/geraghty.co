@@ -3,16 +3,21 @@
 //   node scripts/reel/build.mjs            the master, scripts/reel/out/reel-master.mp4
 //   node scripts/reel/build.mjs --publish  also the site's files in public/img/reel/
 //
+// Two parts: the cut (the reel that loops in the slot under the hero) and
+// the loader (the stills the intro flicks through first; its last image is
+// added here, the reel's first frame, so the hand-off has no seam).
+//
 // Each entry in the cut is one of:
 //   { "shot": "format-opener", "in": 0.5, "out": 6.2 }   a stage shot from capture.mjs ("dur" for out - in)
 //   { "film": "public/img/...mp4", "in": 0, "out": 4, "fit": "cover" | "contain", "bg": "#hex", "scale": 1 }
 //   { "still": "src/assets/...jpg", "dur": 0.8 }           cropped to fill the frame
 // and can end with "off": true, the CRT switching off on its last frame.
+// A loader entry is a still, or a shot or film with "at": the frame to take.
 //
 // Cuts are hard; the only transition is a switch off, and the next chapter's
 // tile switches on (filmed on the stage, the case study's power-on).
 import { spawnSync } from 'child_process';
-import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, mkdirSync, writeFileSync, existsSync, rmSync } from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
@@ -124,9 +129,13 @@ console.log('master', master, `${probeDuration(master).toFixed(2)}s`);
 
 // The site's files: 30fps (the old reel's rate) keeps them small. AV1 first
 // (Chrome, Firefox, newer Apple hardware), HEVC for the rest of Safari; a
-// 1280 set for phones, and at 1280 only, H.264 for anything older. The CRT dots in the tiles are
-// what costs: at these sizes AV1 and HEVC keep them, H.264 smears them.
-// The poster is the ending's first frame, all six tiles lit.
+// 1280 set for phones, and at 1280 only, H.264 for anything older. The CRT
+// dots in the tiles are what costs: at these sizes AV1 and HEVC keep them,
+// H.264 smears them. The poster (src/assets/home/reel-poster.jpg, all six
+// tiles) is kept as it is.
+//
+// The loader's images go to public/img/reel/loader/ as WebP at twice the
+// size they're shown (560 wide), listed in src/data/reel-loader.json.
 if (process.argv.includes('--publish')) {
   const pub = path.join(root, 'public/img/reel');
   mkdirSync(pub, { recursive: true });
@@ -140,8 +149,26 @@ if (process.argv.includes('--publish')) {
     ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libx265', '-preset', 'medium', '-crf', '30', '-tag:v', 'hvc1', '-x265-params', 'log-level=error', ...gop, ...out, '-movflags', '+faststart', file('.hevc.mp4')]);
     if (width !== W) ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-profile:v', 'high', ...gop, ...out, '-movflags', '+faststart', file('.mp4')]);
   }
-  const ending = edit.cut.at(-1);
-  const posterAt = probeDuration(master) - (ending.out ?? ending.dur) + 0.1;
-  ffmpeg(['-ss', posterAt.toFixed(3), '-i', master, '-frames:v', '1', '-q:v', '2', path.join(root, 'src/assets/home/reel-poster.jpg')]);
-  console.log('published to public/img/reel/ and src/assets/home/reel-poster.jpg');
+
+  const dir = path.join(pub, 'loader');
+  rmSync(dir, { recursive: true, force: true });
+  mkdirSync(dir, { recursive: true });
+  const [LW, LH] = [1120, Math.round((1120 * H) / W)];
+  const frame = (src, at, vf) => {
+    const png = path.join(work, 'loader-frame.png');
+    ffmpeg(['-ss', String(at), '-i', src, '-frames:v', '1', '-vf', vf, png]);
+    return png;
+  };
+  const list = [];
+  for (const [i, entry] of [...edit.loader, { film: master, at: 0, fit: 'cover' }].entries()) {
+    let src;
+    if (entry.still) src = path.join(root, entry.still);
+    else if (entry.shot) src = frame(path.join(root, 'scripts/reel/out', `${entry.shot}.mp4`), entry.at, fill);
+    else src = frame(path.isAbsolute(entry.film) ? entry.film : path.join(root, entry.film), entry.at, entry.fit === 'contain' ? fit(entry.bg ?? BG, entry.scale) : fill);
+    const name = `${String(i + 1).padStart(2, '0')}.webp`;
+    await sharp(src).resize(LW, LH, { fit: 'cover' }).webp({ quality: 80 }).toFile(path.join(dir, name));
+    list.push(`/img/reel/loader/${name}`);
+  }
+  writeFileSync(path.join(root, 'src/data/reel-loader.json'), JSON.stringify(list, null, 2) + '\n');
+  console.log('published to public/img/reel/ and src/data/reel-loader.json');
 }
