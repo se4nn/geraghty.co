@@ -26,7 +26,7 @@ const href = link ?? `/#work-${project.id}`;
 
 ---
 
-<section class="next" aria-label="Next project">
+<section class="next" aria-label="Next project" style={`--logo-aspect: ${(logo.width / logo.height).toFixed(4)}`}>
   <div class="next__inner container">
     <a class="next__tile" href={href} aria-label={`Next project: ${title}`} data-transition={`art-${project.id}`}>
       <TileArt
@@ -138,11 +138,11 @@ const href = link ?? `/#work-${project.id}`;
     backface-visibility: hidden;
   }
 
-  /* The size it opens at: CaseHero's rule (432 wide at 1512, a tall logo
-     capped at 55% of the hero's 80svh), and never taller than 85% of this
-     tile */
+  /* The size it opens at: CaseHero's rule (the same area for every logo,
+     Fertifa's at 432 wide at 1512), and never taller than 85% of this tile */
   .next__logo {
-    width: clamp(200px, calc(432 / 1512 * 100vw), 640px);
+    width: calc(clamp(200px, calc(432 / 1512 * 100vw), 640px) * sqrt(var(--logo-aspect, 3.94) / 3.94));
+    max-width: 80%;
     height: auto;
     max-height: min(calc(max(80svh, 440px) * 0.55), calc(508 / 1416 * 100cqi * 0.85));
     object-fit: contain;

@@ -15,9 +15,12 @@ interface Props {
 const { project } = Astro.props;
 const { title, tags, dates, tile } = project.data;
 const study = project.data.caseStudy!;
+// Logos are sized by area, not width (Sean, 11 Oct 2026), so a long, thin
+// wordmark and a chunky one carry the same weight. The CSS needs the shape
+const logoAspect = tile.logo.width / tile.logo.height;
 ---
 
-<header class="case-hero">
+<header class="case-hero" style={`--logo-aspect: ${logoAspect.toFixed(4)}`}>
   <h1 class="visually-hidden">{title}</h1>
   <TileArt
     class="case-hero__art"
@@ -80,11 +83,14 @@ const study = project.data.caseStudy!;
     transition: none;
   }
 
-  /* 432px wide at 1512, as in Figma, with a floor for phones. A tall,
-     stacked logo (Format's) would then run into the bar, so its height is
-     capped too; wide wordmarks never reach the cap */
+  /* Every logo covers the same area: the area Fertifa's wordmark (284 × 72,
+     an aspect of 3.94) has at 432px wide at 1512, as in Figma, with a floor
+     for phones. Width scales with the square root of a logo's aspect, so a
+     thinner wordmark is drawn wider and a stacked one narrower. The height
+     cap is only a backstop now */
   .case-hero :global(.case-hero__art .tile-art__logo) {
-    width: clamp(200px, calc(432 / 1512 * 100%), 640px);
+    width: calc(clamp(200px, calc(432 / 1512 * 100%), 640px) * sqrt(var(--logo-aspect, 3.94) / 3.94));
+    max-width: 80%;
     max-height: 55%;
     object-fit: contain;
   }
