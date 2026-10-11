@@ -31,6 +31,12 @@ import posterLooseLeaf from '../../assets/work/steepclub/poster-loose-leaf.jpg';
 import boxTape from '../../assets/work/steepclub/box-tape.jpg';
 import routeMidnight from '../../assets/work/steepclub/route-midnight.png';
 import routeEnergise from '../../assets/work/steepclub/route-energise.png';
+import wordmarkTrialA from '../../assets/work/steepclub/wordmark-trial-a.png';
+import wordmarkTrialB from '../../assets/work/steepclub/wordmark-trial-b.png';
+import wordmarkTrialC from '../../assets/work/steepclub/wordmark-trial-c.png';
+import teaPatternPink from '../../assets/work/steepclub/tea-pattern-pink.png';
+import teaPatternDark from '../../assets/work/steepclub/tea-pattern-dark.png';
+import teaPatternTeal from '../../assets/work/steepclub/tea-pattern-teal.png';
 
 <CaseIntro title="Packaging that tells the time">
   <Fragment slot="lead">In autumn 2022 I branded The Steep Club, a tea subscription sold direct to customers, for its founder **Heather Melcer**. She wanted a tea brand for Millennials and Gen Z that looked nothing like the ones already out there. There were two ranges, Rise to wake you up and Unwind to settle you down. Could they look like one brand and still be told apart at a glance?</Fragment>
@@ -68,23 +74,35 @@ So the brand draws out what’s inside too. Each range leads with one bold colou
 
 <Crop window={[1416, 812]} src={packsFlat} rect={[-127.5, -151, 1671, 1114]} alt="The Unwind and Rise packs laid flat on cream: a black grid over a gradient, pale lilac deepening to violet for Unwind, pale yellow deepening to acid yellow for Rise, each with the range and the tea’s name in a black tab up the side" />
 
-<Section title="Midnight and Energise">
+<Section title="Playing Around">
 <Column>
 
-The ranges didn’t start as Rise and Unwind. My first route called them Midnight and Energise, ran the name up the pack in the same heavy capitals, and gave them plum and orange.
+Before any of that, I played. The name stacked three ways, the letters of TEA turned into a pattern, and that pattern tried in three colourways to see which held up.
 
 </Column>
 <Column>
 
-The heavy capitals stayed. The names and the colours didn’t: by the final round they were Rise and Unwind, in acid yellow and purple.
+For a while the ranges were Midnight and Energise, in plum and orange. Most of it never made the packs. The heavy capitals did.
 
 </Column>
 </Section>
 
-<Crop window={[1416, 812]} bg="var(--neutral-050)" caption="The First Route">
-  <CropImage src={routeMidnight} rect={[295, 48, 389.1, 716]} alt="The first route’s Midnight pack face: “MIDNIGHT” running up a dark plum pack in heavy black capitals, with a small yellow Steep Club wordmark at the foot" />
-  <CropImage src={routeEnergise} rect={[732.1, 48, 389.1, 716]} alt="The first route’s Energise pack face: “ENERGISE” running up a bright orange pack in heavy white capitals, with the Steep Club logo stacked in yellow at the foot" />
-</Crop>
+<Trio>
+  <Crop window={[440, 509]} src={wordmarkTrialA} rect={[0, 0, 440, 509]} alt="An early Steep Club logo: “THE STEEP CLUB” stacked in heavy orange capitals on yellow, the top line slanting up to the right" />
+  <Crop window={[440, 509]} src={wordmarkTrialB} rect={[0, 0, 440, 509]} alt="Another version of the stacked logo, orange on yellow" />
+  <Crop window={[440, 509]} src={wordmarkTrialC} rect={[0, 0, 440, 509]} alt="A third version, with the letters set taller so the three lines fill more of the square" />
+</Trio>
+
+<Trio>
+  <Crop window={[440, 509]} src={teaPatternPink} rect={[-34.5, 0, 509, 509]} alt="A pattern built from the letters T, E and A, interlocking in rows, magenta on dark navy" />
+  <Crop window={[440, 509]} src={teaPatternDark} rect={[-34.5, 0, 509, 509]} alt="The same TEA pattern in navy on near-black, the letters only just visible" />
+  <Crop window={[440, 509]} src={teaPatternTeal} rect={[-34.5, 0, 509, 509]} alt="The TEA pattern in bright teal on dark navy" />
+</Trio>
+
+<Pair>
+  <Crop window={[684, 812]} src={routeMidnight} rect={[0, -446.6, 684, 1258.6]} alt="The foot of the Midnight pack from the earlier naming: “MIDNIGHT” running up a dark plum pack in heavy black capitals, a small yellow Steep Club wordmark beside it" />
+  <Crop window={[684, 812]} src={routeEnergise} rect={[0, -446.6, 684, 1258.6]} alt="The foot of the Energise pack: “ENERGISE” running up a bright orange pack in heavy white capitals, the Steep Club logo stacked in yellow beside it" />
+</Pair>
 
 <Section title="Rise and Unwind">
 <Column>
