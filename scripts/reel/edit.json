@@ -7,7 +7,7 @@
     { "film": "public/img/format/insight-world.mp4", "in": 0.5, "out": 3.0, "fit": "cover" },
     { "shot": "studia-opener", "in": 0, "out": 2.7 },
     { "film": "public/img/studia/system-motion.mp4", "in": 30.25, "out": 32.0, "fit": "cover" },
-    { "film": "public/img/shuffle/logo.mp4", "fit": "contain", "bg": "#efedeb", "scale": 0.9 }
+    { "film": "public/img/shuffle/logo.mp4", "out": 3.4, "fit": "contain", "bg": "#efedeb", "scale": 0.9 }
   ],
   "loader": [
     { "shot": "burn-format", "at": 1.5 },

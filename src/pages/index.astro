@@ -59,22 +59,15 @@ const skillsWithLinks = skills.map((skill) => ({
 >
   <script is:inline slot="head">
     // The showreel's loader (Showreel.astro), decided before the first paint
-    // so the page never shows and then hides. Once a session; not coming
-    // back to the page (Close on a case study, a reload, a link within the
-    // site, a #fragment); not with reduced motion or Save-Data. If session
-    // storage is blocked it doesn't play, rather than play on every visit.
+    // so the page never shows and then hides. Plays whenever the homepage is
+    // loaded or reloaded; not coming back to it from a case study (Close goes
+    // back in history, or to the project's #tile), not from a link within
+    // the site, not with reduced motion or Save-Data.
     try {
       const nav = performance.getEntriesByType('navigation')[0];
       const fromSite = document.referrer && new URL(document.referrer).origin === location.origin;
-      if (
-        !sessionStorage.getItem('reel-intro') &&
-        !fromSite &&
-        !location.hash &&
-        (!nav || nav.type === 'navigate') &&
-        !matchMedia('(prefers-reduced-motion: reduce)').matches &&
-        !navigator.connection?.saveData
-      ) {
-        sessionStorage.setItem('reel-intro', '1');
+      const arriving = !location.hash && (!nav || nav.type === 'reload' || (nav.type === 'navigate' && !fromSite));
+      if (arriving && !matchMedia('(prefers-reduced-motion: reduce)').matches && !navigator.connection?.saveData) {
         const root = document.documentElement;
         root.dataset.intro = '';
         // Never leave the page covered: not if the page's script never starts
