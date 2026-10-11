@@ -1,12 +1,38 @@
 ---
 // Figma: "Intro". Serif line with underlined links that never break mid-phrase.
+//
+// A link with `images` gets a fan of them on hover: the photos rise out of
+// the link and spread, as the skill chips below fan and lift their project's
+// card (the same intent delay, spring and two-layer shadow), but plain
+// photos, with no gradient art or logo.
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
 interface Props {
   lead: string;
-  links: { label: string; href?: string }[];
+  links: { label: string; href?: string; images?: ImageMetadata[] }[];
 }
 
 const { lead, links } = Astro.props;
 const last = links.length - 1;
+
+// Fan geometry, in em of the line's type: cards spread this far apart,
+// turn this much each step from the middle, and drop back a little at the
+// ends of the arc
+const SPREAD = 2.4;
+const TURN = 6;
+const ARC = 0.3;
+const fan = (n: number) =>
+  Array.from({ length: n }, (_, i) => {
+    const offset = i - (n - 1) / 2;
+    return [
+      `--i: ${i}`,
+      `--n: ${n}`,
+      `--fan-x: ${(offset * SPREAD).toFixed(2)}em`,
+      `--fan-y: ${(Math.abs(offset) * ARC).toFixed(2)}em`,
+      `--fan-r: ${(offset * TURN).toFixed(1)}deg`,
+    ].join('; ');
+  });
 ---
 
 <p class="intro-line t-h1">
@@ -16,7 +42,18 @@ const last = links.length - 1;
       <>
         {i === last && <>&amp; </>}
         {link.href ? (
-          <a class="intro-line__link" href={link.href}>{link.label}</a>
+          <a class="intro-line__link" href={link.href}>
+            {link.label}
+            {link.images && (
+              <span class="intro-fan" aria-hidden="true">
+                {fan(link.images.length).map((style, i) => (
+                  <span class="intro-fan__card" style={style}>
+                    <Image src={link.images![i]} alt="" widths={[240, 480]} sizes="180px" />
+                  </span>
+                ))}
+              </span>
+            )}
+          </a>
         ) : (
           <span class="intro-line__link">{link.label}</span>
         )}{' '}
@@ -41,7 +78,81 @@ const last = links.length - 1;
   }
 
   a.intro-line__link {
+    position: relative;
     transition: color var(--duration-s) var(--ease-out);
+  }
+
+  /* The fan: cards stacked out of sight inside the link, centred above it */
+  .intro-fan {
+    /* Short intent delay so sweeping across the line doesn't flash it */
+    --intent: 100ms;
+
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 0.35em);
+    z-index: 20;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .intro-fan__card {
+    /* 180 × 225 at 55px type */
+    position: absolute;
+    left: -1.6364em;
+    bottom: 0;
+    width: 3.2727em;
+    height: 4.0909em;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--neutral-100);
+    /* The hover cards' two-layer shadow, untinted */
+    box-shadow:
+      0 24px 24px -12px oklch(from var(--neutral-900) l c h / 0.3),
+      0 4px 4px -4px oklch(from var(--neutral-900) l c h / 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform-origin: 50% 100%;
+    transform: translateY(0.5em) scale(0.9);
+    /* Leaving: quick and quiet, all together */
+    transition:
+      transform 160ms var(--ease-out),
+      opacity 140ms var(--ease-out),
+      visibility 0s linear 160ms;
+  }
+
+  .intro-fan__card :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (hover: hover) {
+    /* Arriving: out of the link on the soft spring, spreading left to right */
+    a.intro-line__link:hover .intro-fan__card {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(var(--fan-x), var(--fan-y)) rotate(var(--fan-r));
+      transition:
+        transform 560ms var(--ease-spring) calc(var(--intent) + var(--i) * 40ms),
+        opacity 200ms var(--ease-out) calc(var(--intent) + var(--i) * 40ms),
+        visibility 0s linear calc(var(--intent) + var(--i) * 40ms);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro-fan__card,
+    a.intro-line__link:hover .intro-fan__card {
+      transition: opacity 140ms var(--ease-out), visibility 0s;
+    }
+  }
+
+  /* Touch screens never hover: out of the layout altogether */
+  @media (hover: none) {
+    .intro-fan {
+      display: none;
+    }
   }
 
   @media (hover: hover) {

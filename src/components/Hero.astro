@@ -102,9 +102,9 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
       );
     }
 
-    /* Under the showreel's intro the scribble waits, and draws once the
-       reel has settled and the hero can be seen */
-    :global(html[data-intro]) .hero__circle.is-drawing .hero__pen {
+    /* Under the showreel's loader the scribble waits; its delay starts as
+       the page assembles, so it circles "miss" just after the hero lands */
+    :global(html[data-intro]:not([data-intro='settling'])) .hero__circle.is-drawing .hero__pen {
       animation-play-state: paused;
     }
   }

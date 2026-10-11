@@ -95,7 +95,9 @@ const { label, email } = Astro.props;
     }
     document.addEventListener('hero:drawn', () => window.setTimeout(enter, ENTER_AFTER_SCRIBBLE), { once: true });
     const heroGone = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) {
+      // The showreel's loader slides the page in from above: the hero is
+      // briefly off screen then, but it's arriving, not gone
+      if (!entry.isIntersecting && !document.documentElement.hasAttribute('data-intro')) {
         heroGone.disconnect();
         enter();
       }

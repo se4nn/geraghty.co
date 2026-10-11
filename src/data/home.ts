@@ -25,17 +25,35 @@ import fewVenturesLogo from '../assets/logos/few-ventures.svg';
 import martin from '../assets/home/martin-dreymann.png';
 import formatWordmark from '../assets/logos/format-wordmark.svg';
 
+import bredHummusBeef from '../assets/home/intro/bred-hummus-beef.webp';
+import bredShakshuka from '../assets/home/intro/bred-shakshuka.webp';
+import bredPotatoes from '../assets/home/intro/bred-potatoes.webp';
+import bredPeach from '../assets/home/intro/bred-peach.webp';
+import paintingMomentOfHappiness from '../assets/home/intro/painting-moment-of-happiness.webp';
+import paintingJoyCanBeFleeting from '../assets/home/intro/painting-joy-can-be-fleeting.webp';
+import paintingLustOrLove from '../assets/home/intro/painting-lust-or-love.webp';
+import paintingAroundAndAround from '../assets/home/intro/painting-around-and-around.webp';
+
 export const availability = 'Open to work';
 
 export const contactEmail = 'sean@geraghty.co';
 
 // Intro line. Links without an href render as plain underlined text
-// until their destination exists.
+// until their destination exists. `images` fan out above a link on hover:
+// from eatbred.com and seangeraghty.co.uk (downloaded 11 Oct 2026).
 export const intro = {
   lead: 'I’m Sean, a London-based designer, who loves to',
   links: [
-    { label: 'host supper clubs,', href: 'https://eatbred.com' },
-    { label: 'paint on huge canvases', href: 'https://seangeraghty.co.uk' },
+    {
+      label: 'host supper clubs,',
+      href: 'https://eatbred.com',
+      images: [bredHummusBeef, bredPotatoes, bredPeach, bredShakshuka],
+    },
+    {
+      label: 'paint on huge canvases',
+      href: 'https://seangeraghty.co.uk',
+      images: [paintingMomentOfHappiness, paintingLustOrLove, paintingJoyCanBeFleeting, paintingAroundAndAround],
+    },
     { label: 'write (occasionally)', href: undefined },
   ],
 };

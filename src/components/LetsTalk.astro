@@ -1,6 +1,9 @@
 ---
 // Figma: "Let's talk." The word is cropped by the bottom of the page
-// and lit from below by a blurred neon ellipse.
+// and lit from below by a blurred neon ellipse. Pushing on past the end of
+// the page (an overscroll: a wheel or trackpad, or a pull on a touch screen)
+// raises the word in its crop to show the rest of it, and it settles back
+// down when let go.
 interface Props {
   email: string;
 }
@@ -137,8 +140,73 @@ const { email } = Astro.props;
     white-space: nowrap;
   }
 
+  /* The overscroll lift is a transform, so it stacks with the arrival's
+     translate rather than fighting it. Following the hand closely while
+     pulled, settling back on the way the light cools: unhurried */
+  .lets-talk__link {
+    transform: translateY(calc(-1 * var(--pull, 0px)));
+    transition: transform 80ms linear;
+  }
+
+  .lets-talk:not([data-pulling]) .lets-talk__link {
+    transition: transform 520ms var(--ease-out);
+  }
+
   .lets-talk__link:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 8px;
   }
 </style>
+
+<script>
+  // How far the word lifts: what the crop hides of its line, plus a little
+  // room under it, in em of the word's size
+  const LIFT = 0.3;
+  // A pull moves the word less than the hand, as a rubber band does
+  const GIVE = 0.4;
+  // Let go once the wheel has been still this long
+  const SETTLE = 140;
+
+  for (const talk of document.querySelectorAll<HTMLElement>('.lets-talk')) {
+    let pull = 0;
+    let timer = 0;
+    const atEnd = () => window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+    const most = () => LIFT * parseFloat(getComputedStyle(talk).fontSize);
+    const set = (px: number) => {
+      pull = Math.max(0, Math.min(most(), px));
+      talk.style.setProperty('--pull', `${pull.toFixed(1)}px`);
+    };
+    const letGo = () => {
+      talk.removeAttribute('data-pulling');
+      set(0);
+    };
+
+    window.addEventListener(
+      'wheel',
+      (event) => {
+        if (!atEnd() || (event.deltaY <= 0 && pull === 0)) return;
+        talk.toggleAttribute('data-pulling', true);
+        set(pull + event.deltaY * GIVE);
+        window.clearTimeout(timer);
+        timer = window.setTimeout(letGo, SETTLE);
+      },
+      { passive: true },
+    );
+
+    let startY: number | null = null;
+    window.addEventListener('touchstart', (event) => (startY = atEnd() ? event.touches[0].clientY : null), { passive: true });
+    window.addEventListener(
+      'touchmove',
+      (event) => {
+        if (startY === null) return;
+        talk.toggleAttribute('data-pulling', true);
+        set((startY - event.touches[0].clientY) * GIVE);
+      },
+      { passive: true },
+    );
+    window.addEventListener('touchend', () => {
+      startY = null;
+      letGo();
+    });
+  }
+</script>

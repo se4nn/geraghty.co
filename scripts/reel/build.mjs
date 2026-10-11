@@ -10,6 +10,7 @@
 // Each entry in the cut is one of:
 //   { "shot": "format-opener", "in": 0.5, "out": 6.2 }   a stage shot from capture.mjs ("dur" for out - in)
 //   { "film": "public/img/...mp4", "in": 0, "out": 4, "fit": "cover" | "contain", "bg": "#hex", "scale": 1 }
+//   either can take "crop": [x, y, w, h] in source pixels, applied first
 //   { "still": "src/assets/...jpg", "dur": 0.8 }           cropped to fill the frame
 // and can end with "off": true, the CRT switching off on its last frame.
 // A loader entry is a still, or a shot or film with "at": the frame to take.
@@ -55,7 +56,8 @@ function render(entry, i) {
     const from = frames(entry.in ?? 0);
     const to = entry.dur ? from + frames(entry.dur) : frames(entry.out ?? probeDuration(src));
     const vf = entry.shot || entry.fit === 'cover' ? fill : fit(entry.bg ?? BG, entry.scale);
-    ffmpeg(['-i', src, '-ss', secs(from), '-t', secs(to - from), '-vf', `fps=${FPS},${vf}`, ...piece, out]);
+    const crop = entry.crop ? `crop=${entry.crop[2]}:${entry.crop[3]}:${entry.crop[0]}:${entry.crop[1]},` : '';
+    ffmpeg(['-i', src, '-ss', secs(from), '-t', secs(to - from), '-vf', `fps=${FPS},${crop}${vf}`, ...piece, out]);
   } else if (entry.still) {
     ffmpeg(['-loop', '1', '-i', path.join(root, entry.still), '-t', secs(frames(entry.dur)), '-vf', `fps=${FPS},${fill}`, ...piece, out]);
   } else throw new Error(`entry ${i}: no shot, film or still`);
@@ -127,7 +129,9 @@ const master = path.join(root, 'scripts/reel/out/reel-master.mp4');
 ffmpeg(['-f', 'concat', '-safe', '0', '-i', list, ...piece, '-movflags', '+faststart', master]);
 console.log('master', master, `${probeDuration(master).toFixed(2)}s`);
 
-// The site's files: 30fps (the old reel's rate) keeps them small. AV1 first
+// The site's files, at twice the slot's size so they're sharp on a Retina
+// screen, and with bitrate to spare (the reel is short). 30fps (the old
+// reel's rate). AV1 first
 // (Chrome, Firefox, newer Apple hardware), HEVC for the rest of Safari; a
 // 1280 set for phones, and at 1280 only, H.264 for anything older. The CRT
 // dots in the tiles are what costs: at these sizes AV1 and HEVC keep them,
@@ -145,9 +149,9 @@ if (process.argv.includes('--publish')) {
   for (const [name, width] of [['reel', W], ['reel-720', 1280]]) {
     const vf = width === W ? 'null' : `scale=${width}:-2:flags=lanczos`;
     const file = (ext) => path.join(pub, `${name}${ext}`);
-    ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libsvtav1', '-preset', '5', '-crf', '44', ...gop, ...out, file('.webm')]);
-    ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libx265', '-preset', 'medium', '-crf', '30', '-tag:v', 'hvc1', '-x265-params', 'log-level=error', ...gop, ...out, '-movflags', '+faststart', file('.hevc.mp4')]);
-    if (width !== W) ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-profile:v', 'high', ...gop, ...out, '-movflags', '+faststart', file('.mp4')]);
+    ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libsvtav1', '-preset', '4', '-crf', '30', ...gop, ...out, file('.webm')]);
+    ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libx265', '-preset', 'slow', '-crf', '22', '-tag:v', 'hvc1', '-x265-params', 'log-level=error', ...gop, ...out, '-movflags', '+faststart', file('.hevc.mp4')]);
+    if (width !== W) ffmpeg(['-i', master, '-vf', vf, '-c:v', 'libx264', '-preset', 'slow', '-crf', '23', '-profile:v', 'high', ...gop, ...out, '-movflags', '+faststart', file('.mp4')]);
   }
 
   const dir = path.join(pub, 'loader');
@@ -166,7 +170,13 @@ if (process.argv.includes('--publish')) {
     else if (entry.shot) src = frame(path.join(root, 'scripts/reel/out', `${entry.shot}.mp4`), entry.at, fill);
     else src = frame(path.isAbsolute(entry.film) ? entry.film : path.join(root, entry.film), entry.at, entry.fit === 'contain' ? fit(entry.bg ?? BG, entry.scale) : fill);
     const name = `${String(i + 1).padStart(2, '0')}.webp`;
-    await sharp(src).resize(LW, LH, { fit: 'cover' }).webp({ quality: 80 }).toFile(path.join(dir, name));
+    // The last is the reel's first frame, and grows to the slot's size as
+    // the reel takes over, so it's made at the reel's size
+    const lastOne = i === edit.loader.length;
+    await sharp(src)
+      .resize(lastOne ? W : LW, lastOne ? H : LH, { fit: 'cover' })
+      .webp({ quality: lastOne ? 90 : 80 })
+      .toFile(path.join(dir, name));
     list.push(`/img/reel/loader/${name}`);
   }
   writeFileSync(path.join(root, 'src/data/reel-loader.json'), JSON.stringify(list, null, 2) + '\n');
