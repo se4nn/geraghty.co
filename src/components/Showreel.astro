@@ -29,7 +29,7 @@ interface Props {
 }
 
 const { poster, alt, video, loader } = Astro.props;
-const posterImage = await getImage({ src: poster, width: 2000, format: 'webp' });
+const posterImage = await getImage({ src: poster, width: 2000, format: 'webp', quality: 90 });
 const phone = '(max-width: 699px)';
 const av1 = 'video/webm; codecs="av01.0.08M.08"';
 const hevc = 'video/mp4; codecs="hvc1"';
@@ -54,7 +54,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
         <source src={`${video}-720.mp4`} type="video/mp4" />
       </video>
     ) : (
-      <Image class="showreel__media" src={poster} alt={alt} widths={[750, 1416, 2832]} sizes="94vw" loading="eager" />
+      <Image class="showreel__media" src={poster} alt={alt} widths={[750, 1416, 2832]} sizes="94vw" quality={90} loading="eager" />
     )
   }
   {

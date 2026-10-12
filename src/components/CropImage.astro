@@ -28,11 +28,13 @@ interface Props {
 const { src, rect, window = 1416, alt = '', eager = false, from, to, delay = 0, frame } = Astro.props;
 const [x, y, w, h] = rect;
 
-// Rendered width is the image's share of the window, the window at most the
-// page's content width. Phones may hold it larger (Crop min), so ask for at
-// least a phone screen's worth.
+// Above 700px a window is drawn at its Figma width on the 1416 column, so the
+// image is w / 1416 of it. At 700 and below Pairs, Trios and ScreenRows stack
+// and each window takes the column; phones may hold it larger (Crop min), so
+// ask for at least a phone screen's worth.
 const share = +(w / window).toFixed(4);
-const sizes = `max(${share} * min(100vw - 32px, 1416px), ${Math.min(share, 2.5) * 375}px)`;
+const columnShare = +(w / 1416).toFixed(4);
+const sizes = `(max-width: 700px) max(${share} * (100vw - 32px), ${Math.round(Math.min(share, 2.5) * 375)}px), calc(${columnShare} * min(100vw - 32px, 1416px))`;
 const widths = [640, 1024, 1600, 2400, 2880, 3200, 4000].filter((n) => n < src.width);
 widths.push(src.width);
 // Astro's default webp quality left text in slides and fine lines soft on

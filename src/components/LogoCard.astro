@@ -24,7 +24,7 @@ const { video, still, alt, scale, bg } = Astro.props;
 ---
 
 <div class="logo-card" style={`--video-scale: ${scale}; --card-bg: ${bg};`}>
-  <Image class="logo-card__still" src={still} alt={alt} widths={[640, 1342]} sizes="(max-width: 700px) 90vw, 42vw" />
+  <Image class="logo-card__still" src={still} alt={alt} widths={[640, 1342]} sizes="(max-width: 700px) 90vw, 42vw" quality={90} />
   <video class="logo-card__video" src={video} muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
 </div>
 

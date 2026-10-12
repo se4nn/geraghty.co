@@ -48,7 +48,7 @@ const fan = (n: number) =>
               <span class="intro-fan" aria-hidden="true">
                 {fan(link.images.length).map((style, i) => (
                   <span class="intro-fan__card" style={style}>
-                    <Image src={link.images![i]} alt="" widths={[240, 480]} sizes="180px" />
+                    <Image src={link.images![i]} alt="" widths={[240, 480]} sizes="180px" quality={90} />
                   </span>
                 ))}
               </span>

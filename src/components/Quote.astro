@@ -10,6 +10,7 @@
 //
 // Quote text is the person's own words, cut but never reworded.
 import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
 
 interface Props {
   quote: string;
@@ -27,7 +28,7 @@ const { quote, name, role, company, photo } = Astro.props;
     <p>“{quote}”</p>
   </blockquote>
   <figcaption class="quote__who">
-    {photo && <img class="quote__photo" src={photo.src} alt="" width="48" height="48" loading="lazy" />}
+    {photo && <Image class="quote__photo" src={photo} alt="" width={48} height={48} densities={[2, 3]} quality={90} loading="lazy" />}
     <p class="t-label">
       <strong class="quote__name">{name}</strong><span class="quote__sep" aria-hidden="true">|</span>{role}, {company}
     </p>

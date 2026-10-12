@@ -1,6 +1,7 @@
 ---
 // Figma: "Art" section, quote and attribution row
 import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
 import Button from './Button.astro';
 
 interface Props {
@@ -23,7 +24,7 @@ const { quote, name, role, photo, company, companyLogo, link } = Astro.props;
   </blockquote>
   <figcaption class="testimonial__row">
     <div class="testimonial__who">
-      <img class="testimonial__photo" src={photo.src} alt="" width="64" height="64" loading="lazy" />
+      <Image class="testimonial__photo" src={photo} alt="" width={64} height={64} densities={[2, 3]} quality={90} loading="lazy" />
       <div class="testimonial__meta">
         <p class="t-label">{name}<span class="testimonial__sep" aria-hidden="true">|</span>{role}</p>
         <img
