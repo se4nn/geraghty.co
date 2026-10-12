@@ -6,3 +6,11 @@ dist/
 
 # Showreel shots filmed by scripts/reel/capture.mjs
 scripts/reel/out/
+
+# Notes and documents stay on this machine, never in the repo
+docs/
+CLAUDE.md
+.claude/
+src/styles/VOICE.md
+src/styles/MOTION.md
+archive/README.md
