@@ -15,6 +15,8 @@ interface Props {
 
 const { lead, links } = Astro.props;
 const last = links.length - 1;
+// Punctuation that ends a label sits after the link, out of its underline
+const split = (label: string) => label.match(/^(.*?)([,.;:]?)$/)!.slice(1);
 
 // Fan geometry, in em of the line's type: cards spread this far apart,
 // turn this much each step from the middle, and drop back a little at the
@@ -43,7 +45,7 @@ const fan = (n: number) =>
         {i === last && <>&amp; </>}
         {link.href ? (
           <a class="intro-line__link" href={link.href}>
-            {link.label}
+            {split(link.label)[0]}
             {link.images && (
               <span class="intro-fan" aria-hidden="true">
                 {fan(link.images.length).map((style, i) => (
@@ -55,8 +57,8 @@ const fan = (n: number) =>
             )}
           </a>
         ) : (
-          <span class="intro-line__link">{link.label}</span>
-        )}{' '}
+          <span class="intro-line__link">{split(link.label)[0]}</span>
+        )}{split(link.label)[1]}{' '}
       </>
     ))
   }

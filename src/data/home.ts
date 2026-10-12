@@ -129,7 +129,7 @@ export const workIntro = {
 };
 
 export const previous = {
-  heading: 'I’ve also had the pleasure to work with the talented teams at',
+  heading: 'I’ve also had the pleasure of working with the talented teams at',
   logos: [
     { name: 'QuickNode', src: quicknode },
     { name: 'Knoma', src: knoma },
