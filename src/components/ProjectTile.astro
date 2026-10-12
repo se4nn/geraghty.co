@@ -66,8 +66,9 @@ const Wrapper = link ? 'a' : 'div';
   }
 
   @media (max-width: 700px) {
+    .tile__anchor,
     .tile--tall .tile__anchor {
-      top: calc(50cqi * 811.2 / 508.8);
+      top: calc(50cqi * 812 / 1416);
     }
   }
 
@@ -75,6 +76,16 @@ const Wrapper = link ? 'a' : 'div';
   .tile--tall :global(.tile__art) {
     aspect-ratio: auto;
     height: calc(3 * var(--col) + 2 * var(--grid-gap));
+  }
+
+  /* Phones: every tile the shape of a case study's full-width image
+     (1416 × 812), so the column of work isn't a stack of squares */
+  @media (max-width: 700px) {
+    .tile :global(.tile__art),
+    .tile--tall :global(.tile__art) {
+      height: auto;
+      aspect-ratio: 1416 / 812;
+    }
   }
 
   /* Hover: the tile rounds into a CRT screen, corners pulled in with a soft
