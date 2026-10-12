@@ -24,6 +24,7 @@ interface Props {
 const { label, email } = Astro.props;
 ---
 
+<div data-availability-end></div>
 <div class="availability-rail availability-rail--mark">
   <a class="availability-mark" href="/" aria-label="Sean Geraghty, home">
     <img src={sg.src} width="32" height="32" alt="" />
@@ -95,7 +96,8 @@ const { label, email } = Astro.props;
     return bottom > 0 && top < window.innerHeight;
   })();
 
-  document.querySelectorAll<HTMLElement>('.availability-rail').forEach((rail) => {
+  const rails = document.querySelectorAll<HTMLElement>('.availability-rail');
+  rails.forEach((rail) => {
     let entered = false;
     const enter = () => {
       if (entered) return;
@@ -122,6 +124,54 @@ const { label, email } = Astro.props;
     const fallback = () => window.setTimeout(enter, ENTER_AT_MOST);
     if (document.documentElement.hasAttribute('data-intro')) document.addEventListener('intro:done', fallback, { once: true });
     else fallback();
+  });
+
+  // Phones: the rails make way while the reader scrolls down, and come back
+  // when they scroll up, stop, reach the top, or reach the end where the
+  // rails park. A jump (a #link, a restored scroll) isn't the reader
+  // scrolling, so it leaves them be.
+  const phone = window.matchMedia('(max-width: 700px)');
+  // Where the rails park. A marker, not a sibling: the element after the
+  // rails is this component's own <script>
+  const end = document.querySelector<HTMLElement>('[data-availability-end]');
+  // Less than this is a resting thumb, not a scroll
+  const NUDGE = 8;
+  const BACK_AFTER_STOP = 800;
+  let lastY = window.scrollY;
+  let frame = 0;
+  let stopped: number | undefined;
+
+  const away = (on: boolean) => rails.forEach((rail) => rail.toggleAttribute('data-away', on));
+  const parked = () => !end || end.getBoundingClientRect().top < window.innerHeight;
+  // "Copied" keeps both on screen until it's done
+  const holding = () => Boolean(document.querySelector('.availability[data-held]'));
+
+  const update = () => {
+    frame = 0;
+    const y = window.scrollY;
+    const dy = y - lastY;
+    if (y <= NUDGE || Math.abs(dy) > window.innerHeight || parked() || holding()) {
+      away(false);
+      lastY = y;
+    } else if (Math.abs(dy) >= NUDGE) {
+      away(dy > 0);
+      lastY = y;
+    }
+  };
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!phone.matches) return;
+      if (!frame) frame = requestAnimationFrame(update);
+      window.clearTimeout(stopped);
+      stopped = window.setTimeout(() => away(false), BACK_AFTER_STOP);
+    },
+    { passive: true },
+  );
+  phone.addEventListener('change', () => {
+    away(false);
+    lastY = window.scrollY;
   });
 
   document.querySelectorAll<HTMLButtonElement>('.availability').forEach((button) => {
@@ -208,6 +258,9 @@ const { label, email } = Astro.props;
      pill to the bottom of the viewport until the footer arrives, then stays
      put so the footer takes over. */
   .availability-rail {
+    /* Far enough below the screen's edge to clear the pill and its focus ring */
+    --below: calc(1.5 * var(--page-gutter) + 3em);
+
     position: sticky;
     bottom: 0;
     z-index: 10;
@@ -252,7 +305,26 @@ const { label, email } = Astro.props;
 
   @keyframes availability-rise {
     from {
-      translate: 0 calc(100% + 1.5 * var(--page-gutter) + 3em);
+      translate: 0 var(--below);
+    }
+  }
+
+  /* Phones: out of the way while the reader scrolls down (data-away, set by
+     the script). transform, not translate, so it stacks with the entrance.
+     Keyboard focus holds it in, straight away: a slide would start off
+     screen and the browser would scroll the page to find it */
+  @media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+    .availability-rail {
+      transition: transform var(--duration-l) var(--ease-out);
+    }
+
+    .availability-rail[data-away]:not(:has(:focus-visible)) {
+      transform: translateY(var(--below));
+      transition-duration: var(--duration-s);
+    }
+
+    .availability-rail:has(:focus-visible) {
+      transition: none;
     }
   }
 
