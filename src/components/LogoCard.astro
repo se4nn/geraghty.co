@@ -63,9 +63,10 @@ const { video, still, alt, scale, bg } = Astro.props;
 </style>
 
 <script>
+  import { reducedMotion } from '../scripts/arrival';
+
   // Swap to the video straight away (its first frame is the empty card, so
   // nothing visibly changes), then play while a third of it is on screen.
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   for (const card of document.querySelectorAll<HTMLElement>('.logo-card')) {
     const video = card.querySelector('video');

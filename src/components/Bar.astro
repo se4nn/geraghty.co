@@ -5,7 +5,7 @@
 interface Props {
   lead: string[];
   middle?: string;
-  trail: { label: string; href?: string }[];
+  trail: string;
 }
 
 const { lead, middle, trail } = Astro.props;
@@ -18,31 +18,7 @@ const { lead, middle, trail } = Astro.props;
     ))}
   </span>
   {middle && <span class="bar__middle">{middle}</span>}
-  <span class="bar__trail">
-    {
-      trail.map((item, i) => {
-        const external = item.href?.startsWith('http');
-        return (
-          <>
-            {i > 0 && <span class="bar__sep" aria-hidden="true">|</span>}
-            {item.href ? (
-              <a
-                class="bar__link"
-                href={item.href}
-                target={external ? '_blank' : undefined}
-                rel={external ? 'noopener' : undefined}
-              >
-                {item.label}
-                <span aria-hidden="true">↗</span>
-              </a>
-            ) : (
-              item.label
-            )}
-          </>
-        );
-      })
-    }
-  </span>
+  <span class="bar__trail">{trail}</span>
 </p>
 
 <style>
@@ -97,21 +73,5 @@ const { lead, middle, trail } = Astro.props;
   .bar__trail {
     color: var(--text-muted);
     white-space: nowrap;
-  }
-
-  .bar__link {
-    transition: color var(--duration-s) var(--ease-out);
-  }
-
-  @media (hover: hover) {
-    .bar__link:hover {
-      color: var(--text-strong);
-    }
-  }
-
-  .bar__link:focus-visible {
-    outline: 2px solid var(--neutral-900);
-    outline-offset: 3px;
-    border-radius: var(--radius-s);
   }
 </style>

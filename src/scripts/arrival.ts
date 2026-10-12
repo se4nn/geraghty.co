@@ -8,7 +8,13 @@
 // nothing that's visible changes under the reader. With reduced motion, or no
 // script, nothing is marked and everything is simply there.
 
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+export const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
+// A token from tokens.css, for motion run from a script
+export const token = (name: string, fallback = '') =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 
 export function whenSeen(el: HTMLElement, share = 0.25): Promise<boolean> {
   if (reducedMotion.matches) return Promise.resolve(false);

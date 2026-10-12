@@ -49,15 +49,15 @@ const { label, email } = Astro.props;
 </div>
 
 <script>
+  import { reducedMotion, token } from '../scripts/arrival';
+
   // How long "Copied" holds when the pointer stays on the pill (or on touch)
   const COPIED_FOR = 1800;
   // Minimum time "Copied" shows before the pill follows a pointer that's left
   const COPIED_MIN = 500;
   // Matches the leave sequence, so the label only resets once it's hidden
   const EXIT_TIME = 460;
-  // The bouncy spring from tokens.css
-  const BOUNCE =
-    getComputedStyle(document.documentElement).getPropertyValue('--ease-bounce').trim() || 'ease-out';
+  const BOUNCE = token('--ease-bounce', 'ease-out');
 
   // Clipboard API first, then the older selection-based copy for browsers
   // or embeds that block it
@@ -105,7 +105,7 @@ const { label, email } = Astro.props;
       const held = rail.getBoundingClientRect().bottom >= window.innerHeight - 1;
       rail.dataset.in = held ? 'rise' : 'settle';
     };
-    if (!heroOnScreen || !heroCircle || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!heroOnScreen || !heroCircle || reducedMotion.matches) {
       enter();
       return;
     }
@@ -214,8 +214,6 @@ const { label, email } = Astro.props;
     };
     new ResizeObserver(measure).observe(button);
     document.fonts?.ready.then(measure);
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     button.addEventListener('click', async () => {
       // Press bounce: a quick dip, then a spring back with a little rebound.

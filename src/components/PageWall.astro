@@ -120,7 +120,9 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
 </style>
 
 <script>
-  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  import { reducedMotion } from '../scripts/arrival';
+
+  const still = reducedMotion.matches;
 
   for (const wall of document.querySelectorAll<HTMLElement>('.page-wall')) {
     // Parallax: --p runs from 1 as the wall enters to -1 as it leaves, and

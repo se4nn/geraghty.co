@@ -277,11 +277,9 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
 </style>
 
 <script>
-  import { whenSeen, arrive } from '../scripts/arrival';
+  import { whenSeen, arrive, reducedMotion, wait } from '../scripts/arrival';
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const rand = (a: number, b: number) => a + Math.random() * (b - a);
-  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   for (const opener of document.querySelectorAll<HTMLElement>('.so')) {
     // Live only while it's on screen; `whenLive` waits for it to come back

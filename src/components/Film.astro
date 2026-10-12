@@ -358,7 +358,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 </style>
 
 <script>
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { reducedMotion } from '../scripts/arrival';
 
   // Must match scripts/encrypt-film.mjs
   async function decrypt(url: string, password: string) {

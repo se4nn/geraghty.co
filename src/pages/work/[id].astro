@@ -2,7 +2,6 @@
 // Case study. One page per project in src/content/work that has a
 // caseStudy block: the hero from its front matter, then its MDX body, then
 // the next project and the footer.
-import type { ImageMetadata } from 'astro';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import CaseHero from '../../components/CaseHero.astro';
@@ -12,14 +11,12 @@ import Section from '../../components/Section.astro';
 import Column from '../../components/Column.astro';
 import Stats from '../../components/Stats.astro';
 import Stat from '../../components/Stat.astro';
-import Label from '../../components/Label.astro';
 import Badge from '../../components/Badge.astro';
 import Skills from '../../components/Skills.astro';
 import Crop from '../../components/Crop.astro';
 import CropImage from '../../components/CropImage.astro';
 import CompareScreens from '../../components/CompareScreens.astro';
 import CropLink from '../../components/CropLink.astro';
-import CropHighlight from '../../components/CropHighlight.astro';
 import Pair from '../../components/Pair.astro';
 import Trio from '../../components/Trio.astro';
 import Timeline from '../../components/Timeline.astro';
@@ -41,7 +38,6 @@ import Availability from '../../components/Availability.astro';
 import Testimonial from '../../components/Testimonial.astro';
 import Footer from '../../components/Footer.astro';
 import { availability, contactEmail, testimonial } from '../../data/home';
-import formatStacked from '../../assets/logos/format.svg';
 
 export async function getStaticPaths() {
   const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
@@ -69,9 +65,6 @@ const { title } = project.data;
 const study = project.data.caseStudy!;
 const { Content } = await render(project);
 
-// Stacked logos for the Next Project tile, where the design uses them
-const stackedLogos: Record<string, ImageMetadata> = { format: formatStacked };
-
 // Case study components the MDX body can use without importing them
 const components = {
   CaseIntro,
@@ -80,14 +73,12 @@ const components = {
   Column,
   Stats,
   Stat,
-  Label,
   Badge,
   Skills,
   Crop,
   CropImage,
   CompareScreens,
   CropLink,
-  CropHighlight,
   Pair,
   Trio,
   Timeline,
@@ -116,7 +107,7 @@ const components = {
       <CaseHero project={project} />
       <Content components={components} />
       <Availability label={availability} email={contactEmail} />
-      <NextProject project={next} logo={stackedLogos[next.id] ?? next.data.tile.logo} />
+      <NextProject project={next} />
     </div>
 
     <Footer email={contactEmail} label="Testimonial and contact">

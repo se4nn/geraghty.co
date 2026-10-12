@@ -332,7 +332,8 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 </style>
 
 <script>
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { reducedMotion } from '../scripts/arrival';
+
   const STEP_MS = 1800;
   // Rows the light walks through on its own, one from each kind
   const TOUR = [0, 1, 4, 5, 6, 8, 11, 13, 14, 15];

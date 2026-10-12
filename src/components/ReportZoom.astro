@@ -218,7 +218,7 @@ const by = +(72 + BY * K).toFixed(1);
 </style>
 
 <script>
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { reducedMotion } from '../scripts/arrival';
 
   for (const root of document.querySelectorAll<HTMLElement>('.rz')) {
     if (reducedMotion.matches) continue;

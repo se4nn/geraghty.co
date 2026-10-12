@@ -97,6 +97,8 @@ const {
 </style>
 
 <script>
+  import { reducedMotion } from '../scripts/arrival';
+
   // Core values, set in the full tool
   const DEFAULTS = {
     darkness: 0.49,
@@ -472,8 +474,6 @@ const {
     const [r, g, b] = swatch.getImageData(0, 0, 1, 1).data;
     return [r / 255, g / 255, b / 255];
   }
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   // Shared scroll speed for the CRT beam, in px per second. Scrolling down is
   // positive, which puts the trail above the beam.

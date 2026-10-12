@@ -16,14 +16,14 @@
 // on every load and reload of the page, never coming back to it from a case
 // study, never with reduced motion or Save-Data.
 import type { ImageMetadata } from 'astro';
-import { Image, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 
 interface Props {
   poster: ImageMetadata;
   alt: string;
   // Path without extension: <video>.webm (AV1) and .hevc.mp4, -720 versions
   // of both for phones, and <video>-720.mp4 (H.264) for anything older
-  video?: string;
+  video: string;
   // The loader's images, in order; the last is the reel's first frame
   loader?: string[];
 }
@@ -36,29 +36,23 @@ const hevc = 'video/mp4; codecs="hvc1"';
 ---
 
 <div class="showreel">
+  <video
+    class="showreel__media"
+    poster={posterImage.src}
+    aria-label={alt}
+    muted
+    loop
+    playsinline
+    preload="metadata"
+  >
+    <source src={`${video}-720.webm`} type={av1} media={phone} />
+    <source src={`${video}-720.hevc.mp4`} type={hevc} media={phone} />
+    <source src={`${video}.webm`} type={av1} />
+    <source src={`${video}.hevc.mp4`} type={hevc} />
+    <source src={`${video}-720.mp4`} type="video/mp4" />
+  </video>
   {
-    video ? (
-      <video
-        class="showreel__media"
-        poster={posterImage.src}
-        aria-label={alt}
-        muted
-        loop
-        playsinline
-        preload="metadata"
-      >
-        <source src={`${video}-720.webm`} type={av1} media={phone} />
-        <source src={`${video}-720.hevc.mp4`} type={hevc} media={phone} />
-        <source src={`${video}.webm`} type={av1} />
-        <source src={`${video}.hevc.mp4`} type={hevc} />
-        <source src={`${video}-720.mp4`} type="video/mp4" />
-      </video>
-    ) : (
-      <Image class="showreel__media" src={poster} alt={alt} widths={[750, 1416, 2832]} sizes="94vw" quality={90} loading="eager" />
-    )
-  }
-  {
-    loader && video && (
+    loader && (
       <div class="showreel__cover" aria-hidden="true">
         <div class="showreel__flick" data-images={JSON.stringify(loader)} />
       </div>
@@ -154,7 +148,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
 </style>
 
 <script>
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { reducedMotion, wait, token } from '../scripts/arrival';
+
   const root = document.documentElement;
   // How long each image holds, in ms: a slot machine's rhythm. The first
   // holds while the screen switches on, then the cuts speed up from 180 to
@@ -174,8 +169,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
   // However slow the network, the page is never held longer than this
   const AT_MOST = 4000;
 
-  for (const video of document.querySelectorAll<HTMLVideoElement>('.showreel__media')) {
-    if (video.tagName !== 'VIDEO') continue;
+  for (const video of document.querySelectorAll<HTMLVideoElement>('video.showreel__media')) {
 
     // Play once at least a third is on screen; pause only once it's gone
     // altogether, so a reel that has just landed half on screen keeps
@@ -234,7 +228,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
     addEventListener('keydown', onKey);
     const deadline = setTimeout(end, AT_MOST);
 
-    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
     // The site's CRT: the screen switches on as a case study hero does
     // (global.css, screen-on), every cut flashes for a frame with scanlines,
     // and the last image lands overexposed with the power-on's one flicker
@@ -280,8 +273,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
     removeEventListener('touchmove', end);
     removeEventListener('pointerdown', end);
     removeEventListener('keydown', onKey);
-
-    const token = (name: string, fallback: string) => getComputedStyle(root).getPropertyValue(name).trim() || fallback;
 
     // 1. The screen grows in place to the reel's size, still in the middle
     // of the screen. A transform on a box already drawn at full size, so

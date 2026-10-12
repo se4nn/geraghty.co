@@ -88,12 +88,11 @@ const { email, label } = Astro.props;
 </style>
 
 <script>
-  import { whenSeen, arrive } from '../scripts/arrival';
+  import { whenSeen, arrive, wait } from '../scripts/arrival';
 
   // "Let's talk." follows the quote: if both come into view together (a jump
   // to the end), it still waits for the quote and its attribution to start
   const TALK_AFTER_QUOTE = 1300;
-  const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
   for (const footer of document.querySelectorAll<HTMLElement>('.footer')) {
     const quote = footer.querySelector<HTMLElement>('.testimonial');
@@ -107,7 +106,7 @@ const { email, label } = Astro.props;
       : Promise.resolve(false);
 
     if (talk) {
-      Promise.all([whenSeen(talk, 0.5), quoteIn.then((waited) => waited && sleep(TALK_AFTER_QUOTE))]).then(
+      Promise.all([whenSeen(talk, 0.5), quoteIn.then((waited) => waited && wait(TALK_AFTER_QUOTE))]).then(
         ([waited]) => {
           if (waited) arrive(talk);
         },

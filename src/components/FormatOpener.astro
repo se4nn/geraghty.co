@@ -246,7 +246,7 @@ const widths = [1102, 1653, 2204, 3024];
 </style>
 
 <script>
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { reducedMotion } from '../scripts/arrival';
 
   // Targets in window px: frame px scaled by K, from the screen's corner
   const K = 0.7291;

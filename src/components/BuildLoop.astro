@@ -674,7 +674,8 @@ const steps = [
 </style>
 
 <script>
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  import { reducedMotion } from '../scripts/arrival';
+
   const STEP_MS = 4800;
 
   for (const loop of document.querySelectorAll<HTMLElement>('.build-loop')) {
