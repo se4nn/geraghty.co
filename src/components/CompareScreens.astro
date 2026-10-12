@@ -124,12 +124,14 @@ const widthsFor = (src: ImageMetadata) => {
   }
 
   /* Eased while it glides (hint, taps, keys); instant under the pointer */
-  .compare[data-glide] :global(.compare__side--right) {
-    transition: clip-path 900ms var(--ease-out-expo);
-  }
+  @media (prefers-reduced-motion: no-preference) {
+    .compare[data-glide] :global(.compare__side--right) {
+      transition: clip-path 900ms var(--ease-out-expo);
+    }
 
-  .compare[data-glide] .compare__divider {
-    transition: left 900ms var(--ease-out-expo);
+    .compare[data-glide] .compare__divider {
+      transition: left 900ms var(--ease-out-expo);
+    }
   }
 </style>
 

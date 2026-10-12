@@ -191,6 +191,7 @@
   /* Type: families */
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Type: Bricolage axes used by every sans style ("96pt ExtraBold" in Figma) */
   --sans-axes: 'opsz' 96, 'wdth' 86;

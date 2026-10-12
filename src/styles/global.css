@@ -246,7 +246,7 @@ html:active-view-transition-type(next)::view-transition-new(root) {
   18% {
     clip-path: inset(calc(50% - 1px) 0);
     filter: brightness(5) saturate(0);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-timing-function: var(--ease-out-expo);
   }
   55% {
     clip-path: inset(0);

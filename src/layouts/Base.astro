@@ -31,11 +31,9 @@ const ogImage = new URL(image, Astro.site);
       }
     </script>
     <script is:inline>
-      // In the head, so it's registered before first render. data-morphed lets
-      // a page's own entrance step aside for the morph (MOTION.md: Morph)
+      // In the head, so it's registered before first render (MOTION.md: Morph)
       addEventListener('pagereveal', (event) => {
         const transition = event.viewTransition;
-        document.documentElement.toggleAttribute('data-morphed', Boolean(transition));
         if (!transition) return;
         // For global.css: open is the power-on, close the plain morph back
         const to = location.pathname;

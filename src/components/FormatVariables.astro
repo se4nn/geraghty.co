@@ -209,7 +209,7 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 
   .fv__name,
   .fv__alias {
-    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: calc(15 * var(--u));
   }
 
@@ -247,7 +247,7 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 
   .fv__hue {
     color: var(--muted);
-    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: calc(14 * var(--u));
   }
 
@@ -276,7 +276,7 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 
   .fv__label {
     color: var(--format-neutral-400);
-    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: calc(12 * var(--u));
     transition: color var(--duration-s) var(--ease-out);
   }

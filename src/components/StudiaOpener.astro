@@ -253,7 +253,9 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
 </style>
 
 <script>
-  import { whenSeen, arrive, reducedMotion, wait } from '../scripts/arrival';
+  import { whenSeen, arrive, reducedMotion, wait, token } from '../scripts/arrival';
+
+  const DRIFT = token('--ease-drift', 'cubic-bezier(0.3, 0.45, 0.2, 1)');
 
   const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
@@ -388,7 +390,7 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
               { translate: `calc(${-sway * 0.6} * ${s}) calc(${-rise * 0.65} * ${s})`, scale: 0.95, rotate: `${-spin * 0.4}deg`, opacity: 0.9, offset: 0.6 },
               { translate: `calc(${sway} * ${s}) calc(${-rise} * ${s})`, scale: 0.8, rotate: `${spin}deg`, opacity: 0 },
             ],
-            { duration: rand(1700, 2300), easing: 'cubic-bezier(0.3, 0.45, 0.2, 1)' },
+            { duration: rand(1700, 2300), easing: DRIFT },
           )
           .finished.then(() => ghost.remove());
       }

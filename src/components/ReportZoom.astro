@@ -99,7 +99,7 @@ const by = +(72 + BY * K).toFixed(1);
     border-radius: calc(10 * var(--u));
     box-shadow:
       0 0 0 calc(2.5 * var(--u)) var(--format-red-400),
-      0 0 0 calc(8 * var(--u)) oklch(68.09% 0.1649 34.16 / 0.18);
+      0 0 0 calc(8 * var(--u)) oklch(from var(--format-red-400) l c h / 0.18);
     opacity: 0;
   }
 
@@ -153,7 +153,7 @@ const by = +(72 + BY * K).toFixed(1);
     width: calc(44 * var(--u));
     height: calc(44 * var(--u));
     border-radius: 50%;
-    background-color: oklch(68.09% 0.1649 34.16 / 0.35);
+    background-color: oklch(from var(--format-red-400) l c h / 0.35);
     opacity: 0;
   }
 
