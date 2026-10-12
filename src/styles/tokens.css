@@ -215,12 +215,14 @@
   --h3-lh: 1.212;
   --h3-emphasis-track: -0.012em;
 
-  /* Body, Body (Bold): Bricolage 23 / 32. 18 → 23 at 1512 → 28 */
-  --body-size: clamp(18px, 0.75vw + 11.66px, 28px);
+  /* Body, Body (Bold): Bricolage 23 / 32. 20 → 23 at 1512 → 28. Phones
+     floor at 20: the condensed sans read small at 18 (Sean, 12 Oct 2026) */
+  --body-size: clamp(20px, 0.75vw + 11.66px, 28px);
   --body-lh: 1.391;
 
-  /* Label: Bricolage 19 / 24. Badges, testimonial attribution. 15 → 19 at 1512 → 22 */
-  --label-size: clamp(15px, 0.5vw + 11.44px, 22px);
+  /* Label: Bricolage 19 / 24. Badges, testimonial attribution. 17 → 19 at
+     1512 → 22 (floored at 17 on phones, as body) */
+  --label-size: clamp(17px, 0.5vw + 11.44px, 22px);
   --label-lh: 1.263;
 
   /* Space (design px at 1512 → fluid) */

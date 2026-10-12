@@ -94,7 +94,7 @@ const skillsWithLinks = skills.map((skill) => ({
         <div class="container home-work__inner">
           <h2 id="work-heading" class="visually-hidden">Work</h2>
           <p class="home-work__intro t-h3">
-            {workIntro.text}<br />
+            {workIntro.text}{' '}<br class="home-work__break" />
             {workIntro.text2} <strong class="t-h3-bold">{workIntro.emphasis}</strong>.
           </p>
           <WorkGrid projects={projects.filter((p) => p.data.inGrid)} />
@@ -145,6 +145,13 @@ const skillsWithLinks = skills.map((skill) => ({
     text-align: center;
     color: var(--text-muted);
     text-wrap: balance;
+  }
+
+  /* The break between the two sentences is for desktop; phones let them run on */
+  @media (max-width: 700px) {
+    .home-work__break {
+      display: none;
+    }
   }
 
   .home-work__intro strong {

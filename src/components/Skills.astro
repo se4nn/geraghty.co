@@ -102,11 +102,16 @@ const { items } = Astro.props;
     transition: color var(--duration-s) var(--ease-out);
   }
 
-  /* Phones: stack the tags, no dividers */
+  /* Phones: "Skills" on its own line, then the tags wrap, centred. No
+     dividers: one would be left hanging at the end of a line */
   @media (max-width: 700px) {
     .skills {
-      flex-direction: column;
-      gap: var(--space-s);
+      gap: var(--space-s) var(--space-l);
+    }
+
+    .skills__label {
+      flex-basis: 100%;
+      text-align: center;
     }
 
     .skills__divider {

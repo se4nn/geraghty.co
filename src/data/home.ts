@@ -123,7 +123,8 @@ export const skills: { label: string; logos: LogoChip[] }[] = [
 
 export const workIntro = {
   text: 'I’ve spent more than a decade spotting problems nobody’s named yet.',
-  text2: 'I get in early, ask difficult questions, design a fix and then',
+  // A no-break space keeps "I" with "get" where the line wraps on phones
+  text2: 'I\u00a0get in early, ask difficult questions, design a fix and then',
   emphasis: 'build it',
 };
 

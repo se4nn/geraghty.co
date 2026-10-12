@@ -3,10 +3,19 @@
 // Floats bottom right, then parks above the footer: render it as the last
 // child of the content that scrolls before the footer.
 //
+// The SG mark floats bottom left, level with the pill (Figma: Home › Nav,
+// "Logo Container" 2467:32221), and links home. It has no box of its own,
+// so it inverts against whatever passes under it: dark on the page, light
+// over films and dark sections. It needs its own rail for that (a blend
+// only reaches the page from the top of its own layer); the two rails
+// stick, park and rise in together.
+//
 // Click copies the email address. Hover: the lime dot blooms into the neon
 // fill, "Open to work" lifts away and "Copy email" springs in from below.
 // Leaving runs the other way: the labels hand back first, then the fill
 // settles into the dot. Pressing gives a small bounce.
+import sg from '../assets/logos/sg.svg';
+
 interface Props {
   label: string;
   email: string;
@@ -15,6 +24,11 @@ interface Props {
 const { label, email } = Astro.props;
 ---
 
+<div class="availability-rail availability-rail--mark">
+  <a class="availability-mark" href="/" aria-label="Sean Geraghty, home">
+    <img src={sg.src} width="32" height="32" alt="" />
+  </a>
+</div>
 <div class="availability-rail">
   <button
     class="availability t-h3"
@@ -248,6 +262,45 @@ const { label, email } = Astro.props;
     }
   }
 
+  /* The SG mark, bottom left: 32px, centred in a box as tall as the pill
+     (56 at 33px type) so the two sit on one line at every size. Figma's
+     Logo Container is 56 × 56 with 12 around the mark. */
+  .availability-mark {
+    position: absolute;
+    left: var(--page-gutter);
+    bottom: var(--page-gutter);
+    display: grid;
+    place-items: center;
+    height: calc(var(--h3-size) * var(--h3-lh) + 2 * var(--space-xs));
+    aspect-ratio: 1;
+    transition: opacity var(--duration-s) var(--ease-out);
+  }
+
+  /* White, differenced against the page: near-black on the light page,
+     white over anything dark, the inverse over colour */
+  .availability-rail--mark {
+    mix-blend-mode: difference;
+  }
+
+  .availability-mark img {
+    display: block;
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) invert(1);
+  }
+
+  @media (hover: hover) {
+    .availability-mark:hover {
+      opacity: 0.6;
+    }
+  }
+
+  .availability-mark:focus-visible {
+    outline: 2px solid var(--brand-neon-edge);
+    outline-offset: 2px;
+    border-radius: var(--radius-s);
+  }
+
   .availability {
     --bloom: cubic-bezier(0.32, 0.72, 0, 1);
     --settle: cubic-bezier(0.25, 0.8, 0.3, 1);
@@ -472,11 +525,10 @@ const { label, email } = Astro.props;
     }
   }
 
+  /* Phones keep the heading size (24px there): at body size it read tiny */
   @media (max-width: 700px) {
     .availability {
       --dot-x: calc(var(--space-s) + 6px);
-      font-size: var(--body-size);
-      line-height: var(--body-lh);
       padding-inline: calc(var(--space-s) - var(--border-width));
     }
   }

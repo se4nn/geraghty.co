@@ -92,9 +92,10 @@ const placed = projects.map((project, i) => {
       grid-row: auto;
     }
 
+    /* The tall tile (Fertifa's slot) is square here, like the rest */
     .work-grid__item :global(.tile--tall .tile__art) {
       height: auto;
-      aspect-ratio: 508.8 / 811.2;
+      aspect-ratio: 1;
     }
   }
 </style>
