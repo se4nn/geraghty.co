@@ -1,6 +1,6 @@
 ---
-// Figma: "Label". An outlined chip of small copy under a stat, or beside a
-// section title. Bold runs inside read a touch darker.
+// An outlined chip of small copy under a stat, or beside a section title.
+// Bold runs inside read a touch darker.
 interface Props {
   class?: string;
 }
@@ -11,8 +11,8 @@ const { class: className } = Astro.props;
 <p class:list={['label', 't-body', className]}><slot /></p>
 
 <style>
-  /* Plain inline text, so the spaces around a bold run stay single (as
-     flex items, each run took the gap and lost its own spaces) */
+  /* Inline, not flex: as flex items, the runs either side of a bold run
+     lost their spaces */
   .label {
     display: inline-block;
     text-align: center;

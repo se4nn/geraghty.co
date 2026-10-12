@@ -1,6 +1,6 @@
 ---
-// Figma: "Stat". A number in the serif, what it counts underneath, and an
-// optional Label (the slot) for the comparison.
+// A number in the serif, what it counts underneath, and an optional Label
+// (the slot) for the comparison.
 import Label from './Label.astro';
 
 interface Props {
@@ -13,9 +13,9 @@ const hasNote = Astro.slots.has('default');
 ---
 
 <div class="stat">
-  <p class="stat__figure">
-    <span class="stat__value t-h1">{value}</span>
-    <span class="stat__label t-h3">{label}</span>
+  <p class="figure">
+    <span class="value t-h1">{value}</span>
+    <span class="caption t-h3">{label}</span>
   </p>
   {hasNote && <Label><slot /></Label>}
 </div>
@@ -29,17 +29,17 @@ const hasNote = Astro.slots.has('default');
     text-align: center;
   }
 
-  .stat__figure {
+  .stat .figure {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  .stat__value {
+  .stat .value {
     color: var(--text-strong);
   }
 
-  .stat__label {
+  .stat .caption {
     color: var(--text-muted);
     text-wrap: balance;
   }
