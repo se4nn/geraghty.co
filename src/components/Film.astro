@@ -6,8 +6,9 @@
 // Films here have a soundtrack worth hearing, so a button turns the sound
 // on (and starts it, if it's paused). A silent loop (the design system in
 // motion) passes `sound={false}` and its own `ratio`, and gets no button.
-// A film that plays once (`loop={false}`) stops on its last frame and gets a
-// small Replay button bottom left, in the place of the sound button.
+// A film that plays once (`loop={false}`) stops on its last frame. A film
+// with `restart` (Studia's system) gets a small Restart button bottom left,
+// in the place of the sound button, that takes it back to the start.
 // Clicking the film plays or pauses it; once someone pauses it, scrolling
 // never restarts it. Reduced motion never
 // autoplays: the poster sits there until it's clicked.
@@ -32,8 +33,11 @@ interface Props {
   sound?: boolean;
   // Width the poster is made at; 2x the slot for a loop that needs to be crisp
   posterWidth?: number;
-  // Loops by default. Without it the film plays once, stops, and offers Replay
+  // Loops by default. Without it the film plays once and stops
   loop?: boolean;
+  // A Restart button, back to the start: for a film that tells a story from
+  // its first frame
+  restart?: boolean;
   // A live version of what the film shows (Insight World). A button opens it
   // full screen in a dialog; the page only loads when it's opened
   live?: string;
@@ -51,6 +55,7 @@ const {
   sound = true,
   posterWidth = 1920,
   loop = true,
+  restart = false,
   live,
   liveLabel = 'Explore it live',
   liveTitle = liveLabel,
@@ -66,7 +71,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     <svg class="film__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
   </button>
   {sound && <button class="film__sound t-label" type="button" aria-pressed="false">Sound on</button>}
-  {!loop && <button class="film__replay t-label" type="button">Replay</button>}
+  {restart && <button class="film__restart t-label" type="button">Restart</button>}
   {
     live && (
       <>
@@ -159,7 +164,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   }
 
   .film__sound,
-  .film__replay {
+  .film__restart {
     position: absolute;
     z-index: 1;
     left: var(--space-m);
@@ -176,13 +181,13 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 
   @media (hover: hover) {
     .film__sound:hover,
-    .film__replay:hover {
+    .film__restart:hover {
       background-color: oklch(0% 0 0 / 0.7);
     }
   }
 
   .film__sound:focus-visible,
-  .film__replay:focus-visible {
+  .film__restart:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
   }
@@ -377,7 +382,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     const video = film.querySelector('video')!;
     const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
     const button = film.querySelector<HTMLButtonElement>('.film__sound');
-    const replay = film.querySelector<HTMLButtonElement>('.film__replay');
+    const restart = film.querySelector<HTMLButtonElement>('.film__restart');
     // A film with a live version opens it from a click anywhere on it,
     // rather than pausing
     const liveButton = film.querySelector<HTMLButtonElement>('.film__live');
@@ -444,8 +449,8 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
       }
     });
 
-    // Replay starts again from the top, whether it finished or was paused
-    replay?.addEventListener('click', () => {
+    // Restart goes back to the top and plays, whether it was paused or not
+    restart?.addEventListener('click', () => {
       held = false;
       video.currentTime = 0;
       video.play().catch(() => {});

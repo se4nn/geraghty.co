@@ -21,7 +21,8 @@ const { email, label } = Astro.props;
 <style>
   .footer {
     position: relative;
-    overflow: hidden;
+    /* Sideways only: "Let's talk." hangs below the page (LetsTalk) */
+    overflow-x: clip;
     background-color: var(--bg-dark);
     padding-top: clamp(80px, 10.58vw, 160px);
   }

@@ -1,9 +1,15 @@
 ---
 // Figma: "Let's talk." The word is cropped by the bottom of the page
-// and lit from below by a blurred neon ellipse. Pushing on past the end of
-// the page (an overscroll: a wheel or trackpad, or a pull on a touch screen)
-// raises the word in its crop to show the rest of it, and it settles back
-// down when let go.
+// and lit from below by a blurred neon ellipse, which flickers like the
+// light from a television.
+//
+// The page ends where the word is cropped, but the rest of the word is
+// still there below it: pull past the bottom of the page (the bounce of an
+// overscroll) and it shows. The word is SVG text: what an SVG paints
+// outside its own frame never makes the page longer, where text spilling
+// out of its box does (browsers count a line's full font height). Only
+// while the word rises into place is it cropped for real (data-arrival,
+// until settled).
 interface Props {
   email: string;
 }
@@ -12,8 +18,14 @@ const { email } = Astro.props;
 ---
 
 <div class="lets-talk">
-  <div class="lets-talk__glow" aria-hidden="true"></div>
-  <a class="lets-talk__link" href={`mailto:${email}`}>Let’s talk.</a>
+  <div class="lets-talk__light" aria-hidden="true">
+    <div class="lets-talk__glow"></div>
+  </div>
+  <div class="lets-talk__crop">
+    <a class="lets-talk__link" href={`mailto:${email}`} aria-label="Let’s talk.">
+      <svg class="lets-talk__word" aria-hidden="true"><text x="50%" y="1.028em" text-anchor="middle">Let’s talk.</text></svg>
+    </a>
+  </div>
 </div>
 
 <style>
@@ -22,18 +34,32 @@ const { email } = Astro.props;
     /* "Let's talk." is 3.195em wide. Size it to fill 95% of the quote above,
        never larger than the display size. */
     font-size: min(var(--display-size), var(--quote-width, 100%) * 0.95 / 3.195);
-    /* 120px gap above, 120px of the 160px line visible, at 200px type */
-    margin-top: 0.6em;
-    height: 0.6em;
+    /* 120px gap above the 160px line, 120px of it visible, at 200px type.
+       The box is the visible band: 0.4em, the line's middle 0.4em with
+       0.2em over it, so the word sits as it did in a 0.8em line */
+    margin-top: 0.8em;
+    height: 0.4em;
+  }
+
+  /* The light, cropped by the page edge (it's a box, so left hanging it
+     would make the page longer) */
+  .lets-talk__light {
+    position: absolute;
+    left: 50%;
+    top: -3em;
+    bottom: 0;
+    width: 100vw;
+    translate: -50% 0;
+    overflow: clip;
+    pointer-events: none;
   }
 
   .lets-talk__glow {
     position: absolute;
-    left: 50%;
-    top: -0.24em;
-    width: 100vw;
+    left: 0;
+    top: 2.76em;
+    width: 100%;
     height: 3.2em;
-    transform: translateX(-50%);
     border-radius: 50%;
     background: radial-gradient(closest-side, var(--brand-neon), var(--neutral-1000));
     filter: blur(1em);
@@ -88,6 +114,78 @@ const { email } = Astro.props;
     .lets-talk[data-arrival='arrived'] .lets-talk__glow {
       animation: lets-talk-rise 2200ms var(--ease-drift) both;
     }
+
+    /* A television in a dark room: the light never sits still. Mostly
+       small, quick changes in brightness, now and then a cut to a dimmer
+       or brighter scene, and underneath a cooler, whiter light that comes
+       and goes on its own beat. The two loops (9.7s and 6.1s) don't line
+       up, so it doesn't visibly repeat. Opacity only, so it costs nothing
+       to draw. */
+    .lets-talk__light {
+      animation: lets-talk-tv 9.7s linear infinite;
+    }
+
+    .lets-talk__glow::before {
+      animation: lets-talk-tv-tint 6.1s linear infinite;
+    }
+  }
+
+  /* The cooler light of the picture changing, over the neon */
+  .lets-talk__glow::before {
+    content: '';
+    position: absolute;
+    inset: 10% 15% 30%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, oklch(from var(--brand-neon) calc(l + 0.06) calc(c * 0.35) calc(h + 40)), transparent);
+    opacity: 0;
+  }
+
+  @keyframes lets-talk-tv {
+    0% { opacity: 1; }
+    4% { opacity: 0.93; }
+    6% { opacity: 0.97; }
+    11% { opacity: 0.9; }
+    11.4% { opacity: 1; }
+    17% { opacity: 0.95; }
+    22% { opacity: 0.98; }
+    22.3% { opacity: 0.78; }
+    27% { opacity: 0.82; }
+    27.3% { opacity: 0.96; }
+    33% { opacity: 0.92; }
+    38% { opacity: 1; }
+    41% { opacity: 0.94; }
+    41.3% { opacity: 0.99; }
+    48% { opacity: 0.9; }
+    54% { opacity: 0.96; }
+    54.2% { opacity: 0.86; }
+    60% { opacity: 0.93; }
+    66% { opacity: 0.97; }
+    66.3% { opacity: 1; }
+    72% { opacity: 0.91; }
+    77% { opacity: 0.95; }
+    77.2% { opacity: 0.74; }
+    81% { opacity: 0.8; }
+    81.3% { opacity: 0.98; }
+    88% { opacity: 0.93; }
+    94% { opacity: 0.99; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes lets-talk-tv-tint {
+    0% { opacity: 0; }
+    14% { opacity: 0.1; }
+    14.4% { opacity: 0.32; }
+    24% { opacity: 0.26; }
+    31% { opacity: 0.3; }
+    31.3% { opacity: 0.04; }
+    46% { opacity: 0.08; }
+    58% { opacity: 0.18; }
+    58.4% { opacity: 0.4; }
+    67% { opacity: 0.34; }
+    67.3% { opacity: 0.12; }
+    80% { opacity: 0.16; }
+    86% { opacity: 0.06; }
+    100% { opacity: 0; }
   }
 
   @keyframes lets-talk-word {
@@ -128,28 +226,35 @@ const { email } = Astro.props;
     }
   }
 
+  /* Room above the line for the tops of the capitals, down to the page
+     edge. Cropped only while the word is rising into place */
+  .lets-talk__crop {
+    position: absolute;
+    inset: -0.5em 0 0;
+  }
+
+  .lets-talk[data-arrival]:not([data-settled]) .lets-talk__crop {
+    overflow: clip;
+  }
+
   .lets-talk__link {
     position: relative;
     display: block;
+    height: 100%;
     font-family: var(--font-sans);
     font-variation-settings: var(--sans-axes);
     font-weight: var(--weight-bold);
-    line-height: var(--display-lh);
-    text-align: center;
     color: var(--brand-neon);
-    white-space: nowrap;
   }
 
-  /* The overscroll lift is a transform, so it stacks with the arrival's
-     translate rather than fighting it. Following the hand closely while
-     pulled, settling back on the way the light cools: unhurried */
-  .lets-talk__link {
-    transform: translateY(calc(-1 * var(--pull, 0px)));
-    transition: transform 80ms linear;
-  }
-
-  .lets-talk:not([data-pulling]) .lets-talk__link {
-    transition: transform 520ms var(--ease-out);
+  /* The frame is the crop; the baseline sits where it did in the 0.8em line
+     (0.128em under the page edge), and the rest of the word hangs below */
+  .lets-talk__word {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: currentColor;
   }
 
   .lets-talk__link:focus-visible {
@@ -159,54 +264,11 @@ const { email } = Astro.props;
 </style>
 
 <script>
-  // How far the word lifts: what the crop hides of its line, plus a little
-  // room under it, in em of the word's size
-  const LIFT = 0.3;
-  // A pull moves the word less than the hand, as a rubber band does
-  const GIVE = 0.4;
-  // Let go once the wheel has been still this long
-  const SETTLE = 140;
-
+  // Once the word has risen into place, its crop lets go, so the rest of it
+  // hangs below the page for an overscroll to show
   for (const talk of document.querySelectorAll<HTMLElement>('.lets-talk')) {
-    let pull = 0;
-    let timer = 0;
-    const atEnd = () => window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-    const most = () => LIFT * parseFloat(getComputedStyle(talk).fontSize);
-    const set = (px: number) => {
-      pull = Math.max(0, Math.min(most(), px));
-      talk.style.setProperty('--pull', `${pull.toFixed(1)}px`);
-    };
-    const letGo = () => {
-      talk.removeAttribute('data-pulling');
-      set(0);
-    };
-
-    window.addEventListener(
-      'wheel',
-      (event) => {
-        if (!atEnd() || (event.deltaY <= 0 && pull === 0)) return;
-        talk.toggleAttribute('data-pulling', true);
-        set(pull + event.deltaY * GIVE);
-        window.clearTimeout(timer);
-        timer = window.setTimeout(letGo, SETTLE);
-      },
-      { passive: true },
-    );
-
-    let startY: number | null = null;
-    window.addEventListener('touchstart', (event) => (startY = atEnd() ? event.touches[0].clientY : null), { passive: true });
-    window.addEventListener(
-      'touchmove',
-      (event) => {
-        if (startY === null) return;
-        talk.toggleAttribute('data-pulling', true);
-        set((startY - event.touches[0].clientY) * GIVE);
-      },
-      { passive: true },
-    );
-    window.addEventListener('touchend', () => {
-      startY = null;
-      letGo();
+    talk.querySelector('.lets-talk__link')?.addEventListener('animationend', (event) => {
+      if ((event as AnimationEvent).animationName.includes('lets-talk-word')) talk.toggleAttribute('data-settled', true);
     });
   }
 </script>

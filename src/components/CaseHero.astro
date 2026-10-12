@@ -1,7 +1,8 @@
 ---
 // Figma: "Project - X" at the top of a case study. The project's tile art
 // full bleed (the same live gradient, so the homepage tile morphs into it),
-// Close top left, the project's links top right, and a Bar along the foot:
+// Projects (back to the work, once called Close) top left, the project's
+// links top right, and a Bar along the foot:
 // tags, role, dates.
 import type { CollectionEntry } from 'astro:content';
 import TileArt from './TileArt.astro';
@@ -38,7 +39,7 @@ const logoAspect = tile.logo.width / tile.logo.height;
   <div class="case-hero__overlay">
     <nav class="case-hero__nav" aria-label="Case study">
       <span class="case-hero__close">
-        <Button href={`/#work-${project.id}`} variant="light" label="Close, back to all work">Close</Button>
+        <Button href={`/#work-${project.id}`} variant="light" label="Projects, back to all work">Projects</Button>
       </span>
       {
         study.links.length > 0 && (
@@ -140,7 +141,7 @@ const logoAspect = tile.logo.width / tile.logo.height;
 </style>
 
 <script>
-  // Close goes back rather than forward when the reader came from the
+  // Projects goes back rather than forward when the reader came from the
   // homepage, so the browser puts them straight back where they'd scrolled
   // to (and the art morphs back into its tile). Arriving any other way, the
   // link goes to the project's tile on the homepage.
