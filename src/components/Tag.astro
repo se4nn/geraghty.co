@@ -1,62 +1,15 @@
 ---
-// Label used in the skills row and the case study back link. Figma: "Tag"
-// outline: bordered pill. surface: white pill. plain: text and logos only.
-// Given an href it becomes a link.
-interface Props {
-  variant?: 'outline' | 'surface' | 'plain';
-  href?: string;
-}
-
-const { variant = 'outline', href } = Astro.props;
-const El = href ? 'a' : 'span';
-const external = href?.startsWith('http');
+// A skill and its project logos, in the skills row (Skills). Figma: "Tag"
 ---
 
-<El
-  class:list={['tag', `tag--${variant}`, 't-h3']}
-  href={href}
-  target={external ? '_blank' : undefined}
-  rel={external ? 'noopener' : undefined}
-><slot /></El>
+<span class="tag t-h3"><slot /></span>
 
 <style>
   .tag {
     display: inline-flex;
     align-items: center;
     gap: var(--space-xs);
-    padding: var(--space-xs) var(--space-m);
-    border: var(--border-width) solid var(--border-subtle);
-    border-radius: var(--radius-l);
     color: var(--text-muted);
     white-space: nowrap;
-  }
-
-  .tag--plain {
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-s);
-  }
-
-  .tag--surface {
-    background-color: var(--neutral-000);
-    gap: var(--space-s);
-  }
-
-  a.tag {
-    transition:
-      border-color var(--duration-s) var(--ease-out),
-      color var(--duration-s) var(--ease-out);
-  }
-
-  @media (hover: hover) {
-    a.tag:hover {
-      border-color: var(--neutral-300);
-      color: var(--text-strong);
-    }
-  }
-
-  a.tag:focus-visible {
-    outline: 2px solid var(--neutral-900);
-    outline-offset: 3px;
   }
 </style>

@@ -18,7 +18,7 @@ const { items } = Astro.props;
       items.map((item) => (
         <li class="skills__item">
           <span class="skills__divider" aria-hidden="true"></span>
-          <Tag variant="plain">
+          <Tag>
             {item.label}
             {item.logos.length > 0 && <LogoStack items={item.logos} />}
           </Tag>

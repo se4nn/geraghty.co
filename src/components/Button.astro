@@ -1,25 +1,23 @@
 ---
 // Link styled as a button. Figma: "Button"
-// neon: the testimonial's View. light: white outline over artwork (Close,
-// Next Project). glass: no outline, over artwork (a case study's links).
-// Without an href it's a span, for a button inside a bigger link.
+// neon: the testimonial's View. light: white outline over artwork (Projects).
+// glass: no outline, over artwork (a case study's links).
 interface Props {
-  href?: string;
+  href: string;
   variant?: 'neon' | 'light' | 'glass';
   label?: string;
 }
 
 const { href, variant = 'neon', label } = Astro.props;
-const El = href ? 'a' : 'span';
-const external = href?.startsWith('http');
+const external = href.startsWith('http');
 ---
 
-<El
+<a
   class:list={['button', `button--${variant}`, 't-h3']}
   href={href}
   target={external ? '_blank' : undefined}
   rel={external ? 'noopener' : undefined}
-  aria-label={label}><slot /></El
+  aria-label={label}><slot /></a
 >
 
 <style>
@@ -29,6 +27,7 @@ const external = href?.startsWith('http');
     justify-content: center;
     padding: var(--space-xs) var(--space-m);
     border-radius: var(--radius-l);
+    background-color: oklch(from var(--neutral-1000) l c h / 0.16);
     white-space: nowrap;
     transition:
       background-color var(--duration-s) var(--ease-out),
@@ -48,14 +47,34 @@ const external = href?.startsWith('http');
   }
 
   .button--neon {
-    background-color: oklch(from var(--neutral-1000) l c h / 0.16);
     border: var(--border-width-strong) solid var(--brand-neon);
     color: var(--brand-neon);
   }
 
   .button--neon:focus-visible {
+    outline: 2px solid var(--brand-neon);
+    outline-offset: 3px;
     background-color: var(--brand-neon);
     color: var(--neutral-1000);
+  }
+
+  /* Over artwork: white type on the dark tint. Figma strokes sit inside the
+     box, so the padding gives way to them */
+  .button--light,
+  .button--glass {
+    padding: calc(var(--space-xs) - var(--border-width-strong)) calc(var(--space-m) - var(--border-width-strong));
+    border: var(--border-width-strong) solid var(--text-on-dark);
+    color: var(--text-on-dark);
+  }
+
+  .button--glass {
+    border-color: transparent;
+  }
+
+  .button--light:focus-visible,
+  .button--glass:focus-visible {
+    outline: 2px solid var(--neutral-000);
+    outline-offset: 3px;
   }
 
   /* Hover only where there's a pointer, so a tap doesn't leave it filled */
@@ -64,43 +83,11 @@ const external = href?.startsWith('http');
       background-color: var(--brand-neon);
       color: var(--neutral-1000);
     }
-  }
 
-  .button--neon:focus-visible {
-    outline: 2px solid var(--brand-neon);
-    outline-offset: 3px;
-  }
-
-  /* Over artwork: a dark tint behind white type. Light adds the outline. */
-  .button--light,
-  .button--glass {
-    background-color: oklch(from var(--neutral-1000) l c h / 0.16);
-    color: var(--text-on-dark);
-  }
-
-  /* Figma strokes sit inside the box, so the padding gives way to them */
-  .button--light,
-  .button--glass {
-    padding: calc(var(--space-xs) - var(--border-width-strong)) calc(var(--space-m) - var(--border-width-strong));
-    border: var(--border-width-strong) solid var(--text-on-dark);
-  }
-
-  .button--glass {
-    border-color: transparent;
-  }
-
-  @media (hover: hover) {
     .button--light:hover,
-    :global(a:hover) > .button--light,
     .button--glass:hover {
       background-color: var(--neutral-000);
       color: var(--neutral-1000);
     }
-  }
-
-  .button--light:focus-visible,
-  .button--glass:focus-visible {
-    outline: 2px solid var(--neutral-000);
-    outline-offset: 3px;
   }
 </style>
