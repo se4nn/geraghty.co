@@ -1,48 +1,30 @@
 ---
-// A film in the story, across the grid at 1416 × 812 (three columns high,
-// so the 16:9 film loses a sliver at each side). Like the homepage showreel it
-// plays muted and looping while it's on screen (a fifth of it), and pauses
-// when it leaves.
-// Films here have a soundtrack worth hearing, so a button turns the sound
-// on (and starts it, if it's paused). A silent loop (the design system in
-// motion) passes `sound={false}` and its own `ratio`, and gets no button.
-// A film that plays once (`loop={false}`) stops on its last frame. A film
-// with `restart` (Studia's system) gets a small Restart button bottom left,
-// in the place of the sound button, that takes it back to the start.
-// Clicking the film plays or pauses it; once someone pauses it, scrolling
-// never restarts it. Reduced motion never
-// autoplays: the poster sits there until it's clicked.
-//
-// Private films: pass `encrypted` instead of `video`, the path to a file made
-// by scripts/encrypt-film.mjs. The poster shows with a password field; the
-// right password decrypts the film in the browser (AES-GCM, key from PBKDF2)
-// and it plays with sound. The plain MP4 is never shipped.
-// Sean's media is authored: never trim or re-time it (MOTION.md).
+// A film in a case study, playing muted while a fifth of it is on screen.
+// Once someone pauses it, scrolling never restarts it; reduced motion waits for a click.
+// Motion inside Sean's own media is authored: never trim or re-time it (MOTION.md, Gotchas).
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
 
 interface Props {
   video?: string;
+  // Private films: a file made by scripts/encrypt-film.mjs, in place of `video`.
+  // The right password decrypts it in the browser; the plain MP4 is never shipped.
   encrypted?: string;
   poster: ImageMetadata;
-  // What the film shows, for screen readers
   alt: string;
-  // Width and height of the frame, in Figma px (the grid's 1416 × 812 by default)
+  // In Figma px; the grid's 1416 × 812 crops a sliver off each side of a 16:9 film
   ratio?: [number, number];
-  // Whether there is a soundtrack to turn on
+  // A soundtrack worth turning on (the Sound on button)
   sound?: boolean;
-  // Width the poster is made at; 2x the slot for a loop that needs to be crisp
+  // 2x the slot for a loop that needs to be crisp
   posterWidth?: number;
-  // Loops by default. Without it the film plays once and stops
+  // false: plays once and stops on its last frame
   loop?: boolean;
-  // A Restart button, back to the start: for a film that tells a story from
-  // its first frame
+  // A Restart button, for a film that tells a story from its first frame
   restart?: boolean;
-  // A live version of what the film shows (Insight World). A button opens it
-  // full screen in a dialog; the page only loads when it's opened
+  // A live version (Insight World), opened full screen; it only loads when opened
   live?: string;
   liveLabel?: string;
-  // The dialog's title, beside Close
   liveTitle?: string;
 }
 
@@ -122,8 +104,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     object-fit: cover;
   }
 
-  /* The whole film is the play/pause button; the icon only shows when it's
-     paused */
+  /* The whole film is the play/pause button */
   .film__toggle {
     position: absolute;
     inset: 0;
@@ -151,8 +132,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     opacity: 1;
   }
 
-  /* A film that has finished shows its last frame, not a play button; one
-     with a live version opens that on click, so it never shows one either */
+  /* No play icon on a finished film (it holds its last frame) or a live one */
   .film[data-ended] .film__icon,
   .film[data-live] .film__icon {
     opacity: 0;
@@ -162,6 +142,8 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     outline: 2px solid var(--brand-neon);
     outline-offset: -4px;
   }
+
+  /* Sound & Restart */
 
   .film__sound,
   .film__restart {
@@ -192,7 +174,8 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     outline-offset: 2px;
   }
 
-  /* The live version: a button bottom right, and a full-screen dialog */
+  /* Live Version */
+
   .film__live,
   .film__close {
     display: inline-flex;
@@ -288,7 +271,8 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     }
   }
 
-  /* Locked: the poster, dimmed, with the password form in the middle */
+  /* Locked */
+
   .film[data-locked] .film__toggle,
   .film[data-locked] .film__sound {
     display: none;
@@ -383,11 +367,8 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
     const button = film.querySelector<HTMLButtonElement>('.film__sound');
     const restart = film.querySelector<HTMLButtonElement>('.film__restart');
-    // A film with a live version opens it from a click anywhere on it,
-    // rather than pausing
     const liveButton = film.querySelector<HTMLButtonElement>('.film__live');
-    // Set once someone pauses it, so scrolling back doesn't restart it.
-    // A locked film waits for its password.
+    // Set once someone pauses it, so scrolling back doesn't restart it
     let held = reducedMotion.matches || film.hasAttribute('data-locked');
 
     const sync = () => {
@@ -405,16 +386,13 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     video.addEventListener('ended', sync);
     sync();
 
-    // Safari only autoplays a video that is muted as a property too, not
-    // just by attribute
+    // Safari only autoplays a video muted as a property, not just by attribute
     if (!film.hasAttribute('data-locked')) {
       video.muted = true;
       video.defaultMuted = true;
     }
 
-    // Muted, it plays while a fifth of it is on screen. If the browser
-    // refuses (an autoplay policy), it tries again on the reader's next
-    // scroll, tap or key press while it's still in view.
+    // Refused by an autoplay policy, it tries again on the next scroll, tap or key
     let inView = false;
     const start = () => {
       if (held || video.ended || !inView) return;
@@ -449,7 +427,6 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
       }
     });
 
-    // Restart goes back to the top and plays, whether it was paused or not
     restart?.addEventListener('click', () => {
       held = false;
       video.currentTime = 0;
@@ -461,15 +438,14 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
       if (!video.muted && video.paused) video.play().catch(() => {});
     });
 
-    // The live version: load it on first open, pause the film behind it,
-    // and pick the film up again when the dialog closes
+    // Live Version
+
     const live = film.querySelector<HTMLButtonElement>('.film__live');
     const dialog = film.querySelector<HTMLDialogElement>('.film__dialog');
     if (live && dialog) {
       const frame = dialog.querySelector<HTMLIFrameElement>('iframe')!;
       let wasPlaying = false;
-      // Escape pressed inside the page (same origin) closes the dialog too;
-      // the browser only handles it when focus is outside the iframe
+      // The browser only handles Escape outside the iframe; this needs a same-origin page
       frame.addEventListener('load', () => {
         frame.contentWindow?.addEventListener('keydown', (event) => {
           if (event.key === 'Escape') dialog.close();
@@ -491,7 +467,8 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
       });
     }
 
-    // Private films
+    // Private Films
+
     const form = film.querySelector<HTMLFormElement>('.film__lock');
     if (!form) continue;
     const input = form.querySelector('input')!;

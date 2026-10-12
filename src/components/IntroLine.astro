@@ -1,10 +1,6 @@
 ---
-// Figma: "Intro". Serif line with underlined links that never break mid-phrase.
-//
-// A link with `images` gets a fan of them on hover: the photos rise out of
-// the link and spread, as the skill chips below fan and lift their project's
-// card (the same intent delay, spring and two-layer shadow), but plain
-// photos, with no gradient art or logo.
+// The homepage's serif intro line: underlined links that never break
+// mid-phrase. A link with `images` fans them out on hover (MOTION.md: Fan).
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -18,12 +14,10 @@ const last = links.length - 1;
 // Punctuation that ends a label sits after the link, out of its underline
 const split = (label: string) => label.match(/^(.*?)([,.;:]?)$/)!.slice(1);
 
-// Fan geometry, in em of the line's type: cards spread this far apart,
-// turn this much each step from the middle, and drop back a little at the
-// ends of the arc
+// Fan geometry, in em of the line's type
 const SPREAD = 2.4;
-const TURN = 6;
-const ARC = 0.3;
+const TURN = 6; // deg a step from the middle
+const ARC = 0.3; // drops back at the ends
 const fan = (n: number) =>
   Array.from({ length: n }, (_, i) => {
     const offset = i - (n - 1) / 2;
@@ -84,7 +78,8 @@ const fan = (n: number) =>
     transition: color var(--duration-s) var(--ease-out);
   }
 
-  /* The fan: cards stacked out of sight inside the link, centred above it */
+  /* Fan */
+
   .intro-fan {
     /* Short intent delay so sweeping across the line doesn't flash it */
     --intent: 100ms;
@@ -108,7 +103,7 @@ const fan = (n: number) =>
     border-radius: var(--radius-s);
     overflow: hidden;
     background-color: var(--neutral-100);
-    /* The hover cards' two-layer shadow, untinted */
+    /* ProjectPreview's shadow, untinted */
     box-shadow:
       0 24px 24px -12px oklch(from var(--neutral-900) l c h / 0.3),
       0 4px 4px -4px oklch(from var(--neutral-900) l c h / 0.25);
@@ -116,7 +111,6 @@ const fan = (n: number) =>
     visibility: hidden;
     transform-origin: 50% 100%;
     transform: translateY(0.5em) scale(0.9);
-    /* Leaving: quick and quiet, all together */
     transition:
       transform 160ms var(--ease-out),
       opacity 140ms var(--ease-out),
@@ -131,7 +125,6 @@ const fan = (n: number) =>
   }
 
   @media (hover: hover) {
-    /* Arriving: out of the link on the soft spring, spreading left to right */
     a.intro-line__link:hover .intro-fan__card {
       opacity: 1;
       visibility: visible;
@@ -157,16 +150,16 @@ const fan = (n: number) =>
     }
   }
 
+  /* Hover */
+
   @media (hover: hover) {
     a.intro-line__link:hover {
       color: var(--text-muted);
     }
   }
 
-  /* Hover: the underline is pulled away to the right and drawn back in from
-     the left, a quick pen stroke that echoes the hero's scribble. The border
-     keeps its space (so nothing shifts) but goes clear, and a line drawn over
-     it does the moving. */
+  /* The underline redraws (MOTION.md: Ink). The border keeps its space but
+     goes clear, so nothing shifts; a line drawn over it does the moving */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     a.intro-line__link {
       position: relative;

@@ -1,24 +1,15 @@
 ---
-// A wall of product pages: two columns of screen cards on a panel, each
-// card a whole page across (nothing cut at the sides) at about 43% of its
-// design size, cropped only at the bottom. The columns slide past each
-// other as the wall crosses the screen.
-// Built at 1416 × 1416 Figma px and scaled as one piece (--u).
-//
-// screens: the image (a 1512-wide frame exported at 2x), its alt, and the
-// card height in Figma px (how much of the page shows)
-// Arrival: the first time the wall comes into view, the cards cascade in,
-// row by row across both columns, each lifting on the spring and settling,
-// like pages being laid out on a desk (quick: about a second in all).
-// Then a gentle parallax takes over, driven from scroll in script so it
-// works in Safari too (no scroll timelines there yet).
-// Reduced motion: no cascade, and the columns hold still.
+// A wall of product pages: two columns of whole pages, cropped only at the
+// bottom, sliding past each other on scroll. Built at 1416 × 1416 Figma px
+// and scaled as one piece (--u).
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
 interface Screen {
+  // A 1512-wide frame exported at 2x
   src: ImageMetadata;
   alt: string;
+  // The card's height in Figma px: how much of the page shows
   h: number;
 }
 
@@ -66,8 +57,7 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
     gap: calc(24 * var(--u));
     justify-content: center;
     align-items: start;
-    /* A fixed height, not aspect-ratio: the columns run past the bottom
-       and would stretch it */
+    /* Not aspect-ratio: the columns run past the bottom and would stretch it */
     height: calc(1416 * var(--u));
     overflow: hidden;
   }
@@ -114,9 +104,7 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
         opacity 400ms var(--ease-out) calc(var(--i) * 60ms),
         transform 720ms var(--ease-spring) calc(var(--i) * 60ms);
     }
-
   }
-
 </style>
 
 <script>
@@ -125,8 +113,8 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
   const still = reducedMotion.matches;
 
   for (const wall of document.querySelectorAll<HTMLElement>('.page-wall')) {
-    // Parallax: --p runs from 1 as the wall enters to -1 as it leaves, and
-    // the columns slide by 64 Figma px either way, in opposite directions
+    // --p runs from 1 as the wall enters to -1 as it leaves; the columns slide
+    // 64 Figma px either way. Scripted, not a scroll timeline, for Safari
     if (!still) {
       let frame = 0;
       const update = () => {
@@ -145,7 +133,6 @@ const sizes = 'calc(0.4576 * min(100vw - 32px, 1416px))';
       update();
     }
 
-    // Cascade in once, when a fifth of the wall is on screen
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;

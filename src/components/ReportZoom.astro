@@ -1,12 +1,6 @@
 ---
-// The shared report, and the one button that takes it into Claude. It
-// opens on the whole page across (1512 frame px at 1224 wide on the grey
-// ground), then the view zooms in on the "Ask about this report in:
-// Claude" button while the cursor travels to it, turns to a hand, clicks,
-// holds, and zooms back out. Plays only while on screen.
-// The zoom grows the page around the button (transform-origin on it), so
-// the button stays where the cursor is heading.
-// Reduced motion: the whole page, still, with a ring around the button.
+// Format's shared report: the view zooms in on its "Ask about this report in:
+// Claude" button while a cursor clicks it, on a loop while it's on screen.
 import { Image } from 'astro:assets';
 import brief from '../assets/work/format/brief-header.png';
 
@@ -67,7 +61,7 @@ const by = +(72 + BY * K).toFixed(1);
     overflow: hidden;
   }
 
-  /* Zooms around the button */
+  /* Zooms around the button, so it stays where the cursor is heading */
   .rz__camera {
     position: absolute;
     inset: 0;
@@ -112,6 +106,8 @@ const by = +(72 + BY * K).toFixed(1);
   .rz[data-clicked] .rz__ring {
     opacity: 1;
   }
+
+  /* Cursor */
 
   .rz__cursor {
     position: absolute;
@@ -241,9 +237,8 @@ const by = +(72 + BY * K).toFixed(1);
 
     const loop = async (id: number) => {
       while (id === run) {
-        // The whole page, a moment to take it in
         await wait(1600, id);
-        // Zoom in on the button as the cursor heads for it
+
         root.style.setProperty('--zoom-ms', '1600ms');
         flag('data-zoomed', true);
         move([bx, by], 1600);
@@ -255,7 +250,7 @@ const by = +(72 + BY * K).toFixed(1);
         flag('data-pressing', false);
         flag('data-clicked', true);
         await wait(1800, id);
-        // And back out
+
         flag('data-clicked', false);
         flag('data-hand', false);
         root.style.setProperty('--zoom-ms', '1400ms');

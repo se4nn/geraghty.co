@@ -1,15 +1,7 @@
 ---
-// Figma: "Let's talk." The word is cropped by the bottom of the page
-// and lit from below by a blurred neon ellipse, which flickers like the
-// light from a television.
-//
-// The page ends where the word is cropped, but the rest of the word is
-// still there below it: pull past the bottom of the page (the bounce of an
-// overscroll) and it shows. The word is SVG text: what an SVG paints
-// outside its own frame never makes the page longer, where text spilling
-// out of its box does (browsers count a line's full font height). Only
-// while the word rises into place is it cropped for real (data-arrival,
-// until settled).
+// "Let's talk." in the Footer, cropped by the bottom of the page and lit from
+// below (MOTION.md: Light, Overscroll). SVG text: what it paints outside its
+// frame doesn't lengthen the page, where HTML text would.
 interface Props {
   email: string;
 }
@@ -31,18 +23,17 @@ const { email } = Astro.props;
 <style>
   .lets-talk {
     position: relative;
-    /* "Let's talk." is 3.195em wide. Size it to fill 95% of the quote above,
-       never larger than the display size. */
+    /* The word is 3.195em wide: 95% of the quote's width, capped at display size */
     font-size: min(var(--display-size), var(--quote-width, 100%) * 0.95 / 3.195);
-    /* 120px gap above the 160px line, 120px of it visible, at 200px type.
-       The box is the visible band: 0.4em, the line's middle 0.4em with
-       0.2em over it, so the word sits as it did in a 0.8em line */
+    /* At 200px type: a 120px gap, then 120px of the 160px line shows. The box
+       is the line's middle 0.4em; the 0.2em over it shows above the box */
     margin-top: 0.8em;
     height: 0.4em;
   }
 
-  /* The light, cropped by the page edge (it's a box, so left hanging it
-     would make the page longer) */
+  /* Light */
+
+  /* Clipped: a box left hanging below would make the page longer */
   .lets-talk__light {
     position: absolute;
     left: 50%;
@@ -66,12 +57,9 @@ const { email } = Astro.props;
     pointer-events: none;
   }
 
-  /* A hotter core that answers the pointer: the light warms up under
-     "Let's talk." on hover, then keeps pulsing on an uneven beat, like
-     someone talking, until it's left. Cools a little quicker than it warms. */
+  /* The hot core that warms and pulses on hover */
   .lets-talk__glow::after {
-    /* Centred on the visible band of the word, not the whole glow, most
-       of which sits below the page */
+    /* Centred on the word's visible band, not the glow, mostly below the page */
     content: '';
     position: absolute;
     top: -5%;
@@ -91,13 +79,11 @@ const { email } = Astro.props;
 
   @media (prefers-reduced-motion: no-preference) {
     .lets-talk:has(.lets-talk__link:hover, .lets-talk__link:focus-visible) .lets-talk__glow::after {
-      /* Waits for the core to warm up, then starts on a slow breath in */
+      /* Starts once the core has warmed */
       animation: lets-talk-pulse 4.8s var(--ease-in-out) 600ms infinite;
     }
 
-    /* Last in the footer's arrival sequence (Footer sets data-arrival):
-       the word rises from below the page edge that crops it, and the light
-       swells up behind it */
+    /* Sequence (MOTION.md); Footer sets data-arrival */
     .lets-talk[data-arrival='waiting'] .lets-talk__link {
       translate: 0 0.8em;
     }
@@ -115,12 +101,8 @@ const { email } = Astro.props;
       animation: lets-talk-rise 2200ms var(--ease-drift) both;
     }
 
-    /* A television in a dark room: the light never sits still. Mostly
-       small, quick changes in brightness, now and then a cut to a dimmer
-       or brighter scene, and underneath a cooler, whiter light that comes
-       and goes on its own beat. The two loops (9.7s and 6.1s) don't line
-       up, so it doesn't visibly repeat. Opacity only, so it costs nothing
-       to draw. */
+    /* At rest (MOTION.md: Light): two loops that don't line up, so it never
+       visibly repeats. Opacity only, so it costs nothing to draw */
     .lets-talk__light {
       animation: lets-talk-tv 9.7s linear infinite;
     }
@@ -130,7 +112,7 @@ const { email } = Astro.props;
     }
   }
 
-  /* The cooler light of the picture changing, over the neon */
+  /* The cooler, whiter light, over the neon */
   .lets-talk__glow::before {
     content: '';
     position: absolute;
@@ -201,9 +183,7 @@ const { email } = Astro.props;
     }
   }
 
-  /* Phrases, not a metronome: a slow swell in, a short answer, a rest,
-     then a longer one. Every move takes at least half a second, so it reads
-     as breathing and talking rather than a flicker. */
+  /* Every move at least half a second, so it reads as talking, not flicker */
   @keyframes lets-talk-pulse {
     0%,
     100% {
@@ -226,8 +206,10 @@ const { email } = Astro.props;
     }
   }
 
-  /* Room above the line for the tops of the capitals, down to the page
-     edge. Cropped only while the word is rising into place */
+  /* Word */
+
+  /* Room above the line for the capitals, down to the page edge. Cropped only
+     while the word rises */
   .lets-talk__crop {
     position: absolute;
     inset: -0.5em 0 0;
@@ -264,8 +246,7 @@ const { email } = Astro.props;
 </style>
 
 <script>
-  // Once the word has risen into place, its crop lets go, so the rest of it
-  // hangs below the page for an overscroll to show
+  // Once risen, the crop lets go, so an overscroll can show the rest
   for (const talk of document.querySelectorAll<HTMLElement>('.lets-talk')) {
     talk.querySelector('.lets-talk__link')?.addEventListener('animationend', (event) => {
       if ((event as AnimationEvent).animationName.includes('lets-talk-word')) talk.toggleAttribute('data-settled', true);

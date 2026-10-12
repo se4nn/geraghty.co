@@ -1,25 +1,7 @@
 ---
-// The Format opener: the click-through the product didn't have when I
-// joined. Real exports from Portfolio › Format - Case Study Assets
-// (invented data): the whole 1512 × 982 screen, scaled to sit in the
-// 1416 × 812 panel with 48 above and below, on the grey ground.
-//
-// The story, as a cursor tells it:
-// 1. The reports page. The cursor clicks the report on what people ask
-//    Claude before they ask Format.
-// 2. The report lifts in and scrolls down to its table of customers. The
-//    cursor clicks Leah.
-// 3. Leah's card opens over the report (an overlay in the product, so it
-//    appears in place). The cursor hovers Unilever on it...
-// 4. ...and Unilever's card replaces it, as the hover does in the product.
-//    The cursor clicks the company name.
-// 5. Unilever's page lifts in. A beat, then the reports page lifts back in
-//    over it and it goes round again.
-//
-// The cursor is always on screen. It's an arrow while it travels and a
-// pointing hand over anything that leads somewhere, and it presses when it
-// clicks. Plays only while on screen; leaving and coming back starts over.
-// Reduced motion: the reports page, still, no cursor.
+// Format's case study opener: a cursor clicks through the product on a loop
+// while it's on screen (the steps are in the script). The whole 1512 × 982
+// screen is scaled into the 1416 × 812 panel, 48 above and below.
 import { Image } from 'astro:assets';
 import overview from '../assets/work/format/reports-overview.png';
 import briefLong from '../assets/work/format/opener/brief-long.png';
@@ -135,7 +117,9 @@ const widths = [1102, 1653, 2204, 3024];
     max-width: none;
   }
 
-  /* The cursor: its wrapper sits on the hotspot */
+  /* Cursor */
+
+  /* The wrapper sits on the hotspot */
   .fo__cursor {
     position: absolute;
     left: 0;
@@ -206,7 +190,6 @@ const widths = [1102, 1653, 2204, 3024];
       animation: fo-click 520ms var(--ease-out);
     }
 
-    /* Pages lift in on the spring over the one before */
     .fo__page[data-arriving] {
       animation: fo-lift 720ms var(--ease-spring) both;
     }
@@ -252,8 +235,7 @@ const widths = [1102, 1653, 2204, 3024];
   const K = 0.7291;
   const at = (x: number, y: number) => [156.8 + x * K, 48 + y * K] as const;
   const REST = [1150, 560] as const;
-  // The report scrolls until the customers table sits where the cards
-  // were designed over it (their page content is 3693 down)
+  // Where the customers table sits under the cards (3693 down the report)
   const SCROLL = 3693;
 
   for (const opener of document.querySelectorAll<HTMLElement>('.fo')) {

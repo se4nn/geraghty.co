@@ -1,20 +1,8 @@
 ---
-// Figma: "Video". The showreel, muted and looping (docs/SHOWREEL-PLAN.md;
-// made by scripts/reel/). It only plays while it's on screen.
-//
-// `loader`: on a first visit the reel opens the site as a loader. The page
-// loads finished under a cover in its own colour, and a small screen in the
-// middle flicks through the work, a hard cut every ~110ms, each image shown
-// only once it has loaded. The last image is the reel's first frame. The
-// screen grows in place to the reel's size and the reel takes over from that
-// frame; then the cover goes with the page shifted so the slot sits exactly
-// under it, and the whole page slides into place: the hero comes down from
-// the top and pushes the reel down into its slot, and the hero's scribble
-// circles "miss" just after it lands. The page marks what slides with
-// data-intro-page. Scroll, a key or a click ends the flicking at once.
-// The page's head script decides before the first paint whether it plays:
-// on every load and reload of the page, never coming back to it from a case
-// study, never with reduced motion or Save-Data.
+// The homepage showreel, muted and looping, playing only while on screen
+// (docs/SHOWREEL-PLAN.md; made by scripts/reel/). With `loader` it opens the
+// site (MOTION.md: Loader); the page's head script decides before first paint
+// whether that plays (never with reduced motion or Save-Data).
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
 
@@ -68,8 +56,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     background-color: var(--neutral-100);
   }
 
-  /* The size of Format's screen in its opener (1102 of 1416): a screen on
-     the page rather than a band across it. Phones keep the full width. */
+  /* Format's screen in its opener (1102 of 1416): a screen, not a band */
   @media (min-width: 700px) {
     .showreel {
       width: calc(1102 / 1416 * 100%);
@@ -88,8 +75,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
     display: none;
   }
 
-  /* The loader. The page underneath is finished and still; it's only
-     covered, and can't scroll until the reel is in its place */
+  /* Loader */
+
   :global(html[data-intro]) {
     overflow: hidden;
   }
@@ -151,11 +138,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
   import { reducedMotion, wait, token } from '../scripts/arrival';
 
   const root = document.documentElement;
-  // How long each image holds, in ms: a slot machine's rhythm. The first
-  // holds while the screen switches on, then the cuts speed up from 180 to
-  // 60 a frame, run at 60, and brake hard into the last image, the reel's
-  // first frame, which holds before the reel takes over. An image not
-  // loaded yet holds the one before it.
+  // ms each image holds, a slot machine's rhythm (MOTION.md: Loader). An image
+  // not loaded yet holds the one before it.
   const POWER_ON = 560;
   const hold = (i: number, n: number) => {
     const last = n - 1;
@@ -171,9 +155,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
 
   for (const video of document.querySelectorAll<HTMLVideoElement>('video.showreel__media')) {
 
-    // Play once at least a third is on screen; pause only once it's gone
-    // altogether, so a reel that has just landed half on screen keeps
-    // playing. Reduced motion keeps the poster.
+    // Pauses only once fully off screen, so a reel that lands half on screen
+    // keeps playing
     let seen = false;
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -228,9 +211,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     addEventListener('keydown', onKey);
     const deadline = setTimeout(end, AT_MOST);
 
-    // The site's CRT: the screen switches on as a case study hero does
-    // (global.css, screen-on), every cut flashes for a frame with scanlines,
-    // and the last image lands overexposed with the power-on's one flicker
+    // MOTION.md: Loader (screen-on is in global.css)
     const cut = () => {
       flick.animate([{ filter: 'brightness(1.6) saturate(0.6)' }, { filter: 'none' }], { duration: 70, easing: 'steps(2, end)' });
       flick.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 70, easing: 'steps(2, end)', pseudoElement: '::after' });
@@ -274,12 +255,10 @@ const hevc = 'video/mp4; codecs="hvc1"';
     removeEventListener('pointerdown', end);
     removeEventListener('keydown', onKey);
 
-    // 1. The screen grows in place to the reel's size, still in the middle
-    // of the screen. A transform on a box already drawn at full size, so
-    // nothing is laid out or resampled as it grows.
+    // 1. Grow to the reel's size: a transform on a box already drawn full
+    // size, so nothing is laid out or resampled
     const page = document.querySelector<HTMLElement>('[data-intro-page]');
-    // A reload part-way down the page comes back to where it was; under the
-    // cover, take it to the top, where the page arrives
+    // A reload part-way down restores its scroll; the page arrives at the top
     window.scrollTo({ top: 0, behavior: 'instant' });
     const from = flick.getBoundingClientRect();
     const to = slot.getBoundingClientRect();
@@ -308,9 +287,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
       wait(1500),
     ]);
 
-    // 3. The page, shifted so the slot is exactly where the screen was, takes
-    // its place in the same frame as the cover goes, then slides into place:
-    // the hero comes down from the top and pushes the reel into its slot.
+    // 3. The page, shifted so the slot is where the screen was, replaces the
+    // cover in the same frame, then slides into place
     const shift = to.top - top;
     const sliding = page?.animate([{ translate: `0 ${-shift}px` }, { translate: '0 0' }], {
       duration: 1100,

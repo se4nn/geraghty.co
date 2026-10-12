@@ -1,7 +1,6 @@
 ---
-// Figma: "Bar". A bold run of labels split by bars on the left, lighter
-// detail pushed to the right. Under every project tile, and along the foot
-// of a case study hero, where a middle item (the role) sits centred.
+// Bold labels split by bars, lighter detail to the right. Under every project
+// tile, and at the foot of a case study hero with the role centred between.
 interface Props {
   lead: string[];
   middle?: string;
@@ -33,7 +32,8 @@ const { lead, middle, trail } = Astro.props;
     color: var(--text-strong);
   }
 
-  /* Three equal columns: lead left, middle centred, trail right */
+  /* Three Columns */
+
   .bar--three {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -49,7 +49,8 @@ const { lead, middle, trail } = Astro.props;
     text-align: right;
   }
 
-  /* Phones: one per line, left aligned */
+  /* Phones */
+
   @media (max-width: 700px) {
     .bar--three {
       grid-template-columns: 1fr;

@@ -1,8 +1,6 @@
 ---
-// Figma: "Stats". Three Stats across the grid split by thin rules, stacked
-// with short rules between them on phones. An optional label sits centred
-// above the row (Figma: "Intro", 2453:25814, "Highlights & Outcomes"), for
-// rows that mix numbers with highlights that aren't numbers.
+// Three Stats across the grid split by thin rules, stacked on phones. The
+// optional label heads rows that mix numbers with highlights that aren't.
 interface Props {
   label?: string;
 }
@@ -22,7 +20,6 @@ const { label } = Astro.props;
 }
 
 <style>
-  /* Figma: the label, 48, then the row */
   .stats-group {
     display: flex;
     flex-direction: column;
@@ -34,8 +31,7 @@ const { label } = Astro.props;
     text-align: center;
   }
 
-  /* Figma: stat, 16 gap, 16px divider slot, 16 gap, stat. So a 48px gap
-     with the rule in its middle; stats stay equal widths. */
+  /* Stat, 16, a 16px slot for the rule, 16, stat: the rule sits mid-gap */
   .stats {
     display: flex;
     align-items: stretch;
@@ -58,7 +54,8 @@ const { label } = Astro.props;
     background-color: var(--border-default);
   }
 
-  /* Phones: stacked, a short rule between */
+  /* Phones */
+
   @media (max-width: 700px) {
     .stats {
       flex-direction: column;

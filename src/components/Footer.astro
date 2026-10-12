@@ -27,8 +27,8 @@ const { email, label } = Astro.props;
     padding-top: clamp(80px, 10.58vw, 160px);
   }
 
-  /* The quote and its attribution span the middle three grid columns.
-     "Let's talk." is sized from the quote's width so the two always line up. */
+  /* Three of the five grid columns. "Let's talk." is sized from the quote's
+     width, so the two line up. */
   .footer__inner {
     container-type: inline-size;
     --three-columns: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
@@ -36,10 +36,7 @@ const { email, label } = Astro.props;
     --attribution-width: var(--three-columns);
   }
 
-  /* Sequence: once the footer is reached, the quote drifts slowly up from
-     the base of the page, then its attribution, then "Let's talk." rises
-     from below the page edge with its light (see LetsTalk). Played once, and
-     only for what wasn't already on screen (src/scripts/arrival.ts). */
+  /* Sequence (MOTION.md), timed by src/scripts/arrival.ts */
   @media (prefers-reduced-motion: no-preference) {
     .footer :global(.testimonial[data-arrival='waiting'] .testimonial__quote),
     .footer :global(.testimonial[data-arrival='waiting'] .testimonial__row) {
@@ -72,8 +69,7 @@ const { email, label } = Astro.props;
     }
   }
 
-  /* Tablets and phones: the quote takes the full five columns, while the
-     attribution keeps its desktop measure until phones */
+  /* Tablets: the quote goes full width; the attribution waits for phones */
   @media (max-width: 1100px) {
     .footer__inner {
       --quote-width: 100cqi;
@@ -90,8 +86,8 @@ const { email, label } = Astro.props;
 <script>
   import { whenSeen, arrive, wait } from '../scripts/arrival';
 
-  // "Let's talk." follows the quote: if both come into view together (a jump
-  // to the end), it still waits for the quote and its attribution to start
+  // ms "Let's talk." waits behind the quote, even when both arrive together
+  // (a jump to the end)
   const TALK_AFTER_QUOTE = 1300;
 
   for (const footer of document.querySelectorAll<HTMLElement>('.footer')) {

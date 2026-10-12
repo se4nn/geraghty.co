@@ -1,14 +1,6 @@
 ---
-// Format's variables, both layers at once: the Semantic collection on the
-// left (what components use) and the Primitives it points at on the right
-// (the five hue ramps and the neutral). Read from Format's Design System
-// file (), 6 Oct 2026: 156 primitives (51 colours),
-// 36 semantic colours, one mode.
-//
-// A semantic row is lit and its primitive ringed; while on screen the light
-// steps down the table on its own. Hover or focus a row to pick one (it
-// then holds). Words stay put: only colour and the ring change.
-// Reduced motion: the first row is lit and nothing steps.
+// Format's variables: the Semantic collection on the left, each pointing at a
+// Primitive on the right. Rows (a selection), ramps and counts are Format's own.
 // Built at 1416 × 812 Figma px, scaled as one piece (--u).
 const semantic: [string, string][] = [
   ['background', 'neutral/000'],
@@ -174,6 +166,8 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     height: calc(100% - 72 * var(--u));
   }
 
+  /* Table */
+
   .fv__table {
     display: flex;
     flex-direction: column;
@@ -236,6 +230,8 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     background-color: var(--c);
     box-shadow: inset 0 0 0 1px oklch(0% 0 0 / 0.08);
   }
+
+  /* Ramps */
 
   .fv__ramps {
     display: flex;

@@ -1,9 +1,7 @@
 ---
-// Figma: "Project - X" at the top of a case study. The project's tile art
-// full bleed (the same live gradient, so the homepage tile morphs into it),
-// Projects (back to the work, once called Close) top left, the project's
-// links top right, and a Bar along the foot:
-// tags, role, dates.
+// The top of a case study: the project's tile art full bleed (so the homepage
+// tile morphs into it), Projects top left, the project's links top right, and
+// a Bar of tags, role and dates along the foot.
 import type { CollectionEntry } from 'astro:content';
 import TileArt from './TileArt.astro';
 import Button from './Button.astro';
@@ -16,8 +14,7 @@ interface Props {
 const { project } = Astro.props;
 const { title, tags, dates, tile } = project.data;
 const study = project.data.caseStudy!;
-// Logos are sized by area, not width (Sean, 11 Oct 2026), so a long, thin
-// wordmark and a chunky one carry the same weight. The CSS needs the shape
+// Logos are sized by area, not width, so the CSS needs the shape
 const logoAspect = tile.logo.width / tile.logo.height;
 ---
 
@@ -61,8 +58,7 @@ const logoAspect = tile.logo.width / tile.logo.height;
   .case-hero {
     position: relative;
     display: grid;
-    /* 80% of the screen's height (Figma: 720 of a 900 tall window), with a
-       floor so the logo and bar keep their room on short windows */
+    /* 720 of a 900 tall window; the floor keeps room for the logo and bar */
     width: 100%;
     height: 80svh;
     min-height: 440px;
@@ -77,24 +73,21 @@ const logoAspect = tile.logo.width / tile.logo.height;
     border-radius: 0;
   }
 
-  /* The live gradient shows as soon as its first frame is drawn, without
-     LensFlare's usual fade over the still: arriving through the tile's
-     power-on, a fade would swap still for live mid-transition and flicker */
+  /* No fade from the still: mid power-on, the swap to live would flicker */
   .case-hero :global(.lens-flare__canvas) {
     transition: none;
   }
 
-  /* Every logo covers the same area: the area Fertifa's wordmark (284 × 72,
-     an aspect of 3.94) has at 432px wide at 1512, as in Figma, with a floor
-     for phones. Width scales with the square root of a logo's aspect, so a
-     thinner wordmark is drawn wider and a stacked one narrower. The height
-     cap is only a backstop now */
+  /* Logos by area: each covers what Fertifa's (284 × 72, aspect 3.94) does at
+     432 wide at 1512. Keep NextProject's rule identical or the logo jumps */
   .case-hero :global(.case-hero__art .tile-art__logo) {
     width: calc(clamp(200px, calc(432 / 1512 * 100%), 640px) * sqrt(var(--logo-aspect, 3.94) / 3.94));
     max-width: 80%;
     max-height: 55%;
     object-fit: contain;
   }
+
+  /* Overlay */
 
   .case-hero__overlay {
     position: relative;
@@ -120,7 +113,6 @@ const logoAspect = tile.logo.width / tile.logo.height;
     list-style: none;
   }
 
-  /* The Bar in white over the art */
   .case-hero :global(.bar__lead) {
     color: var(--text-on-dark);
   }
@@ -133,6 +125,8 @@ const logoAspect = tile.logo.width / tile.logo.height;
     display: contents;
   }
 
+  /* Phones */
+
   @media (max-width: 700px) {
     .case-hero__links {
       gap: var(--space-s);
@@ -141,13 +135,10 @@ const logoAspect = tile.logo.width / tile.logo.height;
 </style>
 
 <script>
-  // Projects goes back rather than forward when the reader came from the
-  // homepage, so the browser puts them straight back where they'd scrolled
-  // to (and the art morphs back into its tile). Arriving any other way, the
-  // link goes to the project's tile on the homepage.
+  // From the homepage, Projects goes back in history so the reader lands where
+  // they left it (MOTION.md: Power on); otherwise it links to the tile
   const close = document.querySelector<HTMLAnchorElement>('.case-hero__close a');
   close?.addEventListener('click', (event) => {
-    // Navigation API where there is one, the referrer elsewhere
     const from = (window as any).navigation?.activation?.from?.url ?? document.referrer;
     if (!from) return;
     const url = new URL(from);

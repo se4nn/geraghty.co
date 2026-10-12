@@ -1,7 +1,6 @@
 ---
-// Hover card for a skill chip. Figma: "Frame 1" on the v2 page.
-// The project's thumbnail (same artwork as its work tile) rises above the
-// chip while it's hovered. Rendered inside the chip link, which positions it.
+// A skill chip's hover card: the project's tile artwork, rising out of the
+// chip (MOTION.md: Fan). Rendered inside the chip link, which positions it.
 import type { ImageMetadata } from 'astro';
 import TileArt from './TileArt.astro';
 
@@ -21,8 +20,8 @@ type Props = Preview;
 
 const { image, logo, logoScale, grain, tint, alt } = Astro.props;
 
-// Matched to the tiles: the card is 400 × 280, so the logo is sized against
-// its short side, the same way a square tile's logo is sized against its side
+// The card is 400 × 280: the logo is sized against its short side, as a
+// square tile's is against its side
 const CARD_RATIO = 280 / 400;
 ---
 
@@ -42,7 +41,7 @@ const CARD_RATIO = 280 / 400;
 
 <style>
   .preview {
-    /* Short intent delay so sweeping across the fan doesn't flash the card */
+    /* So sweeping across the fan doesn't flash the card (INTENT in Skills) */
     --intent: 100ms;
 
     /* 400 × 280, 24px above the row, at 33px type */
@@ -54,7 +53,6 @@ const CARD_RATIO = 280 / 400;
     width: 12.1212em;
     height: 8.4848em;
     border-radius: var(--radius-s);
-    /* Figma's two-layer shadow, tinted with the project's colour */
     --card-tint: var(--neutral-900);
     box-shadow:
       0 24px 24px -12px oklch(from var(--card-tint) l c h / 0.3),
@@ -63,10 +61,9 @@ const CARD_RATIO = 280 / 400;
     cursor: default;
     opacity: 0;
     visibility: hidden;
-    /* Grows out of the chip below it */
+    /* Grows out of the chip below */
     transform-origin: 50% 100%;
     transform: translate(-50%, 0.25em) scale(0.94);
-    /* Leaving: quick and quiet */
     transition:
       transform 160ms var(--ease-out),
       opacity 140ms var(--ease-out),
@@ -79,7 +76,6 @@ const CARD_RATIO = 280 / 400;
   }
 
   @media (hover: hover) {
-    /* Arriving: rises out of the chip on a soft spring */
     :global(a.chip:hover) > .preview {
       opacity: 1;
       visibility: visible;
@@ -91,22 +87,16 @@ const CARD_RATIO = 280 / 400;
     }
   }
 
-  /* Touch screens never hover, so the card never shows. Take it out of the
-     layout there, or the hidden cards push the page wider than the screen. */
+  /* Or the hidden cards widen the page on phones (MOTION.md, Gotchas) */
   @media (hover: none) {
     .preview {
       display: none;
     }
   }
 
-  /* Warm: once one card is open, moving along the chips swaps cards in
-     place with no intent delay and no second rise, as a tooltip group does.
-     The skills row sets data-warm while a card is showing. The swap is a hard
-     cut, the old card gone and the new one there in the same frame, so the
-     page never shows through a crossfade. Only chips entered while warm
-     (data-swap) cut in, so the first card's rise isn't interrupted, and a
-     card only cuts out when another is taking over; leaving the row still
-     plays the quiet exit. */
+  /* Group warm-up (MOTION.md): Skills sets data-warm and data-swap. A hard
+     cut, never a crossfade; only chips entered while warm cut, so the first
+     card's rise and leaving the row still play */
   @media (hover: hover) {
     :global([data-warm]) .preview {
       --intent: 0ms;

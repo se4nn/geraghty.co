@@ -1,12 +1,6 @@
 ---
-// Figma: Portfolio › v2 › "Next Project" (2428:6520, hover 2428:6549). The
-// next project's tile art across the grid on the dark background, rising
-// out of the dark above (a Neutral/1000 fade at the top), lower corners
-// rounded 48. Its logo sits in the middle at the size the case study hero
-// shows it, so it doesn't change size when the project opens. Tags bottom left, dates bottom right, as in the
-// case study hero. On hover or focus the logo flips over (top edge away)
-// to "Next project" on its back. Touch screens show the logo with the
-// label beneath. The whole tile links.
+// The next project's tile at the foot of a case study. On hover or focus the
+// logo flips over to "Next project"; touch screens show the label beneath.
 import type { CollectionEntry } from 'astro:content';
 import type { ImageMetadata } from 'astro';
 import TileArt from './TileArt.astro';
@@ -17,7 +11,6 @@ interface Props {
 
 const { project } = Astro.props;
 const { title, tile, link, tags, dates } = project.data;
-// The homepage tile's logo, at its homepage proportion
 const logo: ImageMetadata = tile.logo;
 // No case study yet: go to the project's tile on the homepage
 const href = link ?? `/#work-${project.id}`;
@@ -58,12 +51,8 @@ const href = link ?? `/#work-${project.id}`;
 </section>
 
 <script>
-  // The tile only morphs when you leave through it. Named on the page all
-  // the time, it would also pair with the same project's tile or hero on
-  // the page you came from, and fly down to the foot of this one on arrival
-  // (a dark box crossing the screen, from the CRT's backing). So it takes
-  // its name in pageswap, just before the old page is captured, and only
-  // when the navigation goes where the tile points.
+  // Takes its morph name only in pageswap, when leaving through it: named all
+  // the time, it pairs with the last page's tile and flies a dark box down here
   addEventListener('pageswap', (event) => {
     const to = event.activation?.entry?.url;
     if (!event.viewTransition || !to) return;
@@ -102,13 +91,11 @@ const href = link ?? `/#work-${project.id}`;
     grid-area: 1 / 1;
   }
 
-  /* Lower corners only: the top fades into the dark, and a rounded top
-     edge there shows a light fringe of the art through the fade */
+  /* Lower corners only: a rounded top shows a light fringe through the fade */
   .next__tile :global(.next__art) {
     border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
   }
 
-  /* Rises out of the dark above it */
   .next__tile :global(.next__art)::after {
     content: '';
     position: absolute;
@@ -124,7 +111,8 @@ const href = link ?? `/#work-${project.id}`;
     perspective: 900px;
   }
 
-  /* Logo on the front, "Next project" on the back, in one cell */
+  /* Flip */
+
   .next__flip {
     display: grid;
     place-items: center;
@@ -136,8 +124,7 @@ const href = link ?? `/#work-${project.id}`;
     backface-visibility: hidden;
   }
 
-  /* The size it opens at: CaseHero's rule (the same area for every logo,
-     Fertifa's at 432 wide at 1512), and never taller than 85% of this tile */
+  /* CaseHero's rule, so it opens at the same size; at most 85% of the tile */
   .next__logo {
     width: calc(clamp(200px, calc(432 / 1512 * 100vw), 640px) * sqrt(var(--logo-aspect, 3.94) / 3.94));
     max-width: 80%;
@@ -174,7 +161,7 @@ const href = link ?? `/#work-${project.id}`;
     }
   }
 
-  /* Reduced motion: no turn, the back simply replaces the front */
+  /* Reduced motion: no turn, the back replaces the front */
   @media (prefers-reduced-motion: reduce) {
     .next__label {
       transform: none;
@@ -197,7 +184,8 @@ const href = link ?? `/#work-${project.id}`;
     }
   }
 
-  /* Touch: the logo, with the label beneath it */
+  /* Touch */
+
   @media (hover: none) {
     .next__flip {
       gap: 16px;
@@ -213,7 +201,8 @@ const href = link ?? `/#work-${project.id}`;
     }
   }
 
-  /* Tags and dates along the bottom, as in the case study hero */
+  /* Tags & Dates */
+
   .next__meta {
     position: relative;
     align-self: end;
@@ -249,7 +238,8 @@ const href = link ?? `/#work-${project.id}`;
     border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
   }
 
-  /* Phones: a squarer tile */
+  /* Phones */
+
   @media (max-width: 700px) {
     .next__tile {
       aspect-ratio: 4 / 5;

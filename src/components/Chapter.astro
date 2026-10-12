@@ -1,11 +1,8 @@
 ---
-// A full-width band of a case study (Figma: the "Design" frames). Blocks
-// stack 96px apart on the work background. Art that bleeds past the grid, and
-// the glow, are clipped at the band's edges.
+// A full-width band of a case study. Art that bleeds past the grid, and the
+// glow, are clipped at its edges.
 // flush: the first block sits right at the top (the opening image)
 // glow: a soft darker light across the top, marking a new chapter
-// (Figma: "Ellipse 120", a blurred radial Neutral/300 → 100). It swells up
-// as the chapter arrives, like the footer's light.
 interface Props {
   label: string;
   flush?: boolean;
@@ -44,7 +41,8 @@ const { label, flush = false, glow = false } = Astro.props;
     padding-top: 0;
   }
 
-  /* Half an ellipse of light hanging from the top edge, blurred right out */
+  /* Glow */
+
   .chapter--glow::before {
     content: '';
     position: absolute;
@@ -58,8 +56,7 @@ const { label, flush = false, glow = false } = Astro.props;
     pointer-events: none;
   }
 
-  /* Light: faint until the chapter is on screen, then it swells up slowly.
-     Only when it arrives from below (src/scripts/arrival.ts) */
+  /* Swells up as the chapter arrives from below (MOTION.md: Light) */
   @media (prefers-reduced-motion: no-preference) {
     .chapter--glow[data-arrival='waiting']::before {
       opacity: 0.15;

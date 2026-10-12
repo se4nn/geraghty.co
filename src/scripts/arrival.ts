@@ -1,12 +1,7 @@
-// One-off arrivals, timed by when something is actually seen.
-//
-// An element that is off the page when it loads is marked
-// data-arrival="waiting", and the promise resolves true once enough of it has
-// scrolled in; the caller then marks it "arrived" (straight away, or after
-// whatever it should follow), for the component's CSS to play its entrance.
-// Anything already on the page at load resolves false and is left alone, so
-// nothing that's visible changes under the reader. With reduced motion, or no
-// script, nothing is marked and everything is simply there.
+// One-off arrivals, timed by when something is seen. whenSeen marks an element
+// that starts off screen data-arrival="waiting" and resolves true once `share`
+// of it is in; the caller then arrive()s it for its CSS to play. Already on
+// screen at load, or with reduced motion, it resolves false and nothing changes.
 
 export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 

@@ -1,14 +1,11 @@
 ---
 // One image inside a Crop, placed by its Figma box [x, y, w, h] relative to
-// the window. window is the Crop's Figma width, used to size the srcset.
-//
-// Motion (the Crop's `motion` says when it plays):
-// from: where the image starts, as a Figma px offset [x, y] from its place
-// to: where it ends up (default: its place). Scroll drifts use both.
-//
-// frame: how a flat UI export sits on the page. screen: rounded corners, a
-// hairline and a soft shadow, so a light screen holds its edge on a light
-// background. phone: the same, inside a dark bezel (402-wide mobile frames).
+// the window. window: the Crop's Figma width, for the srcset.
+// from, to: Figma px offsets [x, y] from its place to start and end at (the
+//   Crop's motion says when; to defaults to its place)
+// frame: for flat UI exports. screen: rounded, a hairline and a soft shadow so
+//   a light screen holds its edge on a light page. phone: the same in a dark
+//   bezel (402-wide mobile frames)
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -28,17 +25,15 @@ interface Props {
 const { src, rect, window = 1416, alt = '', eager = false, from, to, delay = 0, frame } = Astro.props;
 const [x, y, w, h] = rect;
 
-// Above 700px a window is drawn at its Figma width on the 1416 column, so the
-// image is w / 1416 of it. At 700 and below Pairs, Trios and ScreenRows stack
-// and each window takes the column; phones may hold it larger (Crop min), so
-// ask for at least a phone screen's worth.
+// Above 700px the image is w / 1416 of the column. At 700 and below Pairs,
+// Trios and ScreenRows stack and Crop min can hold it larger, so ask for at
+// least a phone screen's worth.
 const share = +(w / window).toFixed(4);
 const columnShare = +(w / 1416).toFixed(4);
 const sizes = `(max-width: 700px) max(${share} * (100vw - 32px), ${Math.round(Math.min(share, 2.5) * 375)}px), calc(${columnShare} * min(100vw - 32px, 1416px))`;
 const widths = [640, 1024, 1600, 2400, 2880, 3200, 4000].filter((n) => n < src.width);
 widths.push(src.width);
-// Astro's default webp quality left text in slides and fine lines soft on
-// Retina screens (Sean, 1 Oct 2026)
+// Astro's default left text in slides and fine lines soft on Retina
 const quality = 90;
 
 const style = [

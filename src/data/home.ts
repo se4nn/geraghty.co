@@ -38,9 +38,8 @@ export const availability = 'Open to work';
 
 export const contactEmail = 'sean@geraghty.co';
 
-// Intro line. Links without an href render as plain underlined text
-// until their destination exists. `images` fan out above a link on hover:
-// from eatbred.com and seangeraghty.co.uk (downloaded 11 Oct 2026).
+// Intro line. Links without an href render as plain underlined text.
+// `images` fan out above a link on hover (MOTION.md: Fan).
 export const intro = {
   lead: 'I’m Sean, a London-based designer, who loves to',
   links: [
@@ -58,28 +57,24 @@ export const intro = {
   ],
 };
 
-// `project` links a chip to that project in src/content/work (its case study,
-// or its homepage tile until the case study exists) and gives it a hover card
-// with the project's thumbnail. `href` links anywhere else; give it a `card`
-// too for work that has no homepage tile. Card gradients are stills rendered
-// from the tile shader (LensFlare), in the brand's colours.
+// `project` links a chip to that project in src/content/work and gives it a
+// hover card of its tile. `href` links anywhere else; add a `card` for work
+// with no tile (a still rendered from LensFlare in the brand's colours).
 const chip = {
   format: { name: 'Format', project: 'format', src: chipFormat, bg: 'var(--chip-format)', width: 20, height: 20 },
   delli: { name: 'DELLI', project: 'delli', src: chipDelli, bg: 'var(--chip-delli)', width: 20, height: 5.556 },
   studia: { name: 'Studia', project: 'studia', src: chipStudia, bg: 'var(--chip-studia)', width: 20, height: 6 },
   fertifa: { name: 'Fertifa', project: 'fertifa', src: chipFertifa, bg: 'var(--chip-fertifa)', width: 20, height: 20 },
   shuffle: { name: 'Shuffle', project: 'shuffle', src: chipShuffle },
-  // Its card comes from the tile in src/content/work/steepclub.mdx (kept off
-  // the work grid)
+  // Card from the tile in src/content/work/steepclub.mdx, kept off the grid
   steepClub: { name: 'The Steep Club', project: 'steepclub', src: chipSteepClub },
   minimum: { name: 'Minimum', project: 'minimum', src: chipMinimum },
   fewVentures: {
     name: 'Few Ventures',
     href: 'https://fewww.vc',
     src: chipFewVentures,
-    // Still rendered in the lens flare lab: from #1f9c14 to #0b130b (these
-    // come out as the brand's #3fff2f and #192518), seed 21, phase 0.82 (keeps
-    // the dark crease clear of the logo)
+    // Rendered in the lens flare lab: #1f9c14 → #0b130b (out as the brand's
+    // #3fff2f and #192518), seed 21, phase 0.82 to keep the crease off the logo
     card: {
       image: fewVenturesTile,
       logo: fewVenturesLogo,

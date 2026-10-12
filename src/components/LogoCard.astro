@@ -1,13 +1,6 @@
 ---
-// The Shuffle logo animation in its brand card (Figma: frame "8" in Mission
-// & Branding). The video opens on an empty frame before the logo animates
-// in; that's part of the animation, so it plays from the start, once it's
-// on screen, and loops. Reduced motion (or no script) shows its last frame.
-// The card is the video's own background colour, and the video's edges are
-// feathered into it: browsers put video through a different colour path
-// from CSS (on wide-gamut screens especially), so an exact match can't be
-// guaranteed and a hard edge would show. The logo sits well inside the
-// feathered margin.
+// The Shuffle logo animation in its brand card. The empty frames before the logo
+// arrives are part of it: motion in Sean's own media is authored, never trim it.
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -17,6 +10,7 @@ interface Props {
   alt: string;
   // Video width as a share of the card, so the logo lands at its Figma size
   scale: number;
+  // The video's own background colour
   bg: string;
 }
 
@@ -44,7 +38,8 @@ const { video, still, alt, scale, bg } = Astro.props;
     height: auto;
   }
 
-  /* Until the script takes over, the finished logo shows */
+  /* Hidden until the script takes over. Feathered: browsers colour video
+     differently from CSS (wide gamut especially), so a hard edge would show */
   .logo-card__video {
     visibility: hidden;
     --feather-x: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
@@ -65,9 +60,7 @@ const { video, still, alt, scale, bg } = Astro.props;
 <script>
   import { reducedMotion } from '../scripts/arrival';
 
-  // Swap to the video straight away (its first frame is the empty card, so
-  // nothing visibly changes), then play while a third of it is on screen.
-
+  // Its first frame is the empty card, so swapping straight away doesn't show
   for (const card of document.querySelectorAll<HTMLElement>('.logo-card')) {
     const video = card.querySelector('video');
     if (!video || reducedMotion.matches) continue;

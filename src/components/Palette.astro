@@ -1,14 +1,11 @@
 ---
-// A brand palette in one block: the primary ramp stacked on the left, named
-// with its hex, lightest at the top; the secondary ramps as a grid of plain
-// chips on the right, one ramp to a row, lightest to darkest. Primary first,
-// then the grid underneath on phones.
-// on: 'dark' where a primary swatch needs light text
-// color can be any background, so a secondary chip can be a gradient
+// A brand palette in one block: the primary ramp named down the left, the
+// secondary ramps as plain chips on the right, one ramp to a row.
 interface Swatch {
   name: string;
   hex: string;
   color: string;
+  // 'dark' where a primary swatch needs light text
   on?: 'light' | 'dark';
 }
 

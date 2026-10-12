@@ -2,9 +2,8 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-// One Markdown (or MDX) file per project. Front matter drives the homepage
-// tile. A project with a caseStudy block gets a page built from its body,
-// which is MDX so it can use the case study components.
+// One file per project: front matter drives the homepage tile, and a
+// caseStudy block builds /work/<id>/ from its MDX body.
 const work = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/work' }),
   schema: ({ image }) =>
@@ -14,8 +13,8 @@ const work = defineCollection({
       dates: z.string(),
       // Newest first on the homepage
       order: z.number(),
-      // false keeps the project off the homepage work grid. Its case study,
-      // skill chips and Next Project tile still work
+      // false: off the homepage grid; its case study, chips and Next Project
+      // tile still work
       inGrid: z.boolean().default(true),
       tile: z.object({
         image: image(),
@@ -23,8 +22,8 @@ const work = defineCollection({
         // Logo width as a share of the tile width, from the Figma frame
         logoScale: z.number(),
         grain: z.boolean().default(true),
-        // Live LensFlare gradient over the image. The image stays as the
-        // fallback. Colours are any CSS colour, usually a --gradient-* token.
+        // Live LensFlare over the image, which stays as the fallback. Colours
+        // are usually --gradient-* tokens
         gradient: z
           .object({
             from: z.string(),
@@ -39,21 +38,19 @@ const work = defineCollection({
           })
           .optional(),
       }),
-      // Where the tile links to. Empty until the case study exists.
-      // Projects with a caseStudy block live at /work/<file name>/.
+      // Where the tile links: /work/<id>/ once there's a case study
       link: z.string().optional(),
-      // Case study hero. Setting it builds /work/<id>/ from the body.
+      // The case study hero; setting it builds the page
       caseStudy: z
         .object({
           // Meta description
           summary: z.string(),
-          // Middle of the hero bar, between the tags and the dates
+          // Middle of the hero bar
           role: z.string(),
           // Top right of the hero, e.g. App Store and Website
           links: z.array(z.object({ label: z.string(), href: z.url() })).default([]),
-          // The project the Next Project tile shows (a file name in this
-          // folder). Leave it out: the default is the next case study down
-          // the homepage grid, which is the order Sean wants (8 Oct 2026).
+          // The Next Project tile's project (a file name). Usually left out:
+          // the default, the next case study down the homepage grid, is right
           next: z.string().optional(),
         })
         .optional(),

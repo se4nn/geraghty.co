@@ -14,15 +14,11 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  /* The root's own background is what shows when the page is pulled past
-     its ends (overscroll). Giving it one stops the body's light colour
-     spilling out there. */
+  /* Overscroll shows this, not the body's (MOTION.md, Gotchas) */
   background-color: var(--bg-page);
 }
 
-/* Overscroll matches the edge it's pulled from: light above the hero, dark
-   below the footer. The root background swaps halfway down the scroll, so
-   whichever end you bounce off shows its own colour. */
+/* Overscroll: light above the hero, dark below the footer */
 @supports (animation-timeline: scroll()) {
   html {
     animation: overscroll-edge linear both;
@@ -152,13 +148,8 @@ a {
 
 /* Motion */
 
-/* Moving between pages: a project's art and logo morph between the
-   homepage tile and the case study hero (view transitions), gliding in on
-   the long out, never overshooting. Everything else crossfades.
-   Opening a case study, the tile switches off to dark glass as it grows
-   and the hero powers on like a CRT: a dot, a bright line, the picture
-   opening overexposed, one flicker, then the logo burns in. Closing is the
-   morph alone. Base.astro tags each transition open or close. */
+/* Page transitions (MOTION.md: Morph, Power on). Base.astro tags each one
+   open, next or close */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
@@ -181,8 +172,7 @@ a {
   animation-timing-function: var(--ease-out-expo);
 }
 
-/* The art changes shape on the way (square tile to wide hero), so crop
-   the snapshots rather than stretch them */
+/* Square tile to wide hero: crop the snapshots rather than stretch them */
 ::view-transition-image-pair(.art) {
   overflow: hidden;
   border-radius: var(--radius-s);
@@ -195,12 +185,8 @@ a {
   object-fit: cover;
 }
 
-/* Open: CRT power-on. The old tile dims to black and holds there as the
-   dark glass the hero powers on over; it covers the whole pair, so no
-   backing colour is needed. A backing on the pair would also sit behind
-   every other homepage tile, which are named too but have nothing to pair
-   with: they'd hold as black boxes over the case study until the
-   transition ends. */
+/* Open. No backing colour on the pair: the other tiles would hold as black
+   boxes over the case study (MOTION.md, Gotchas) */
 html:active-view-transition-type(open)::view-transition-old(.art) {
   animation: screen-off 240ms var(--ease-out) both;
 }
@@ -223,9 +209,8 @@ html:active-view-transition-type(open)::view-transition-new(.logo) {
   animation: logo-burn 700ms var(--ease-out) 720ms both;
 }
 
-/* Next: the old page (scrolled to its dark footer) stays as the backdrop
-   while the art grows into the new hero, then the two cross over, so the
-   light page doesn't flash in under the morph */
+/* Next: the old, dark page holds as the backdrop so the light one doesn't
+   flash in under the morph */
 html:active-view-transition-type(next)::view-transition-old(root) {
   animation: fade-out 420ms var(--ease-out) 560ms both;
 }

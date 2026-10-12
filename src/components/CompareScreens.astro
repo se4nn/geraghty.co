@@ -1,13 +1,7 @@
 ---
-// Figma: Portfolio › Studia · Case study assets › "Parent vs Student"
-// (2363:220684). Two exports of the same composition, one per side, stacked:
-// the left shows to the left of the divider, the right to its right. Each
-// export is the whole panel (background, screen, stroke and shadow) at the
-// same framing, so only the clip moves. The divider is the Figma "Slider":
-// a 2px line the full height of the panel and a 48px round knob.
-// Sits inside a Crop like a CropImage (rect in Figma px, scaled by --s).
-// Pointer drags anywhere on the frame (vertical scrolling still works on
-// touch); the arrow keys move it through a visually hidden range input.
+// Two exports of the same panel either side of a divider you drag. Each is the
+// whole panel at the same framing, so only the clip moves. Sits inside a Crop
+// like a CropImage (rect in Figma px, scaled by --s).
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -23,7 +17,7 @@ interface Props {
   window?: number;
   /** what the input announces, e.g. "Compare the student and parent dashboards" */
   name: string;
-  /** where the divider starts, as a share of the width (Figma: 708 of 1416) */
+  /** where the divider starts, as a % of the width */
   start?: number;
 }
 
@@ -76,7 +70,8 @@ const widthsFor = (src: ImageMetadata) => {
     clip-path: inset(0 0 0 var(--pos));
   }
 
-  /* Figma "Slider": Divider 2 wide, Neutral 300, shadow 4 0 12 at 25% */
+  /* Divider */
+
   .compare__divider {
     position: absolute;
     top: 0;
@@ -88,7 +83,6 @@ const widthsFor = (src: ImageMetadata) => {
     box-shadow: calc(4 * var(--s)) 0 calc(12 * var(--s)) oklch(0% 0 0 / 0.25);
   }
 
-  /* Knob 48 round, Neutral 050, 2px Neutral 300 border, centred on the panel */
   .compare__knob {
     position: absolute;
     top: 50%;

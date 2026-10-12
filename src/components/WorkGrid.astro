@@ -1,7 +1,6 @@
 ---
-// Staggered project grid. Figma: "Design" section.
-// The grid is five columns with square rows (row height = column width),
-// so every tile lands on the same module as in Figma.
+// The homepage's staggered project grid: five columns with square rows
+// (row height = column width).
 import type { CollectionEntry } from 'astro:content';
 import ProjectTile, { type TileShape } from './ProjectTile.astro';
 
@@ -44,9 +43,8 @@ const placed = projects.map((project, i) => {
 </div>
 
 <style>
-  /* Registered as a length so the column width is worked out once, on the
-     grid, and inherited as px. Unregistered, 100cqi would be re-read against
-     whichever container it's used in (the tiles are containers too). */
+  /* Registered so 100cqi resolves once, on the grid, not in each tile's
+     container (MOTION.md, Gotchas) */
   @property --col {
     syntax: '<length>';
     inherits: true;
@@ -84,7 +82,6 @@ const placed = projects.map((project, i) => {
       --col: 100cqi;
       grid-template-columns: minmax(0, 1fr);
       grid-auto-rows: auto;
-      /* Room between one project and the next */
       gap: var(--space-3xl);
     }
 

@@ -1,33 +1,23 @@
 ---
-// Lens flare gradient: a live, looping WebGL backdrop.
-// A lite build of format/public/design/experiments/lens-flare.html, cut down
-// to the one look the portfolio uses (Prism) and the values tuned for it.
-//
-// Three colours: an opening colour, a closing colour, and a dark crease
-// between them (Neutral/1000 unless told otherwise). Any CSS colour works,
-// tokens included, e.g. from="var(--chip-format)".
-//
-// Whatever is passed as children stays underneath as the fallback. It shows
-// before the first frame, and when WebGL isn't available.
+// A live, looping WebGL gradient: the Prism look from the full tool
+// (format/public/design/experiments/lens-flare.html). Children are the
+// fallback, shown before the first frame and without WebGL.
 import type { HTMLAttributes } from 'astro/types';
 
 interface Props extends HTMLAttributes<'div'> {
+  // Any CSS colour, tokens included. mid is the dark crease between
   from: string;
   to: string;
   mid?: string;
   // Shifts the noise so tiles sharing colours don't share a shape
   seed?: number;
-  // Which way the colour fringe falls. 'auto' swings both ways over the loop,
-  // as the full tool does. 'warm' keeps a warm edge on the opening side and a
-  // cool one on the closing side, 'cool' the reverse. Pin it when one way
-  // reads wrong, e.g. yellow turns lime when the fringe swings cool.
+  // 'auto' swings both ways over the loop; 'warm' keeps a warm edge on the
+  // opening side. Pin it when one way reads wrong (yellow turns lime when cool)
   fringe?: 'auto' | 'warm' | 'cool';
-  // Surface texture. 'grain' is the fine noise matched to the Figma artwork.
-  // 'crt' treats the page as one big CRT behind the site: cells with an RGB
-  // shadow mask, ordered (Bayer) dither, quantised colour, scanlines and a
-  // rolling beam, all shared across every CRT on the page.
+  // 'grain' matches the Figma artwork's noise. 'crt' treats the page as one big
+  // CRT behind the site, shared by every CRT tile (MOTION.md: Screen)
   dither?: 'grain' | 'crt';
-  // Core controls. Defaults are the tuned values, override sparingly.
+  // Defaults are the tuned values (DEFAULTS); override sparingly
   darkness?: number;
   period?: number;
   intensity?: number;
@@ -108,30 +98,20 @@ const {
     grain: 0.3,
   };
 
-  // Fixed Prism values. These were tuned against the source clips and aren't
-  // meant to be changed per use; the full tool is the place to explore them.
+  // Fixed Prism values, tuned against the source clips: explore in the full tool
   const FIELD_SCALE = 0.6; // field pass resolution, it's all low frequency
   const DPR_CAP = 1.5;
   const FPS_CAP = 30;
-  // The look was tuned on 16:9 renders. Narrower boxes show the centre of a
-  // 16:9 frame, as the cropped Figma tiles do, so the sweep and smear keep
-  // their proportions instead of squeezing into the box.
+  // Tuned on 16:9 renders: narrower boxes show the middle of a 16:9 frame, so
+  // the sweep and smear keep their proportions
   const REF_ASPECT = 16 / 9;
-  // Dither cells down the height of the box. The artwork was rendered 538px
-  // tall with one cell per pixel, so the texture scales with the tile as it
-  // does in Figma.
+  // Dither cells down the box: the artwork was 538px tall, one cell a pixel
   const DITHER_ROWS = 540;
-  // CRT mode is one big screen fixed behind the page, the size of the
-  // viewport. Every CRT tile is a window onto it: the cell grid, scanlines,
-  // vignette and beam are laid out in viewport pixels, so they line up across
-  // tiles.
+  // CRT: one viewport-sized screen behind the page, each tile a window onto it,
+  // laid out in viewport pixels so tiles line up (MOTION.md, Gotchas)
   const CRT_CELL = 3; // screen pixel pitch, CSS px
   const SCREEN_FPS = 30; // flicker and row jitter step at the screen's rate
-  // The beam is a line across the viewport, so scrolling scans it down the
-  // page. It sits at the mouse's height (the middle until the mouse moves,
-  // and always on touch), following a little behind like a phosphor catching
-  // up. Its trail stretches with scroll and mouse speed, on the side the beam
-  // came from, and settles to a short glow at rest.
+  // The beam (MOTION.md: Screen)
   const BEAM_Y = 0.5; // down the viewport, before the mouse moves
   const BEAM_FOLLOW = 90; // ms for the beam to close most of the gap to the mouse
   const BEAM_REST = 0.45; // strength at rest, 1 when scrolling fast
@@ -490,10 +470,8 @@ const {
     { passive: true },
   );
 
-  // Shared beam position, 0 top to 1 bottom of the viewport. It eases towards
-  // the mouse; its own speed, in viewports per second, stretches the trail as
-  // scrolling does (moving down is positive, like scrolling down). Stepped
-  // once per frame however many tiles draw.
+  // Shared beam position, 0 top to 1 bottom. Its speed (viewports per second,
+  // down positive) stretches the trail too. Stepped once a frame for all tiles.
   const beamState = { y: BEAM_Y, target: BEAM_Y, t: 0, vel: 0 };
   window.addEventListener(
     'pointermove',
@@ -566,9 +544,8 @@ const {
 
       this.init();
 
-      // Already on screen (a case study hero, say): draw the first frame now
-      // rather than a frame or two later, so the page's first paint (and a
-      // view transition's snapshot of it) already has the live gradient
+      // Already on screen: draw now, so the first paint (and a view
+      // transition's snapshot of it) has the live gradient
       const box = this.getBoundingClientRect();
       if (box.bottom > 0 && box.top < window.innerHeight && box.width > 0) {
         this.visible = true;
@@ -585,9 +562,8 @@ const {
       this.ro.observe(this);
       reducedMotion.addEventListener('change', this.redraw);
       document.addEventListener('visibilitychange', this.redraw);
-      // A CRT window slides over the screen as the page scrolls, and the beam
-      // follows the mouse, so redraw straight away rather than waiting for
-      // the next 30fps frame
+      // CRT windows slide with scroll and the beam follows the mouse: redraw
+      // at once, not at the next 30fps frame
       window.addEventListener('scroll', this.onMove, { passive: true });
       window.addEventListener('pointermove', this.onMove, { passive: true });
     }
@@ -721,8 +697,7 @@ const {
       gl.uniform2f(up('u_origin'), rect.left * dpr, rect.top * dpr);
       gl.uniform2f(up('u_screen'), window.innerWidth * dpr, window.innerHeight * dpr);
       // Scroll speed eases off after the last scroll event, so the trail
-      // settles rather than snapping back. The beam's own speed settles as it
-      // catches up with the mouse. Both in viewports per second.
+      // settles rather than snapping back. Viewports per second.
       stepBeam(performance.now());
       const scrolling = scrollState.vel * Math.exp(-(performance.now() - scrollState.t) / BEAM_SETTLE);
       const speed = scrolling / window.innerHeight + beamState.vel;
@@ -738,9 +713,8 @@ const {
       this.setAttribute('data-ready', '');
     }
 
-    // Loop position from this tile's own clock, which only runs while it's
-    // on screen, so it picks up where it left off. The seed offsets it so
-    // neighbours stay out of step.
+    // From the tile's own clock, which runs only on screen, so it picks up
+    // where it left off. The seed keeps neighbours out of step.
     phase() {
       return ((this.clock / 1000 / this.opts.period + this.opts.seed * 0.137) % 1 + 1) % 1;
     }

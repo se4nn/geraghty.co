@@ -1,17 +1,7 @@
 ---
-// Format's component build loop, in motion (Figma: Portfolio › "Steps",
-// 2439:20237). Seven steps as a row of numbers along the top; under them,
-// the artefacts that step produces (one or two cards); under those, the
-// step's name in the serif with a line beneath. The steps come from
-// Format's component-build-workflow.md, the examples from its learning log.
-//
-// Motion: while on screen it plays through the steps, 4.8s each, the active
-// step's underline filling in Brand/Blue. Words stay put (the numbers only
-// change colour, the step's name swaps in place); the cards lift in on the
-// spring, the second a beat after the first. Clicking a number jumps to it
-// and holds there.
-// Reduced motion: no autoplay and no lift; the numbers still work.
-// Built at the grid's 1416 × 812 and scaled as one piece (--u).
+// Format's component build loop: seven steps, each with what it produces.
+// The steps are Format's own (component-build-workflow.md), the examples from
+// its learning log. Built at 1416 × 812 Figma px, scaled as one piece (--u).
 
 import Caption from './BuildLoopCaption.astro';
 
@@ -42,7 +32,7 @@ const steps = [
     </ol>
 
     <div class="build-loop__stage">
-      {/* 01 Read: the rules and the log, two documents */}
+      {/* 01 Read */}
       <section class="build-loop__scene" data-active="">
         <div class="build-loop__cards">
           <div class="build-loop__card">
@@ -63,7 +53,7 @@ const steps = [
         <Caption {...steps[0]} />
       </section>
 
-      {/* 02 Spec: the Figma component and its token mapping */}
+      {/* 02 Spec */}
       <section class="build-loop__scene" aria-hidden="true">
         <div class="build-loop__cards build-loop__cards--one">
           <div class="build-loop__card">
@@ -88,7 +78,7 @@ const steps = [
         <Caption {...steps[1]} />
       </section>
 
-      {/* 03 Build: tokens only, the stock API */}
+      {/* 03 Build */}
       <section class="build-loop__scene" aria-hidden="true">
         <div class="build-loop__cards build-loop__cards--one">
           <div class="build-loop__card">
@@ -104,7 +94,7 @@ const steps = [
         <Caption {...steps[2]} />
       </section>
 
-      {/* 04 Check: Figma against the browser */}
+      {/* 04 Check */}
       <section class="build-loop__scene" aria-hidden="true">
         <div class="build-loop__cards build-loop__cards--one">
           <div class="build-loop__card">
@@ -119,7 +109,7 @@ const steps = [
         <Caption {...steps[3]} />
       </section>
 
-      {/* 05 Fix: the change, and the recheck */}
+      {/* 05 Fix */}
       <section class="build-loop__scene" aria-hidden="true">
         <div class="build-loop__cards build-loop__cards--one">
           <div class="build-loop__card">
@@ -136,7 +126,7 @@ const steps = [
         <Caption {...steps[4]} />
       </section>
 
-      {/* 06 Approve: two gates in one card */}
+      {/* 06 Approve */}
       <section class="build-loop__scene" aria-hidden="true">
         <div class="build-loop__cards build-loop__cards--one">
           <div class="build-loop__card">
@@ -165,7 +155,7 @@ const steps = [
         <Caption {...steps[5]} />
       </section>
 
-      {/* 07 Write it down: the log entry, and what ships with it */}
+      {/* 07 Write It Down */}
       <section class="build-loop__scene" aria-hidden="true">
         <div class="build-loop__cards build-loop__cards--one">
           <div class="build-loop__card">
@@ -207,7 +197,8 @@ const steps = [
     font-variation-settings: var(--sans-axes);
   }
 
-  /* Steps: numbers that only change colour */
+  /* Steps */
+
   .build-loop__steps {
     display: flex;
     gap: calc(16 * var(--u));
@@ -242,7 +233,7 @@ const steps = [
     color: var(--neutral-900);
   }
 
-  /* The underline: Brand/Blue under the active step, filling while it plays */
+  /* The underline, filling under the active step while it plays */
   .build-loop__rail {
     position: absolute;
     left: 0;
@@ -269,7 +260,8 @@ const steps = [
     }
   }
 
-  /* Scenes: one step's cards and name at a time */
+  /* Scenes */
+
   .build-loop__stage {
     display: grid;
     min-height: 0;
@@ -315,7 +307,8 @@ const steps = [
       0 calc(1.6 * var(--u)) calc(1.6 * var(--u)) calc(-1.6 * var(--u)) oklch(from var(--neutral-900) l c h / 0.2);
   }
 
-  /* Card contents */
+  /* Card Contents */
+
   .bl-file {
     display: flex;
     align-items: center;
@@ -595,7 +588,6 @@ const steps = [
   .bl-status--pass::before { background-color: var(--format-green-500); }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* Cards lift in on the spring, the second a beat later; they leave quick */
     .build-loop__card {
       opacity: 0;
       transform: translateY(calc(28 * var(--u)));
@@ -628,7 +620,8 @@ const steps = [
     }
   }
 
-  /* Phones: the cards stack and the frame grows to fit them */
+  /* Phones */
+
   @container (max-width: 720px) {
     .build-loop__frame {
       --u: calc(100cqw / 760);

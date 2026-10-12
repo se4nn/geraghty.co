@@ -24,10 +24,8 @@ import {
 
 const projects = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 
-// Skill chips point at their project: the case study if there is one,
-// otherwise the project's tile further down the page.
+// Skill chips link to the case study, or to the tile until there is one
 const projectHref = (id: string) => projects.find((p) => p.id === id)?.data.link ?? `#work-${id}`;
-// Chips for a project get a hover card with that project's tile artwork
 const cardFor = (id?: string) => {
   const project = id && projects.find((p) => p.id === id);
   if (!project) return undefined;
@@ -37,8 +35,7 @@ const cardFor = (id?: string) => {
     logo: tile.logo,
     logoScale: tile.logoScale,
     grain: tile.grain,
-    // Brand colour, not the gradient: gradient colours are inputs tuned
-    // for the shader and read dull on their own
+    // Brand colour: gradient colours are shader inputs and read dull alone
     tint: `var(--chip-${id})`,
     alt: title,
   };
@@ -58,11 +55,8 @@ const skillsWithLinks = skills.map((skill) => ({
   description="Sean Geraghty leads design at startups where product is built, not briefed. Product design, brand and code."
 >
   <script is:inline slot="head">
-    // The showreel's loader (Showreel.astro), decided before the first paint
-    // so the page never shows and then hides. Plays whenever the homepage is
-    // loaded or reloaded; not coming back to it from a case study (Close goes
-    // back in history, or to the project's #tile), not from a link within
-    // the site, not with reduced motion or Save-Data.
+    // The showreel's loader, decided before first paint so the page never
+    // shows and then hides (MOTION.md: Loader)
     try {
       const nav = performance.getEntriesByType('navigation')[0];
       const fromSite = document.referrer && new URL(document.referrer).origin === location.origin;
@@ -70,15 +64,15 @@ const skillsWithLinks = skills.map((skill) => ({
       if (arriving && !matchMedia('(prefers-reduced-motion: reduce)').matches && !navigator.connection?.saveData) {
         const root = document.documentElement;
         root.dataset.intro = '';
-        // Never leave the page covered: not if the page's script never starts
-        // the loader, nor if it fails part-way (it ends within ~6s itself)
+        // Never leave the page covered if the loader doesn't start or fails
+        // part-way (it ends within ~6s itself)
         setTimeout(() => root.dataset.intro === '' && root.removeAttribute('data-intro'), 3000);
         setTimeout(() => root.removeAttribute('data-intro'), 8000);
       }
     } catch {}
   </script>
   <main>
-    <!-- Everything before the footer. The availability pill parks at its end. -->
+    {/* Everything before the footer: the availability pill parks at its end */}
     <div class="home-body" data-intro-page>
       <section class="home-intro container">
         <Hero />
@@ -117,9 +111,8 @@ const skillsWithLinks = skills.map((skill) => ({
   }
 
   .home-about {
-    /* Skill chip hover cards can reach past the sides on narrow windows;
-       clip them sideways (they still rise above the row) so the page
-       never scrolls horizontally */
+    /* Chip hover cards can reach past the sides; clip so the page never
+       scrolls sideways (they still rise above the row) */
     overflow-x: clip;
     display: flex;
     flex-direction: column;
@@ -147,7 +140,7 @@ const skillsWithLinks = skills.map((skill) => ({
     text-wrap: balance;
   }
 
-  /* The break between the two sentences is for desktop; phones let them run on */
+  /* Phones let the two sentences run on */
   @media (max-width: 700px) {
     .home-work__break {
       display: none;

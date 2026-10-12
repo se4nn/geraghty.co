@@ -1,6 +1,6 @@
 ---
-// Figma: "Project - X". Gradient artwork (live LensFlare, or a still with a
-// grain overlay), centred logo, then a Bar with tags and dates underneath.
+// A homepage work tile: the artwork and logo (TileArt), then a Bar with tags
+// and dates. Placed by WorkGrid.
 import type { CollectionEntry } from 'astro:content';
 import TileArt from './TileArt.astro';
 import Bar from './Bar.astro';
@@ -47,9 +47,8 @@ const Wrapper = link ? 'a' : 'div';
     aspect-ratio: 1;
   }
 
-  /* The #work-<id> target (Close on a case study, the skill chips). It sits
-     at the middle of the art and scrolls to the middle of the screen, so
-     a jump here lands with the tile centred, however tall its grid cell */
+  /* The #work-<id> target (Projects on a case study, the skill chips): mid-art,
+     scrolled to mid-screen, so a jump lands with the tile centred */
   .tile {
     position: relative;
   }
@@ -78,8 +77,7 @@ const Wrapper = link ? 'a' : 'div';
     height: calc(3 * var(--col) + 2 * var(--grid-gap));
   }
 
-  /* Phones: every tile the shape of a case study's full-width image
-     (1416 × 812), so the column of work isn't a stack of squares */
+  /* Phones: a case study's full-width image shape, not a stack of squares */
   @media (max-width: 700px) {
     .tile :global(.tile__art),
     .tile--tall :global(.tile__art) {
@@ -88,8 +86,7 @@ const Wrapper = link ? 'a' : 'div';
     }
   }
 
-  /* Hover: the tile rounds into a CRT screen, corners pulled in with a soft
-     glass edge, rather than zooming. Eases in, and back out a little quicker. */
+  /* Hover: rounds into a CRT screen with a soft glass edge, rather than zooming */
   .tile :global(.tile__art)::after {
     content: '';
     position: absolute;
@@ -103,8 +100,8 @@ const Wrapper = link ? 'a' : 'div';
   }
 
   @media (hover: hover) {
-    /* 9% of the width, as a length so the tall tile's corners stay round
-       rather than stretching into ellipses */
+    /* 9% of the width, as a length so tall tiles keep round corners
+       (MOTION.md, Gotchas) */
     a.tile:hover :global(.tile__art) {
       border-radius: 9cqi;
     }

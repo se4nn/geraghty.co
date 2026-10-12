@@ -1,26 +1,22 @@
 ---
 // A Figma crop frame: a window sized to the grid with a larger image behind
-// it, placed where the design puts it. Everything is measured in Figma px
-// and scaled by --s, the window's width over its Figma width, so the crop
-// holds at every size.
+// it. Everything is in Figma px, scaled by --s (the window's width over its
+// Figma width), so the crop holds at every size. More layers (CropImage,
+// CropLink) can be slotted on top.
 //
 // window: the frame's Figma size [w, h]
 // src + rect: the image behind and its box [x, y, w, h] relative to the
 //   window (the export's full bounds, shadows included)
 // bleed: let the image run past the window (the section clips at the page)
-// min: smallest scale, in px per Figma px. On narrow screens the window
-//   stops shrinking the art and crops in instead, from the left edge
-// focus: on phones, the Figma x to centre instead (the chart on the map)
-// motion: how CropImages with from/to offsets move.
-//   arrive: once, as the crop is first seen (words stay put, images arrive)
-//   scroll: tied to scroll while the crop crosses the screen
-// range, ease: the scroll range and easing (default: the whole crossing,
-//   linear)
-// caption: a line under the image (Body in Neutral 600, 24 below, starting
-//   48 Figma px in, in line with the screen inside the panel). The crop
-//   becomes a figure with a figcaption
-// captionInset: that indent, in Figma px (default 48)
-// More layers (CropImage, CropLink) can be slotted on top.
+// min: smallest scale, in px per Figma px; below it the window crops in from
+//   the left instead of shrinking the art
+// focus: on phones, the Figma x to centre instead
+// motion: how CropImages with from/to move. arrive: once, when first seen;
+//   scroll: tied to scroll as the crop crosses the screen
+// range, ease: the scroll range and easing (default: the whole crossing, linear)
+// caption: a line under the image, making the crop a figure
+// captionInset: its indent in Figma px (default 48, in line with the screen
+//   inside the panel)
 import type { ImageMetadata } from 'astro';
 import CropImage from './CropImage.astro';
 
@@ -120,12 +116,10 @@ const style = [
     overflow: visible;
   }
 
-  /* Motion. Images only, from the world of the page: phones set down or
-     lifted into place, sticker rows sliding past like a sheet. Off with
-     reduced motion, where everything simply sits in place. */
+  /* Motion (MOTION.md: Set down / lift, Drift) */
+
   @media (prefers-reduced-motion: no-preference) {
-    /* Arrive: held at their start until the crop is seen, then settle on
-       the long, soft out (no overshoot) */
+    /* Arrive: held at the start until the crop is seen */
     .crop--arrive[data-arrival='waiting'] :global(.crop-image--moves) {
       translate: calc(var(--from-x, 0) * var(--s)) calc(var(--from-y, 0) * var(--s));
     }
@@ -159,8 +153,6 @@ const style = [
 </style>
 
 <script>
-  // Arrivals wait until the crop is seen; anything already on screen at
-  // load stays put (src/scripts/arrival.ts)
   import { whenSeen, arrive } from '../scripts/arrival';
 
   for (const crop of document.querySelectorAll<HTMLElement>('.crop--arrive')) {

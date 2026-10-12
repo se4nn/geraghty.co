@@ -22,10 +22,8 @@ const ogImage = new URL(image, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <script is:inline>
-      // Arriving at a #fragment (Close on a case study goes to its tile), land
-      // on it straight away: the page's smooth scrolling would otherwise
-      // open at the top and glide down. Smooth scrolling comes back once the
-      // page has loaded, for links within it.
+      // Land on a #fragment (Projects goes to its tile) at once, not with a
+      // smooth glide from the top; smooth scrolling returns after load
       if (location.hash) {
         const root = document.documentElement;
         root.style.scrollBehavior = 'auto';
@@ -33,22 +31,18 @@ const ogImage = new URL(image, Astro.site);
       }
     </script>
     <script is:inline>
-      // Flags a page that arrived through a view transition, so its own
-      // entrance can step aside for the morph. Registered in the head so it
-      // is in place before the first render.
+      // In the head, so it's registered before first render. data-morphed lets
+      // a page's own entrance step aside for the morph (MOTION.md: Morph)
       addEventListener('pagereveal', (event) => {
         const transition = event.viewTransition;
         document.documentElement.toggleAttribute('data-morphed', Boolean(transition));
         if (!transition) return;
-        // Tag the transition so the CSS can tell opening a case study (the
-        // CRT power-on) from closing one (the plain morph back)
+        // For global.css: open is the power-on, close the plain morph back
         const to = location.pathname;
         const fromUrl = window.navigation?.activation?.from?.url || document.referrer;
         const from = fromUrl && new URL(fromUrl).origin === location.origin ? new URL(fromUrl).pathname : undefined;
-        // One case study to the next (the Next Project tile, from the dark
-        // footer) opens like a case study from the homepage, the CRT
-        // power-on, and also holds the old page as the dark backdrop until
-        // the hero has lit ('next')
+        // Case study to case study is an open too; next also holds the old,
+        // dark page as the backdrop until the hero has lit
         const next = to.startsWith('/work/') && from?.startsWith('/work/') && to !== from;
         if (next) {
           transition.types.add('open');

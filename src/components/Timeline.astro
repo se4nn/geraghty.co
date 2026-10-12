@@ -1,8 +1,6 @@
 ---
-// Figma: the Re-Shuffle timeline. The original plan, struck through and
-// faded, above the plan that happened. Each row: a Label, then its steps
-// with arrows between. On phones the two plans sit side by side, reading
-// down.
+// The original plan, struck through and faded, above the plan that happened.
+// On tablets and phones the two sit side by side, reading down.
 interface Step {
   title: string;
   date: string;
@@ -62,8 +60,7 @@ const rows = [
     gap: var(--space-xl);
   }
 
-  /* Label, step, arrow, step…: six equal columns with 32px arrows between,
-     16px gaps all round (Figma) */
+  /* Label, step, arrow, step…: equal columns with 32px arrows between */
   .timeline__row {
     display: flex;
     align-items: center;
@@ -105,6 +102,8 @@ const rows = [
     text-align: center;
   }
 
+  /* Original */
+
   .timeline__row--original {
     color: var(--border-default);
   }
@@ -112,6 +111,8 @@ const rows = [
   .timeline__row--original s {
     text-decoration-thickness: from-font;
   }
+
+  /* Updated */
 
   .timeline__row--updated .timeline__name {
     border-color: var(--text-muted);
@@ -131,8 +132,8 @@ const rows = [
     color: var(--text-muted);
   }
 
-  /* Tablet and phones: the two plans side by side, each reading down,
-     arrows pointing down */
+  /* Tablet & Phones */
+
   @media (max-width: 1100px) {
     .timeline {
       display: grid;
