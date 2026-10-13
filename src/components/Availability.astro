@@ -62,40 +62,23 @@ const { label, email } = Astro.props;
 
   // Entrance
 
-  const ENTER_AFTER_SCRIBBLE = 150;
-  const ENTER_AT_MOST = 4000;
-  const heroCircle = document.querySelector('.hero .circle');
-  const heroOnScreen = (() => {
-    if (!heroCircle) return false;
-    const { top, bottom } = heroCircle.getBoundingClientRect();
-    return bottom > 0 && top < window.innerHeight;
-  })();
-
+  const root = document.documentElement;
   const rails = document.querySelectorAll<HTMLElement>('.availability-rail');
-  rails.forEach((rail) => {
-    let entered = false;
-    const enter = () => {
-      if (entered) return;
-      entered = true;
+  const loading = () => root.hasAttribute('data-intro') && root.dataset.intro !== 'settling';
+
+  if (loading()) {
+    const intro = new MutationObserver(() => {
+      if (loading()) return;
+      intro.disconnect();
+      rails.forEach((rail) => (rail.dataset.in = 'rise'));
+    });
+    intro.observe(root, { attributeFilter: ['data-intro'] });
+  } else {
+    rails.forEach((rail) => {
       const held = rail.getBoundingClientRect().bottom >= window.innerHeight - 1;
       rail.dataset.in = held ? 'rise' : 'settle';
-    };
-    if (!heroOnScreen || !heroCircle || reducedMotion.matches) {
-      enter();
-      return;
-    }
-    document.addEventListener('hero:drawn', () => window.setTimeout(enter, ENTER_AFTER_SCRIBBLE), { once: true });
-    const heroGone = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting && !document.documentElement.hasAttribute('data-intro')) {
-        heroGone.disconnect();
-        enter();
-      }
     });
-    heroGone.observe(heroCircle);
-    const fallback = () => window.setTimeout(enter, ENTER_AT_MOST);
-    if (document.documentElement.hasAttribute('data-intro')) document.addEventListener('intro:done', fallback, { once: true });
-    else fallback();
-  });
+  }
 
   // Phones
 
@@ -232,13 +215,13 @@ const { label, email } = Astro.props;
 
     .availability-rail[data-in='rise'] {
       animation:
-        availability-rise 800ms var(--ease-spring) both,
+        availability-rise var(--duration-page) var(--ease-in-out) both,
         availability-fade 240ms var(--ease-out) both;
     }
 
     .availability-rail[data-in='settle'] {
       animation:
-        availability-settle 600ms var(--ease-spring) both,
+        availability-settle var(--duration-page) var(--ease-in-out) both,
         availability-fade 240ms var(--ease-out) both;
     }
   }
@@ -251,7 +234,7 @@ const { label, email } = Astro.props;
 
   @keyframes availability-rise {
     from {
-      translate: 0 var(--below);
+      translate: 0 calc(var(--below) + var(--intro-shift, 0px));
     }
   }
 

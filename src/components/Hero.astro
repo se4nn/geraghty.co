@@ -105,9 +105,6 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
 <script>
   const circle = document.querySelector('.hero .circle');
   if (circle) {
-    circle.querySelector('.pen')?.addEventListener('animationend', () => {
-      document.dispatchEvent(new CustomEvent('hero:drawn'));
-    });
     const io = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         circle.classList.add('is-drawing');

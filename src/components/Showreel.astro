@@ -160,10 +160,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     const flick = video.parentElement!.querySelector<HTMLElement>('.flick');
     if (flick && root.hasAttribute('data-intro')) {
       root.dataset.intro = 'running';
-      loader(video, flick).then(() => {
-        io.observe(video);
-        document.dispatchEvent(new CustomEvent('intro:done'));
-      });
+      loader(video, flick).then(() => io.observe(video));
     } else {
       io.observe(video);
     }
@@ -268,8 +265,9 @@ const hevc = 'video/mp4; codecs="hvc1"';
     ]);
 
     const shift = to.top - top;
+    page?.style.setProperty('--intro-shift', `${shift}px`);
     const sliding = page?.animate([{ translate: `0 ${-shift}px` }, { translate: '0 0' }], {
-      duration: 1100,
+      duration: parseFloat(token('--duration-page', '1100')),
       easing: token('--ease-in-out', 'ease-in-out'),
     });
     root.dataset.intro = 'settling';
