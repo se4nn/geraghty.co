@@ -1,7 +1,4 @@
 ---
-// A link styled as a button. neon: the testimonial's View. light, over
-// artwork: Projects on a case study. glass, the same without its outline:
-// a case study's links.
 interface Props {
   href: string;
   variant?: 'neon' | 'light' | 'glass';
@@ -35,7 +32,8 @@ const external = href.startsWith('http');
       scale 620ms var(--ease-bounce);
   }
 
-  /* Press: the availability pill's dip and bounce */
+  /* Press */
+
   @media (prefers-reduced-motion: no-preference) {
     .button:active {
       scale: 0.94;
@@ -62,7 +60,6 @@ const external = href.startsWith('http');
 
   /* Light & Glass */
 
-  /* Strokes sit inside the box, as in Figma, so the padding gives way */
   .button.light,
   .button.glass {
     padding: calc(var(--space-xs) - var(--border-width-strong)) calc(var(--space-m) - var(--border-width-strong));
@@ -82,7 +79,6 @@ const external = href.startsWith('http');
 
   /* Hover */
 
-  /* Only with a pointer, so a tap doesn't leave it filled */
   @media (hover: hover) {
     .button.neon:hover {
       background-color: var(--brand-neon);
