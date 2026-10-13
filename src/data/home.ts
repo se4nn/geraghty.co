@@ -115,14 +115,14 @@ export const workIntro = {
 export const previous = {
   heading: 'I’ve also had the pleasure of working with the talented teams at',
   logos: [
-    { name: 'QuickNode', src: quicknode },
+    { name: 'QuickNode', src: quicknode, href: 'https://www.quicknode.com' },
     { name: 'Knoma', src: knoma },
-    { name: 'ustwo', src: ustwo },
+    { name: 'ustwo', src: ustwo, href: 'https://ustwo.com' },
     { name: 'Snoots', src: snoots },
     { name: 'FARE', src: fare },
-    { name: 'Florence', src: florence },
-    { name: 'Nested', src: nested },
-    { name: 'Burberry', src: burberry },
+    { name: 'Florence', src: florence, href: 'https://www.florence.co.uk' },
+    { name: 'Nested', src: nested, href: 'https://nested.com' },
+    { name: 'Burberry', src: burberry, href: 'https://uk.burberry.com' },
   ],
 };
 

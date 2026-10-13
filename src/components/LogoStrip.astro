@@ -3,7 +3,7 @@ import type { ImageMetadata } from 'astro';
 
 interface Props {
   heading: string;
-  logos: { name: string; src: ImageMetadata }[];
+  logos: { name: string; src: ImageMetadata; href?: string }[];
 }
 
 const { heading, logos } = Astro.props;
@@ -15,7 +15,13 @@ const { heading, logos } = Astro.props;
     {
       logos.map((logo) => (
         <li>
-          <img src={logo.src.src} alt={logo.name} width={logo.src.width} height={logo.src.height} />
+          {logo.href ? (
+            <a class="link" href={logo.href} target="_blank" rel="noopener">
+              <img src={logo.src.src} alt={logo.name} width={logo.src.width} height={logo.src.height} />
+            </a>
+          ) : (
+            <img src={logo.src.src} alt={logo.name} width={logo.src.width} height={logo.src.height} />
+          )}
         </li>
       ))
     }
@@ -50,9 +56,35 @@ const { heading, logos } = Astro.props;
     width: auto;
   }
 
+  .link {
+    display: block;
+    padding-block: max(0px, (24px - clamp(16px, 1.59vw, 24px)) / 2);
+    transition: opacity var(--duration-s) var(--ease-out);
+  }
+
+  .link img {
+    display: block;
+  }
+
   @media (max-width: 700px) {
     .list {
       justify-content: center;
     }
+  }
+
+  /* Hover */
+
+  @media (hover: hover) {
+    .link:hover {
+      opacity: 0.6;
+    }
+  }
+
+  /* Focus */
+
+  .link:focus-visible {
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 3px;
+    border-radius: var(--radius-s);
   }
 </style>
