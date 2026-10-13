@@ -1,6 +1,4 @@
 ---
-// The next project's tile at the foot of a case study. On hover or focus the
-// logo flips over to "Next project"; touch screens show the label beneath.
 import type { CollectionEntry } from 'astro:content';
 import type { ImageMetadata } from 'astro';
 import TileArt from './TileArt.astro';
@@ -12,16 +10,15 @@ interface Props {
 const { project } = Astro.props;
 const { title, tile, link, tags, dates } = project.data;
 const logo: ImageMetadata = tile.logo;
-// No case study yet: go to the project's tile on the homepage
 const href = link ?? `/#work-${project.id}`;
 
 ---
 
 <section class="next" aria-label="Next project" style={`--logo-aspect: ${(logo.width / logo.height).toFixed(4)}`}>
-  <div class="next__inner container">
-    <a class="next__tile" href={href} aria-label={`Next project: ${title}`} data-transition={`art-${project.id}`}>
+  <div class="inner container">
+    <a class="link" href={href} aria-label={`Next project: ${title}`} data-transition={`art-${project.id}`}>
       <TileArt
-        class="next__art"
+        class="art"
         image={tile.image}
         logo={tile.logo}
         logoScale={tile.logoScale}
@@ -32,32 +29,30 @@ const href = link ?? `/#work-${project.id}`;
         widths={[820, 1640, 2832]}
         showLogo={false}
       />
-      <div class="next__content">
-        <div class="next__flip">
-          <img class="next__logo" src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
-          <p class="next__label" aria-hidden="true">Next project</p>
+      <div class="content">
+        <div class="flip">
+          <img class="logo" src={logo.src} alt={title} width={logo.width} height={logo.height} loading="lazy" />
+          <p class="caption" aria-hidden="true">Next project</p>
         </div>
       </div>
-      <div class="next__meta t-h3">
-        <p class="next__tags t-h3-bold">
+      <div class="meta t-h3">
+        <p class="tags t-h3-bold">
           {tags.map((tag, i) => (
-            <>{i > 0 && <span class="next__sep" aria-hidden="true">|</span>}<span>{tag}</span></>
+            <>{i > 0 && <span class="divider" aria-hidden="true">|</span>}<span>{tag}</span></>
           ))}
         </p>
-        <p class="next__dates">{dates}</p>
+        <p class="dates">{dates}</p>
       </div>
     </a>
   </div>
 </section>
 
 <script>
-  // Takes its morph name only in pageswap, when leaving through it: named all
-  // the time, it pairs with the last page's tile and flies a dark box down here
   addEventListener('pageswap', (event) => {
     const to = event.activation?.entry?.url;
     if (!event.viewTransition || !to) return;
-    for (const tile of document.querySelectorAll<HTMLAnchorElement>('.next__tile[data-transition]')) {
-      const art = tile.querySelector<HTMLElement>('.next__art');
+    for (const tile of document.querySelectorAll<HTMLAnchorElement>('.next .link[data-transition]')) {
+      const art = tile.querySelector<HTMLElement>('.art');
       if (!art || tile.href !== to) continue;
       art.style.viewTransitionName = tile.dataset.transition!;
       art.style.setProperty('view-transition-class', 'art');
@@ -70,16 +65,14 @@ const href = link ?? `/#work-${project.id}`;
     background-color: var(--bg-dark);
   }
 
-  .next__inner {
+  .inner {
     padding-top: var(--space-2xl);
   }
 
-  /* 1416 × 508 at 1512; everything inside scales with the tile */
-  .next__tile {
+  .link {
     container-type: inline-size;
     position: relative;
     display: grid;
-    /* Width first, so the min-height makes it taller, not wider */
     width: 100%;
     aspect-ratio: 1416 / 508;
     min-height: 420px;
@@ -87,16 +80,15 @@ const href = link ?? `/#work-${project.id}`;
     color: var(--text-on-dark);
   }
 
-  .next__tile > :global(*) {
+  .link > :global(*) {
     grid-area: 1 / 1;
   }
 
-  /* Lower corners only: a rounded top shows a light fringe through the fade */
-  .next__tile :global(.next__art) {
+  .link :global(.tile-art.art) {
     border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
   }
 
-  .next__tile :global(.next__art)::after {
+  .link :global(.tile-art.art)::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -104,7 +96,7 @@ const href = link ?? `/#work-${project.id}`;
     pointer-events: none;
   }
 
-  .next__content {
+  .content {
     position: relative;
     display: grid;
     place-items: center;
@@ -113,19 +105,18 @@ const href = link ?? `/#work-${project.id}`;
 
   /* Flip */
 
-  .next__flip {
+  .flip {
     display: grid;
     place-items: center;
     transform-style: preserve-3d;
   }
 
-  .next__flip > * {
+  .flip > * {
     grid-area: 1 / 1;
     backface-visibility: hidden;
   }
 
-  /* CaseHero's rule, so it opens at the same size; at most 85% of the tile */
-  .next__logo {
+  .logo {
     width: calc(clamp(200px, calc(432 / 1512 * 100vw), 640px) * sqrt(var(--logo-aspect, 3.94) / 3.94));
     max-width: 80%;
     height: auto;
@@ -133,7 +124,7 @@ const href = link ?? `/#work-${project.id}`;
     object-fit: contain;
   }
 
-  .next__label {
+  .caption {
     margin: 0;
     color: var(--text-on-dark);
     font-family: var(--font-sans);
@@ -145,41 +136,42 @@ const href = link ?? `/#work-${project.id}`;
     transform: rotateX(180deg);
   }
 
-  .next__tile:focus-visible .next__flip {
+  .link:focus-visible .flip {
     transform: rotateX(180deg);
   }
 
   @media (hover: hover) {
-    .next__tile:hover .next__flip {
+    .link:hover .flip {
       transform: rotateX(180deg);
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .next__flip {
+    .flip {
       transition: transform 760ms var(--ease-spring);
     }
   }
 
-  /* Reduced motion: no turn, the back replaces the front */
+  /* Reduced Motion */
+
   @media (prefers-reduced-motion: reduce) {
-    .next__label {
+    .caption {
       transform: none;
       opacity: 0;
     }
 
-    .next__tile:focus-visible .next__flip,
-    .next__tile:hover .next__flip {
+    .link:focus-visible .flip,
+    .link:hover .flip {
       transform: none;
     }
 
-    .next__tile:focus-visible .next__logo,
-    .next__tile:hover .next__logo {
+    .link:focus-visible .logo,
+    .link:hover .logo {
       opacity: 0;
     }
 
-    .next__tile:focus-visible .next__label,
-    .next__tile:hover .next__label {
+    .link:focus-visible .caption,
+    .link:hover .caption {
       opacity: 1;
     }
   }
@@ -187,15 +179,15 @@ const href = link ?? `/#work-${project.id}`;
   /* Touch */
 
   @media (hover: none) {
-    .next__flip {
+    .flip {
       gap: 16px;
     }
 
-    .next__flip > * {
+    .flip > * {
       grid-area: auto;
     }
 
-    .next__label {
+    .caption {
       transform: none;
       font-size: 22px;
     }
@@ -203,7 +195,7 @@ const href = link ?? `/#work-${project.id}`;
 
   /* Tags & Dates */
 
-  .next__meta {
+  .meta {
     position: relative;
     align-self: end;
     display: flex;
@@ -214,25 +206,25 @@ const href = link ?? `/#work-${project.id}`;
     pointer-events: none;
   }
 
-  .next__meta p {
+  .meta p {
     margin: 0;
   }
 
-  .next__tags {
+  .tags {
     display: flex;
     flex-wrap: wrap;
   }
 
-  .next__sep {
+  .divider {
     margin-inline: 0.5em;
   }
 
-  .next__dates {
+  .dates {
     color: var(--neutral-050);
     white-space: nowrap;
   }
 
-  .next__tile:focus-visible {
+  .link:focus-visible {
     outline: 2px solid var(--neutral-000);
     outline-offset: 4px;
     border-radius: 0 0 calc(48 / 1416 * 100cqi) calc(48 / 1416 * 100cqi);
@@ -241,11 +233,11 @@ const href = link ?? `/#work-${project.id}`;
   /* Phones */
 
   @media (max-width: 700px) {
-    .next__tile {
+    .link {
       aspect-ratio: 4 / 5;
     }
 
-    .next__meta {
+    .meta {
       flex-direction: column;
       align-items: flex-start;
       gap: var(--space-2xs);

@@ -1,6 +1,4 @@
 ---
-// The Skills row: tags, some with a logo stack whose chips open hover cards.
-// On the homepage and, as plain labels, on case studies.
 import Tag from './Tag.astro';
 import LogoStack, { type LogoChip } from './LogoStack.astro';
 
@@ -13,12 +11,12 @@ const { items } = Astro.props;
 ---
 
 <div class="skills">
-  <h2 class="skills__label t-h3-emphasis">Skills</h2>
-  <ul class="skills__list" role="list">
+  <h2 class="heading t-h3-emphasis">Skills</h2>
+  <ul class="list" role="list">
     {
       items.map((item) => (
-        <li class="skills__item">
-          <span class="skills__divider" aria-hidden="true"></span>
+        <li class="item">
+          <span class="divider" aria-hidden="true"></span>
           <Tag>
             {item.label}
             {item.logos.length > 0 && <LogoStack items={item.logos} />}
@@ -30,15 +28,14 @@ const { items } = Astro.props;
 </div>
 
 <script>
-  // Group warm-up (MOTION.md)
-  const INTENT = 100; // matches --intent in ProjectPreview
+  const INTENT = 100;
   const COOL = 300;
 
   for (const row of document.querySelectorAll<HTMLElement>('.skills')) {
     let warmUp: number | undefined;
     let coolDown: number | undefined;
 
-    for (const chip of row.querySelectorAll<HTMLElement>('a.chip--preview')) {
+    for (const chip of row.querySelectorAll<HTMLElement>('.logo-stack a.chip.card')) {
       chip.addEventListener('pointerenter', () => {
         window.clearTimeout(coolDown);
         if ('warm' in row.dataset) {
@@ -68,60 +65,55 @@ const { items } = Astro.props;
     font-size: var(--h3-size);
   }
 
-  .skills__label {
+  .heading {
     color: var(--text-strong);
   }
 
-  .skills__list {
+  .list {
     display: contents;
     list-style: none;
   }
 
-  .skills__item {
+  .item {
     display: flex;
     align-items: center;
     gap: var(--space-l);
   }
 
-  /* 1 × 24px rule at 33px type, centred in an 8px slot */
-  .skills__divider {
+  .divider {
     width: 1px;
     height: 0.7273em;
     margin-inline: 3.5px;
     background-color: var(--neutral-300);
   }
 
-  /* The whole tag reacts, so the whole tag gets the pointer; plain labels don't */
-  .skills__list :global(.tag:has(a)) {
+  .list :global(.tag:has(a)) {
     cursor: pointer;
     transition: color var(--duration-s) var(--ease-out);
   }
 
-  /* Phones: no dividers, or one is left hanging at the end of a line */
   @media (max-width: 700px) {
     .skills {
       gap: var(--space-s) var(--space-l);
     }
 
-    .skills__divider {
+    .divider {
       display: none;
     }
   }
 
   @media (hover: hover) {
-    .skills__list :global(.tag:hover) {
+    .list :global(.tag:hover) {
       color: var(--text-strong);
     }
 
-    /* Lift the tag above what's around it while its card is open */
-    .skills__item:has(:global(a.chip--preview)) {
+    .item:has(:global(.logo-stack a.chip.card)) {
       position: relative;
       z-index: 0;
-      /* Stay raised until the card has finished leaving */
       transition: z-index 0s linear 180ms;
     }
 
-    .skills__item:has(:global(a.chip--preview:hover)) {
+    .item:has(:global(.logo-stack a.chip.card:hover)) {
       z-index: 30;
       transition-delay: 0s;
     }

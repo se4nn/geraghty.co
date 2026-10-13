@@ -1,8 +1,4 @@
 ---
-// A full-width band of a case study. Art that bleeds past the grid, and the
-// glow, are clipped at its edges.
-// flush: the first block sits right at the top (the opening image)
-// glow: a soft darker light across the top, marking a new chapter
 interface Props {
   label: string;
   flush?: boolean;
@@ -12,8 +8,8 @@ interface Props {
 const { label, flush = false, glow = false } = Astro.props;
 ---
 
-<section class:list={['chapter', { 'chapter--flush': flush, 'chapter--glow': glow }]} aria-label={label}>
-  <div class="chapter__inner container"><slot /></div>
+<section class:list={['chapter', { flush, glow }]} aria-label={label}>
+  <div class="inner container"><slot /></div>
 </section>
 
 <style>
@@ -23,27 +19,25 @@ const { label, flush = false, glow = false } = Astro.props;
     background-color: var(--bg-work);
   }
 
-  .chapter__inner {
+  .inner {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--space-2xl);
-    /* 144 = the 96 between blocks and a section's own 48 */
     padding-block: calc(var(--space-2xl) + var(--space-xl));
   }
 
-  /* A chapter that opens on a Section keeps just the 144 above it */
-  .chapter__inner > :global(.section:first-child) {
+  .inner > :global(.section:first-child) {
     padding-top: 0;
   }
 
-  .chapter--flush .chapter__inner {
+  .chapter.flush .inner {
     padding-top: 0;
   }
 
   /* Glow */
 
-  .chapter--glow::before {
+  .chapter.glow::before {
     content: '';
     position: absolute;
     top: calc(-320 / 1512 * 100vw);
@@ -56,14 +50,13 @@ const { label, flush = false, glow = false } = Astro.props;
     pointer-events: none;
   }
 
-  /* Swells up as the chapter arrives from below (MOTION.md: Light) */
   @media (prefers-reduced-motion: no-preference) {
-    .chapter--glow[data-arrival='waiting']::before {
+    .chapter.glow[data-arrival='waiting']::before {
       opacity: 0.15;
       scale: 0.8 0.6;
     }
 
-    .chapter--glow[data-arrival='arrived']::before {
+    .chapter.glow[data-arrival='arrived']::before {
       transition:
         opacity 2000ms var(--ease-out),
         scale 2400ms var(--ease-out-expo);
@@ -74,7 +67,7 @@ const { label, flush = false, glow = false } = Astro.props;
 <script>
   import { whenSeen, arrive } from '../scripts/arrival';
 
-  for (const chapter of document.querySelectorAll<HTMLElement>('.chapter--glow')) {
+  for (const chapter of document.querySelectorAll<HTMLElement>('.chapter.glow')) {
     whenSeen(chapter, 0.08).then((seen) => {
       if (seen) arrive(chapter);
     });

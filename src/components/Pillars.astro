@@ -1,5 +1,4 @@
 ---
-// A brand's pillars from its guide, as three cards across the grid.
 interface Props {
   items: { title: string; lines: string[] }[];
   label: string;
@@ -12,9 +11,9 @@ const { items, label } = Astro.props;
   {
     items.map((item, i) => (
       <li class="pillar">
-        <span class="pillar__number t-label">{String(i + 1).padStart(2, '0')}</span>
-        <h3 class="pillar__title t-h1">{item.title}</h3>
-        <ul class="pillar__lines t-body" role="list">
+        <span class="number t-label">{String(i + 1).padStart(2, '0')}</span>
+        <h3 class="title t-h1">{item.title}</h3>
+        <ul class="lines t-body" role="list">
           {item.lines.map((line) => (
             <li>{line}</li>
           ))}
@@ -42,30 +41,29 @@ const { items, label } = Astro.props;
     background-color: var(--neutral-000);
   }
 
-  .pillar__number {
+  .number {
     color: var(--text-label);
   }
 
-  .pillar__title {
-    /* Room for two lines, so the lists below start level */
+  .title {
     min-height: 2lh;
     color: var(--text-display);
     text-wrap: balance;
   }
 
-  .pillar__lines {
+  .lines {
     list-style: none;
     padding: 0;
     color: var(--text-muted);
   }
 
-  .pillar__lines li {
+  .lines li {
     padding-block: var(--space-s);
     border-top: var(--border-width) solid var(--border-subtle);
     text-wrap: pretty;
   }
 
-  .pillar__lines li:last-child {
+  .lines li:last-child {
     padding-bottom: 0;
   }
 
@@ -75,7 +73,7 @@ const { items, label } = Astro.props;
       gap: var(--space-l);
     }
 
-    .pillar__title {
+    .title {
       min-height: 0;
     }
   }

@@ -4,7 +4,6 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description: string;
-  /** Link preview card, 1200 × 630, from public/og/ */
   image?: string;
 }
 
@@ -22,8 +21,6 @@ const ogImage = new URL(image, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <script is:inline>
-      // Land on a #fragment (Projects goes to its tile) at once, not with a
-      // smooth glide from the top; smooth scrolling returns after load
       if (location.hash) {
         const root = document.documentElement;
         root.style.scrollBehavior = 'auto';
@@ -31,16 +28,12 @@ const ogImage = new URL(image, Astro.site);
       }
     </script>
     <script is:inline>
-      // In the head, so it's registered before first render (MOTION.md: Morph)
       addEventListener('pagereveal', (event) => {
         const transition = event.viewTransition;
         if (!transition) return;
-        // For global.css: open is the power-on, close the plain morph back
         const to = location.pathname;
         const fromUrl = window.navigation?.activation?.from?.url || document.referrer;
         const from = fromUrl && new URL(fromUrl).origin === location.origin ? new URL(fromUrl).pathname : undefined;
-        // Case study to case study is an open too; next also holds the old,
-        // dark page as the backdrop until the hero has lit
         const next = to.startsWith('/work/') && from?.startsWith('/work/') && to !== from;
         if (next) {
           transition.types.add('open');

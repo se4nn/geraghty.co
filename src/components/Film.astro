@@ -1,28 +1,17 @@
 ---
-// A film in a case study, playing muted while a fifth of it is on screen.
-// Once someone pauses it, scrolling never restarts it; reduced motion waits for a click.
-// Motion inside Sean's own media is authored: never trim or re-time it (MOTION.md, Gotchas).
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
 
 interface Props {
   video?: string;
-  // Private films: a file made by scripts/encrypt-film.mjs, in place of `video`.
-  // The right password decrypts it in the browser; the plain MP4 is never shipped.
   encrypted?: string;
   poster: ImageMetadata;
   alt: string;
-  // In Figma px; the grid's 1416 × 812 crops a sliver off each side of a 16:9 film
   ratio?: [number, number];
-  // A soundtrack worth turning on (the Sound on button)
   sound?: boolean;
-  // 2x the slot for a loop that needs to be crisp
   posterWidth?: number;
-  // false: plays once and stops on its last frame
   loop?: boolean;
-  // A Restart button, for a film that tells a story from its first frame
   restart?: boolean;
-  // A live version (Insight World), opened full screen; it only loads when opened
   live?: string;
   liveLabel?: string;
   liveTitle?: string;
@@ -46,42 +35,42 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 ---
 
 <figure class="film" style={`aspect-ratio: ${ratio[0]} / ${ratio[1]}`} data-encrypted={encrypted} data-locked={encrypted ? '' : undefined} data-live={live ? '' : undefined}>
-  <video class="film__video" poster={posterImage.src} aria-label={alt} muted={!encrypted} loop={loop} playsinline preload="none">
+  <video class="video" poster={posterImage.src} aria-label={alt} muted={!encrypted} loop={loop} playsinline preload="none">
     {video && <source src={video} type="video/mp4" />}
   </video>
-  <button class="film__toggle" type="button" aria-label="Play the film">
-    <svg class="film__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
+  <button class="toggle" type="button" aria-label="Play the film">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
   </button>
-  {sound && <button class="film__sound t-label" type="button" aria-pressed="false">Sound on</button>}
-  {restart && <button class="film__restart t-label" type="button">Restart</button>}
+  {sound && <button class="sound t-label" type="button" aria-pressed="false">Sound on</button>}
+  {restart && <button class="restart t-label" type="button">Restart</button>}
   {
     live && (
       <>
-        <button class="film__live t-label" type="button" aria-haspopup="dialog">
+        <button class="live t-label" type="button" aria-haspopup="dialog">
           {liveLabel}
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 4 12" /></svg>
         </button>
-        <dialog class="film__dialog" aria-label={liveTitle}>
-          <form class="film__bar" method="dialog">
+        <dialog class="dialog" aria-label={liveTitle}>
+          <form class="title-bar" method="dialog">
             <span class="t-label">{liveTitle}</span>
-            <button class="film__close t-label" type="submit">Close</button>
+            <button class="close t-label" type="submit">Close</button>
           </form>
-          <iframe class="film__frame" data-src={live} title={alt} />
+          <iframe class="frame" data-src={live} title={alt} />
         </dialog>
       </>
     )
   }
   {
     encrypted && (
-      <form class="film__lock">
-        <p class="film__lock-title t-body-bold">This film is private</p>
-        <p class="film__lock-note t-label">Enter the password to watch it.</p>
-        <div class="film__lock-row">
+      <form class="lock">
+        <p class="lock-title t-body-bold">This film is private</p>
+        <p class="lock-note t-label">Enter the password to watch it.</p>
+        <div class="lock-row">
           <label class="visually-hidden" for="film-password">Password</label>
-          <input class="film__lock-input t-label" id="film-password" type="password" autocomplete="off" required />
-          <button class="film__lock-button t-label" type="submit">Watch</button>
+          <input class="lock-input t-label" id="film-password" type="password" autocomplete="off" required />
+          <button class="lock-button t-label" type="submit">Watch</button>
         </div>
-        <p class="film__lock-status t-label" role="status" aria-live="polite" />
+        <p class="lock-status t-label" role="status" aria-live="polite" />
       </form>
     )
   }
@@ -96,16 +85,15 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     background-color: var(--neutral-1000);
   }
 
-  .film__video,
-  .film__toggle {
+  .video,
+  .toggle {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  /* The whole film is the play/pause button */
-  .film__toggle {
+  .toggle {
     position: absolute;
     inset: 0;
     display: grid;
@@ -116,7 +104,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     cursor: pointer;
   }
 
-  .film__icon {
+  .icon {
     width: 72px;
     height: 72px;
     padding: 20px;
@@ -128,25 +116,24 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     transition: opacity var(--duration-s) var(--ease-out);
   }
 
-  .film[data-paused] .film__icon {
+  .film[data-paused] .icon {
     opacity: 1;
   }
 
-  /* No play icon on a finished film (it holds its last frame) or a live one */
-  .film[data-ended] .film__icon,
-  .film[data-live] .film__icon {
+  .film[data-ended] .icon,
+  .film[data-live] .icon {
     opacity: 0;
   }
 
-  .film__toggle:focus-visible {
+  .toggle:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: -4px;
   }
 
   /* Sound & Restart */
 
-  .film__sound,
-  .film__restart {
+  .sound,
+  .restart {
     position: absolute;
     z-index: 1;
     left: var(--space-m);
@@ -162,22 +149,22 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   }
 
   @media (hover: hover) {
-    .film__sound:hover,
-    .film__restart:hover {
+    .sound:hover,
+    .restart:hover {
       background-color: oklch(0% 0 0 / 0.7);
     }
   }
 
-  .film__sound:focus-visible,
-  .film__restart:focus-visible {
+  .sound:focus-visible,
+  .restart:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
   }
 
   /* Live Version */
 
-  .film__live,
-  .film__close {
+  .live,
+  .close {
     display: inline-flex;
     align-items: center;
     gap: var(--space-xs);
@@ -191,14 +178,14 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     transition: background-color var(--duration-s) var(--ease-out);
   }
 
-  .film__live {
+  .live {
     position: absolute;
     z-index: 1;
     right: var(--space-m);
     bottom: var(--space-m);
   }
 
-  .film__live svg {
+  .live svg {
     width: 12px;
     height: 12px;
     fill: none;
@@ -207,19 +194,19 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   }
 
   @media (hover: hover) {
-    .film__live:hover,
-    .film__close:hover {
+    .live:hover,
+    .close:hover {
       background-color: oklch(0% 0 0 / 0.7);
     }
   }
 
-  .film__live:focus-visible,
-  .film__close:focus-visible {
+  .live:focus-visible,
+  .close:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
   }
 
-  .film__dialog {
+  .dialog {
     width: calc(100vw - 2 * var(--space-m));
     height: calc(100dvh - 2 * var(--space-m));
     max-width: none;
@@ -233,12 +220,12 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     background-color: var(--neutral-1000);
   }
 
-  .film__dialog[open] {
+  .dialog[open] {
     display: grid;
     grid-template-rows: auto 1fr;
   }
 
-  .film__bar {
+  .title-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -246,12 +233,12 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     border-bottom: 1px solid oklch(100% 0 0 / 0.1);
   }
 
-  .film__dialog::backdrop {
+  .dialog::backdrop {
     background-color: oklch(0% 0 0 / 0.7);
     backdrop-filter: blur(6px);
   }
 
-  .film__frame {
+  .frame {
     display: block;
     width: 100%;
     height: 100%;
@@ -259,7 +246,7 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .film__dialog[open] {
+    .dialog[open] {
       animation: film-dialog-in var(--duration-m, 300ms) var(--ease-out-expo, ease-out);
     }
   }
@@ -273,12 +260,12 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 
   /* Locked */
 
-  .film[data-locked] .film__toggle,
-  .film[data-locked] .film__sound {
+  .film[data-locked] .toggle,
+  .film[data-locked] .sound {
     display: none;
   }
 
-  .film__lock {
+  .lock {
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -293,49 +280,49 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     backdrop-filter: blur(6px);
   }
 
-  .film:not([data-locked]) .film__lock {
+  .film:not([data-locked]) .lock {
     display: none;
   }
 
-  .film__lock-title,
-  .film__lock-note,
-  .film__lock-status {
+  .lock-title,
+  .lock-note,
+  .lock-status {
     margin: 0;
   }
 
-  .film__lock-note,
-  .film__lock-status {
+  .lock-note,
+  .lock-status {
     color: var(--text-on-dark-muted);
   }
 
-  .film__lock-row {
+  .lock-row {
     display: flex;
     gap: var(--space-xs);
     margin-top: var(--space-xs);
   }
 
-  .film__lock-input,
-  .film__lock-button {
+  .lock-input,
+  .lock-button {
     padding: var(--space-xs) var(--space-m);
     border-radius: var(--radius-l);
   }
 
-  .film__lock-input {
+  .lock-input {
     width: min(240px, 50vw);
     border: 1px solid oklch(100% 0 0 / 0.3);
     color: var(--text-on-dark);
     background-color: oklch(100% 0 0 / 0.1);
   }
 
-  .film__lock-button {
+  .lock-button {
     border: 0;
     color: var(--neutral-1000);
     background-color: var(--brand-neon);
     cursor: pointer;
   }
 
-  .film__lock-input:focus-visible,
-  .film__lock-button:focus-visible {
+  .lock-input:focus-visible,
+  .lock-button:focus-visible {
     outline: 2px solid var(--brand-neon);
     outline-offset: 2px;
   }
@@ -344,7 +331,6 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 <script>
   import { reducedMotion } from '../scripts/arrival';
 
-  // Must match scripts/encrypt-film.mjs
   async function decrypt(url: string, password: string) {
     const data = new Uint8Array(await (await fetch(url)).arrayBuffer());
     const salt = data.slice(4, 20);
@@ -357,18 +343,16 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
       false,
       ['decrypt'],
     );
-    // A wrong password fails the GCM tag check and throws
     const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data.slice(32));
     return URL.createObjectURL(new Blob([plain], { type: 'video/mp4' }));
   }
 
   for (const film of document.querySelectorAll<HTMLElement>('.film')) {
     const video = film.querySelector('video')!;
-    const toggle = film.querySelector<HTMLButtonElement>('.film__toggle')!;
-    const button = film.querySelector<HTMLButtonElement>('.film__sound');
-    const restart = film.querySelector<HTMLButtonElement>('.film__restart');
-    const liveButton = film.querySelector<HTMLButtonElement>('.film__live');
-    // Set once someone pauses it, so scrolling back doesn't restart it
+    const toggle = film.querySelector<HTMLButtonElement>('.toggle')!;
+    const button = film.querySelector<HTMLButtonElement>('.sound');
+    const restart = film.querySelector<HTMLButtonElement>('.restart');
+    const liveButton = film.querySelector<HTMLButtonElement>('.live');
     let held = reducedMotion.matches || film.hasAttribute('data-locked');
 
     const sync = () => {
@@ -386,13 +370,11 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
     video.addEventListener('ended', sync);
     sync();
 
-    // Safari only autoplays a video muted as a property, not just by attribute
     if (!film.hasAttribute('data-locked')) {
       video.muted = true;
       video.defaultMuted = true;
     }
 
-    // Refused by an autoplay policy, it tries again on the next scroll, tap or key
     let inView = false;
     const start = () => {
       if (held || video.ended || !inView) return;
@@ -440,12 +422,11 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 
     // Live Version
 
-    const live = film.querySelector<HTMLButtonElement>('.film__live');
-    const dialog = film.querySelector<HTMLDialogElement>('.film__dialog');
+    const live = film.querySelector<HTMLButtonElement>('.live');
+    const dialog = film.querySelector<HTMLDialogElement>('.dialog');
     if (live && dialog) {
       const frame = dialog.querySelector<HTMLIFrameElement>('iframe')!;
       let wasPlaying = false;
-      // The browser only handles Escape outside the iframe; this needs a same-origin page
       frame.addEventListener('load', () => {
         frame.contentWindow?.addEventListener('keydown', (event) => {
           if (event.key === 'Escape') dialog.close();
@@ -461,7 +442,6 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
         if (wasPlaying && !held) video.play().catch(() => {});
         live.focus();
       });
-      // A click on the backdrop closes it too
       dialog.addEventListener('click', (event) => {
         if (event.target === dialog) dialog.close();
       });
@@ -469,10 +449,10 @@ const posterImage = await getImage({ src: poster, width: posterWidth, format: 'w
 
     // Private Films
 
-    const form = film.querySelector<HTMLFormElement>('.film__lock');
+    const form = film.querySelector<HTMLFormElement>('.lock');
     if (!form) continue;
     const input = form.querySelector('input')!;
-    const status = form.querySelector('.film__lock-status')!;
+    const status = form.querySelector('.lock-status')!;
     const submit = form.querySelector<HTMLButtonElement>('button')!;
     form.addEventListener('submit', async (event) => {
       event.preventDefault();

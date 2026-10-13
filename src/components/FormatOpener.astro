@@ -1,7 +1,4 @@
 ---
-// Format's case study opener: a cursor clicks through the product on a loop
-// while it's on screen (the steps are in the script). The whole 1512 × 982
-// screen is scaled into the 1416 × 812 panel, 48 above and below.
 import { Image } from 'astro:assets';
 import overview from '../assets/work/format/reports-overview.png';
 import briefLong from '../assets/work/format/opener/brief-long.png';
@@ -15,32 +12,31 @@ interface Props {
 }
 const { alt } = Astro.props;
 
-// The screen: 1102 of the 1416 window
 const sizes = 'calc(0.7785 * min(100vw - 32px, 1416px))';
 const widths = [1102, 1653, 2204, 3024];
 ---
 
-<div class="fo" role="img" aria-label={alt}>
-  <div class="fo__window">
-    <div class="fo__screen">
-      <Image class="fo__page" data-page="overview" src={overview} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="high" data-shown style="z-index: 1" />
+<div class="format-opener" role="img" aria-label={alt}>
+  <div class="window">
+    <div class="screen">
+      <Image class="page" data-page="overview" src={overview} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="high" data-shown style="z-index: 1" />
 
-      <div class="fo__page fo__page--scroll" data-page="brief">
-        <Image class="fo__long" src={briefLong} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
-        <Image class="fo__nav" src={briefNav} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      <div class="page scroll" data-page="brief">
+        <Image class="long" src={briefLong} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+        <Image class="nav" src={briefNav} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
       </div>
 
-      <Image class="fo__page fo__page--overlay" data-page="person" src={personCard} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
-      <Image class="fo__page fo__page--overlay" data-page="company-card" src={companyCard} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
-      <Image class="fo__page" data-page="company" src={company} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      <Image class="page overlay" data-page="person" src={personCard} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      <Image class="page overlay" data-page="company-card" src={companyCard} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
+      <Image class="page" data-page="company" src={company} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="low" />
     </div>
 
-    <div class="fo__cursor" aria-hidden="true">
-      <span class="fo__ring" />
-      <svg class="fo__arrow" viewBox="0 0 24 24">
+    <div class="cursor" aria-hidden="true">
+      <span class="ring" />
+      <svg class="arrow" viewBox="0 0 24 24">
         <path d="M5 2.5v17.2l4.6-4.4 2.9 6.5 2.7-1.2-2.9-6.4h6.3z" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" />
       </svg>
-      <svg class="fo__hand" viewBox="0 0 24 24">
+      <svg class="hand" viewBox="0 0 24 24">
         <path d="M9 2.5c-.8 0-1.5.7-1.5 1.5v8.3l-1.3-1.3a1.55 1.55 0 0 0-2.2 0 1.5 1.5 0 0 0 0 2.1l4.6 5.2c.9 1 2.1 1.6 3.4 1.6h3c2.2 0 4-1.8 4-4v-4.6a1.5 1.5 0 0 0-3 0v-1a1.5 1.5 0 0 0-3 0v-.6a1.5 1.5 0 0 0-3-.2V4c0-.8-.7-1.5-1.5-1.5z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round" />
       </svg>
     </div>
@@ -48,21 +44,22 @@ const widths = [1102, 1653, 2204, 3024];
 </div>
 
 <style>
-  .fo {
+  .format-opener {
     container-type: inline-size;
     border-radius: var(--radius-s);
     overflow: hidden;
     background-color: var(--neutral-050);
   }
 
-  .fo__window {
+  .window {
     --u: calc(100cqw / 1416);
     position: relative;
     aspect-ratio: 1416 / 812;
   }
 
-  /* The whole screen, 1512 × 982 at --k, centred in the panel */
-  .fo__screen {
+  /* Screen */
+
+  .screen {
     --k: 0.7291;
     position: absolute;
     left: calc(156.8 * var(--u));
@@ -70,7 +67,6 @@ const widths = [1102, 1653, 2204, 3024];
     width: calc(1512 * var(--k) * var(--u));
     height: calc(982 * var(--k) * var(--u));
     overflow: hidden;
-    /* Its pages stack among themselves, always under the cursor */
     isolation: isolate;
     border-radius: calc(12 * var(--u));
     background-color: var(--neutral-000);
@@ -79,7 +75,7 @@ const widths = [1102, 1653, 2204, 3024];
       0 calc(12 * var(--u)) calc(40 * var(--u)) oklch(0% 0 0 / 0.1);
   }
 
-  .fo__page {
+  .page {
     position: absolute;
     left: 0;
     top: 0;
@@ -89,18 +85,17 @@ const widths = [1102, 1653, 2204, 3024];
     visibility: hidden;
   }
 
-  .fo__page[data-shown] {
+  .page[data-shown] {
     visibility: visible;
   }
 
-  /* The report: a long page under its own nav, scrolled by --scroll */
-  .fo__page--scroll {
+  .page.scroll {
     height: 100%;
     overflow: hidden;
     background-color: var(--neutral-000);
   }
 
-  .fo__long {
+  .long {
     display: block;
     width: 100%;
     height: auto;
@@ -108,7 +103,7 @@ const widths = [1102, 1653, 2204, 3024];
     transform: translateY(calc(var(--scroll, 0) * -1 * var(--k) * var(--u)));
   }
 
-  .fo__nav {
+  .nav {
     position: absolute;
     left: 0;
     top: 0;
@@ -119,8 +114,7 @@ const widths = [1102, 1653, 2204, 3024];
 
   /* Cursor */
 
-  /* The wrapper sits on the hotspot */
-  .fo__cursor {
+  .cursor {
     position: absolute;
     left: 0;
     top: 0;
@@ -130,7 +124,7 @@ const widths = [1102, 1653, 2204, 3024];
     filter: drop-shadow(0 calc(2 * var(--u)) calc(3 * var(--u)) oklch(0% 0 0 / 0.25));
   }
 
-  .fo__cursor svg {
+  .cursor svg {
     position: absolute;
     width: calc(26 * var(--u));
     max-width: none;
@@ -138,26 +132,26 @@ const widths = [1102, 1653, 2204, 3024];
     transform-origin: top left;
   }
 
-  .fo__arrow {
+  .arrow {
     left: calc(-5.4 * var(--u));
     top: calc(-2.7 * var(--u));
   }
 
-  .fo__hand {
+  .hand {
     left: calc(-9.75 * var(--u));
     top: calc(-2.7 * var(--u));
     visibility: hidden;
   }
 
-  .fo[data-hand] .fo__arrow {
+  .format-opener[data-hand] .arrow {
     visibility: hidden;
   }
 
-  .fo[data-hand] .fo__hand {
+  .format-opener[data-hand] .hand {
     visibility: visible;
   }
 
-  .fo__ring {
+  .ring {
     position: absolute;
     left: calc(-19 * var(--u));
     top: calc(-19 * var(--u));
@@ -169,38 +163,37 @@ const widths = [1102, 1653, 2204, 3024];
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .fo[data-live] .fo__cursor {
+    .format-opener[data-live] .cursor {
       display: block;
       transition: transform var(--move, 900ms) cubic-bezier(0.45, 0, 0.2, 1);
     }
 
-    .fo__long {
+    .long {
       transition: transform 3400ms cubic-bezier(0.45, 0, 0.25, 1);
     }
 
-    .fo__cursor svg {
+    .cursor svg {
       transition: scale 120ms var(--ease-out);
     }
 
-    .fo[data-pressing] .fo__cursor svg {
+    .format-opener[data-pressing] .cursor svg {
       scale: 0.86;
     }
 
-    .fo[data-pressing] .fo__ring {
-      animation: fo-click 520ms var(--ease-out);
+    .format-opener[data-pressing] .ring {
+      animation: format-opener-click 520ms var(--ease-out);
     }
 
-    .fo__page[data-arriving] {
-      animation: fo-lift 720ms var(--ease-spring) both;
+    .page[data-arriving] {
+      animation: format-opener-lift 720ms var(--ease-spring) both;
     }
 
-    /* Cards are overlays in the product: they appear in place */
-    .fo__page--overlay[data-arriving] {
-      animation: fo-appear 200ms var(--ease-out) both;
+    .page.overlay[data-arriving] {
+      animation: format-opener-appear 200ms var(--ease-out) both;
     }
   }
 
-  @keyframes fo-lift {
+  @keyframes format-opener-lift {
     from {
       transform: translateY(calc(48 * var(--u)));
       opacity: 0;
@@ -210,13 +203,13 @@ const widths = [1102, 1653, 2204, 3024];
     }
   }
 
-  @keyframes fo-appear {
+  @keyframes format-opener-appear {
     from {
       opacity: 0;
     }
   }
 
-  @keyframes fo-click {
+  @keyframes format-opener-click {
     0% {
       opacity: 1;
       transform: scale(0.4);
@@ -231,22 +224,19 @@ const widths = [1102, 1653, 2204, 3024];
 <script>
   import { reducedMotion } from '../scripts/arrival';
 
-  // Targets in window px: frame px scaled by K, from the screen's corner
   const K = 0.7291;
   const at = (x: number, y: number) => [156.8 + x * K, 48 + y * K] as const;
   const REST = [1150, 560] as const;
-  // Where the customers table sits under the cards (3693 down the report)
   const SCROLL = 3693;
 
-  for (const opener of document.querySelectorAll<HTMLElement>('.fo')) {
+  for (const opener of document.querySelectorAll<HTMLElement>('.format-opener')) {
     if (reducedMotion.matches) continue;
     const page = (name: string) => opener.querySelector<HTMLElement>(`[data-page="${name}"]`)!;
-    const cursor = opener.querySelector<HTMLElement>('.fo__cursor')!;
-    const long = opener.querySelector<HTMLElement>('.fo__long')!;
+    const cursor = opener.querySelector<HTMLElement>('.cursor')!;
+    const long = opener.querySelector<HTMLElement>('.long')!;
     let run = 0;
     let z = 1;
 
-    // Waits that end early if the loop has been stopped
     const wait = (ms: number, id: number) =>
       new Promise<void>((resolve, reject) => setTimeout(() => (id === run ? resolve() : reject()), ms));
 
@@ -272,9 +262,8 @@ const widths = [1102, 1653, 2204, 3024];
       el.removeAttribute('data-arriving');
       void el.offsetWidth;
       el.toggleAttribute('data-arriving', true);
-      // Once it covers them, hide the pages underneath
       setTimeout(() => {
-        opener.querySelectorAll<HTMLElement>('.fo__page').forEach((p) => {
+        opener.querySelectorAll<HTMLElement>('.page').forEach((p) => {
           if (p !== el && !keep.includes(p.dataset.page!)) p.removeAttribute('data-shown');
         });
       }, 760);
@@ -284,7 +273,6 @@ const widths = [1102, 1653, 2204, 3024];
 
     const loop = async (id: number) => {
       while (id === run) {
-        // 1. Reports: click the report
         await wait(900, id);
         await move(at(1000, 470), 1000, id);
         hand(true);
@@ -292,7 +280,6 @@ const widths = [1102, 1653, 2204, 3024];
         await press(id);
         hand(false);
 
-        // 2. The report lifts in, scrolls to the table, Leah is clicked
         long.style.transition = 'none';
         scrollTo(0);
         void long.offsetWidth;
@@ -307,7 +294,6 @@ const widths = [1102, 1653, 2204, 3024];
         await wait(350, id);
         await press(id);
 
-        // 3. Leah's card; hover Unilever on it
         show('person', ['brief']);
         hand(false);
         await wait(900, id);
@@ -315,7 +301,6 @@ const widths = [1102, 1653, 2204, 3024];
         hand(true);
         await wait(450, id);
 
-        // 4. The hover brings up Unilever's card; click the name
         show('company-card', ['brief']);
         await wait(1100, id);
         await move(at(560, 237), 400, id);
@@ -323,7 +308,6 @@ const widths = [1102, 1653, 2204, 3024];
         await press(id);
         hand(false);
 
-        // 5. Unilever's page, then round again
         show('company');
         await wait(500, id);
         await move(REST, 1100, id);
@@ -333,7 +317,6 @@ const widths = [1102, 1653, 2204, 3024];
       }
     };
 
-    // Decode every page first, so none of them arrives blank
     const ready = Promise.all([...opener.querySelectorAll('img')].map((img) => img.decode().catch(() => {})));
 
     const start = () => {
@@ -346,9 +329,8 @@ const widths = [1102, 1653, 2204, 3024];
       run++;
       hand(false);
       opener.removeAttribute('data-pressing');
-      // Start over next time: the reports page, cursor at rest
       z = 1;
-      opener.querySelectorAll<HTMLElement>('.fo__page').forEach((p) => {
+      opener.querySelectorAll<HTMLElement>('.page').forEach((p) => {
         const first = p.dataset.page === 'overview';
         p.toggleAttribute('data-shown', first);
         p.removeAttribute('data-arriving');

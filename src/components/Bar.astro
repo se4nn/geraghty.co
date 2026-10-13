@@ -1,6 +1,4 @@
 ---
-// Bold labels split by bars, lighter detail to the right. Under every project
-// tile, and at the foot of a case study hero with the role centred between.
 interface Props {
   lead: string[];
   middle?: string;
@@ -10,14 +8,14 @@ interface Props {
 const { lead, middle, trail } = Astro.props;
 ---
 
-<p class:list={['bar', 't-h3', { 'bar--three': middle }]}>
-  <span class="bar__lead t-h3-bold">
+<p class:list={['bar', 't-h3', { three: middle }]}>
+  <span class="lead t-h3-bold">
     {lead.map((item, i) => (
-      <>{i > 0 && <><span class="bar__sep" aria-hidden="true">|</span><wbr /></>}<span class="bar__item">{item}</span></>
+      <>{i > 0 && <><span class="divider" aria-hidden="true">|</span><wbr /></>}<span class="item">{item}</span></>
     ))}
   </span>
-  {middle && <span class="bar__middle">{middle}</span>}
-  <span class="bar__trail">{trail}</span>
+  {middle && <span class="middle">{middle}</span>}
+  <span class="trail">{trail}</span>
 </p>
 
 <style>
@@ -28,50 +26,51 @@ const { lead, middle, trail } = Astro.props;
     gap: 0 var(--space-m);
   }
 
-  .bar__lead {
+  .lead {
     color: var(--text-strong);
   }
 
   /* Three Columns */
 
-  .bar--three {
+  .bar.three {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: baseline;
   }
 
-  .bar__middle {
+  .middle {
     color: var(--text-muted);
     text-align: center;
   }
 
-  .bar--three .bar__trail {
+  .bar.three .trail {
     text-align: right;
   }
 
   /* Phones */
 
   @media (max-width: 700px) {
-    .bar--three {
+    .bar.three {
       grid-template-columns: 1fr;
       gap: var(--space-2xs);
     }
 
-    .bar--three :is(.bar__middle, .bar__trail) {
+    .bar.three :is(.middle, .trail) {
       text-align: left;
     }
   }
 
-  /* Lines break at the bars, never inside a label */
-  .bar__item {
+  /* Lead & Trail */
+
+  .item {
     white-space: nowrap;
   }
 
-  .bar__sep {
+  .divider {
     margin-inline: 0.5em;
   }
 
-  .bar__trail {
+  .trail {
     color: var(--text-muted);
     white-space: nowrap;
   }

@@ -1,4 +1,3 @@
-// Homepage content that isn't a project. Edit copy and links here.
 import type { LogoChip } from '../components/LogoStack.astro';
 
 import chipFormat from '../assets/logos/chips/format.svg';
@@ -38,8 +37,6 @@ export const availability = 'Open to work';
 
 export const contactEmail = 'sean@geraghty.co';
 
-// Intro line. Links without an href render as plain underlined text.
-// `images` fan out above a link on hover (MOTION.md: Fan).
 export const intro = {
   lead: 'I’m Sean, a London-based designer, who loves to',
   links: [
@@ -57,24 +54,18 @@ export const intro = {
   ],
 };
 
-// `project` links a chip to that project in src/content/work and gives it a
-// hover card of its tile. `href` links anywhere else; add a `card` for work
-// with no tile (a still rendered from LensFlare in the brand's colours).
 const chip = {
   format: { name: 'Format', project: 'format', src: chipFormat, bg: 'var(--chip-format)', width: 20, height: 20 },
   delli: { name: 'DELLI', project: 'delli', src: chipDelli, bg: 'var(--chip-delli)', width: 20, height: 5.556 },
   studia: { name: 'Studia', project: 'studia', src: chipStudia, bg: 'var(--chip-studia)', width: 20, height: 6 },
   fertifa: { name: 'Fertifa', project: 'fertifa', src: chipFertifa, bg: 'var(--chip-fertifa)', width: 20, height: 20 },
   shuffle: { name: 'Shuffle', project: 'shuffle', src: chipShuffle },
-  // Card from the tile in src/content/work/steepclub.mdx, kept off the grid
   steepClub: { name: 'The Steep Club', project: 'steepclub', src: chipSteepClub },
   minimum: { name: 'Minimum', project: 'minimum', src: chipMinimum },
   fewVentures: {
     name: 'Few Ventures',
     href: 'https://fewww.vc',
     src: chipFewVentures,
-    // Rendered in the lens flare lab: #1f9c14 → #0b130b (out as the brand's
-    // #3fff2f and #192518), seed 21, phase 0.82 to keep the crease off the logo
     card: {
       image: fewVenturesTile,
       logo: fewVenturesLogo,
@@ -86,7 +77,6 @@ const chip = {
   },
 };
 
-// Rotations are from the Figma frame
 export const skills: { label: string; logos: LogoChip[] }[] = [
   {
     label: 'Product Design',
@@ -118,7 +108,6 @@ export const skills: { label: string; logos: LogoChip[] }[] = [
 
 export const workIntro = {
   text: 'I’ve spent more than a decade spotting problems nobody’s named yet.',
-  // A no-break space keeps "I" with "get" where the line wraps on phones
   text2: 'I\u00a0get in early, ask difficult questions, design a fix and then',
   emphasis: 'build it',
 };

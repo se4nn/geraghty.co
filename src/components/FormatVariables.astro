@@ -1,7 +1,4 @@
 ---
-// Format's variables: the Semantic collection on the left, each pointing at a
-// Primitive on the right. Rows (a selection), ramps and counts are Format's own.
-// Built at 1416 × 812 Figma px, scaled as one piece (--u).
 const semantic: [string, string][] = [
   ['background', 'neutral/000'],
   ['foreground', 'neutral/900'],
@@ -39,25 +36,25 @@ const ramps: [string, string[]][] = [
 const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 ---
 
-<div class="fv" role="group" aria-label="Format’s variables: semantic colours on the left, each pointing at a primitive on the right">
-  <div class="fv__frame">
-    <div class="fv__window">
-      <header class="fv__head">
-        <span class="fv__title">Variables</span>
-        <span class="fv__tab fv__tab--on">Semantic <em>36</em></span>
-        <span class="fv__tab">Primitives <em>156</em></span>
-        <span class="fv__mode">Light</span>
+<div class="format-variables" role="group" aria-label="Format’s variables: semantic colours on the left, each pointing at a primitive on the right">
+  <div class="frame">
+    <div class="window">
+      <header class="toolbar">
+        <span class="title">Variables</span>
+        <span class="tab on">Semantic <em>36</em></span>
+        <span class="tab">Primitives <em>156</em></span>
+        <span class="mode">Light</span>
       </header>
 
-      <div class="fv__body">
-        <div class="fv__table">
-          <div class="fv__row fv__row--head"><span>Name</span><span>Value</span></div>
+      <div class="body">
+        <div class="table">
+          <div class="row head"><span>Name</span><span>Value</span></div>
           {
             semantic.map(([name, target], i) => (
-              <button class="fv__row" type="button" data-target={target} aria-pressed={i === 0 ? 'true' : 'false'}>
-                <span class="fv__name">{name}</span>
-                <span class="fv__alias">
-                  <span class="fv__chip" style={`--c: ${color(target)}`} />
+              <button class="row" type="button" data-target={target} aria-pressed={i === 0 ? 'true' : 'false'}>
+                <span class="name">{name}</span>
+                <span class="alias">
+                  <span class="alias-swatch" style={`--c: ${color(target)}`} />
                   {target}
                 </span>
               </button>
@@ -65,16 +62,16 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
           }
         </div>
 
-        <div class="fv__ramps" aria-hidden="true">
+        <div class="ramps" aria-hidden="true">
           {
             ramps.map(([hue, steps]) => (
-              <div class="fv__ramp">
-                <span class="fv__hue">{hue}</span>
-                <div class="fv__steps" style={`--n: ${steps.length}`}>
+              <div class="ramp">
+                <span class="hue">{hue}</span>
+                <div class="steps" style={`--n: ${steps.length}`}>
                   {steps.map((step) => (
-                    <span class="fv__step" data-path={`${hue}/${step}`} style={`--c: ${color(`${hue}/${step}`)}`}>
-                      <span class="fv__swatch" />
-                      <span class="fv__label">{step}</span>
+                    <span class="step" data-path={`${hue}/${step}`} style={`--c: ${color(`${hue}/${step}`)}`}>
+                      <span class="swatch" />
+                      <span class="step-name">{step}</span>
                     </span>
                   ))}
                 </div>
@@ -88,14 +85,14 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 </div>
 
 <style>
-  .fv {
+  .format-variables {
     container-type: inline-size;
     border-radius: var(--radius-s);
     overflow: hidden;
     background-color: var(--neutral-050);
   }
 
-  .fv__frame {
+  .frame {
     --u: calc(100cqw / 1416);
     --ink: var(--format-neutral-900);
     --muted: var(--format-neutral-500);
@@ -108,8 +105,7 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     font-variation-settings: var(--sans-axes);
   }
 
-  /* One window, running off the bottom like the screens */
-  .fv__window {
+  .window {
     position: absolute;
     left: calc(96 * var(--u));
     right: calc(96 * var(--u));
@@ -122,7 +118,7 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
       0 calc(12 * var(--u)) calc(40 * var(--u)) oklch(0% 0 0 / 0.1);
   }
 
-  .fv__head {
+  .toolbar {
     display: flex;
     align-items: center;
     gap: calc(8 * var(--u));
@@ -132,35 +128,35 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     font-size: calc(17 * var(--u));
   }
 
-  .fv__title {
+  .title {
     margin-right: calc(24 * var(--u));
     font-size: calc(22 * var(--u));
     font-weight: var(--weight-bold);
   }
 
-  .fv__tab {
+  .tab {
     padding: calc(6 * var(--u)) calc(14 * var(--u));
     border-radius: calc(8 * var(--u));
     color: var(--muted);
   }
 
-  .fv__tab em {
+  .tab em {
     margin-left: calc(4 * var(--u));
     font-style: normal;
     color: var(--format-neutral-400);
   }
 
-  .fv__tab--on {
+  .tab.on {
     color: var(--ink);
     background-color: var(--format-neutral-050);
   }
 
-  .fv__mode {
+  .mode {
     margin-left: auto;
     color: var(--muted);
   }
 
-  .fv__body {
+  .body {
     display: grid;
     grid-template-columns: calc(500 * var(--u)) 1fr;
     height: calc(100% - 72 * var(--u));
@@ -168,14 +164,14 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 
   /* Table */
 
-  .fv__table {
+  .table {
     display: flex;
     flex-direction: column;
     padding: calc(12 * var(--u)) calc(16 * var(--u));
     border-right: 1px solid var(--line);
   }
 
-  .fv__row {
+  .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
@@ -193,27 +189,27 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     transition: background-color var(--duration-s) var(--ease-out);
   }
 
-  .fv__row--head {
+  .row.head {
     color: var(--muted);
     font-size: calc(14 * var(--u));
   }
 
-  .fv__row[aria-pressed='true'] {
+  .row[aria-pressed='true'] {
     background-color: var(--format-cyan-050);
   }
 
-  .fv__row:focus-visible {
+  .row:focus-visible {
     outline: 2px solid var(--format-cyan-500);
     outline-offset: -2px;
   }
 
-  .fv__name,
-  .fv__alias {
+  .name,
+  .alias {
     font-family: var(--font-mono);
     font-size: calc(15 * var(--u));
   }
 
-  .fv__alias {
+  .alias {
     display: inline-flex;
     align-items: center;
     gap: calc(8 * var(--u));
@@ -223,7 +219,7 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     background-color: var(--format-neutral-050);
   }
 
-  .fv__chip {
+  .alias-swatch {
     width: calc(16 * var(--u));
     height: calc(16 * var(--u));
     border-radius: calc(4 * var(--u));
@@ -233,37 +229,37 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
 
   /* Ramps */
 
-  .fv__ramps {
+  .ramps {
     display: flex;
     flex-direction: column;
     gap: calc(22 * var(--u));
     padding: calc(28 * var(--u)) calc(40 * var(--u));
   }
 
-  .fv__ramp {
+  .ramp {
     display: grid;
     gap: calc(8 * var(--u));
   }
 
-  .fv__hue {
+  .hue {
     color: var(--muted);
     font-family: var(--font-mono);
     font-size: calc(14 * var(--u));
   }
 
-  .fv__steps {
+  .steps {
     display: grid;
     grid-template-columns: repeat(11, calc(50 * var(--u)));
     gap: calc(8 * var(--u));
   }
 
-  .fv__step {
+  .step {
     display: grid;
     justify-items: center;
     gap: calc(4 * var(--u));
   }
 
-  .fv__swatch {
+  .swatch {
     width: 100%;
     height: calc(40 * var(--u));
     border-radius: calc(6 * var(--u));
@@ -274,54 +270,55 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
     transition: outline-color var(--duration-s) var(--ease-out);
   }
 
-  .fv__label {
+  .step-name {
     color: var(--format-neutral-400);
     font-family: var(--font-mono);
     font-size: calc(12 * var(--u));
     transition: color var(--duration-s) var(--ease-out);
   }
 
-  .fv__step[data-on] .fv__swatch {
+  .step[data-on] .swatch {
     outline-color: var(--format-cyan-500);
   }
 
-  .fv__step[data-on] .fv__label {
+  .step[data-on] .step-name {
     color: var(--ink);
   }
 
   @media (hover: hover) {
-    .fv__row:not(.fv__row--head) {
+    .row:not(.head) {
       cursor: pointer;
     }
   }
 
-  /* Phones: the ramps alone are too small to read beside the table */
+  /* Phones */
+
   @container (max-width: 640px) {
-    .fv__frame {
+    .frame {
       --u: calc(100cqw / 900);
       aspect-ratio: 900 / 1000;
     }
 
-    .fv__window {
+    .window {
       left: calc(32 * var(--u));
       right: calc(32 * var(--u));
       top: calc(32 * var(--u));
     }
 
-    .fv__body {
+    .body {
       grid-template-columns: 1fr;
     }
 
-    .fv__table {
+    .table {
       border-right: 0;
       border-bottom: 1px solid var(--line);
     }
 
-    .fv__row:nth-of-type(n + 9) {
+    .row:nth-of-type(n + 9) {
       display: none;
     }
 
-    .fv__steps {
+    .steps {
       grid-template-columns: repeat(11, 1fr);
     }
   }
@@ -331,12 +328,11 @@ const color = (path: string) => `var(--format-${path.replace('/', '-')})`;
   import { reducedMotion } from '../scripts/arrival';
 
   const STEP_MS = 1800;
-  // Rows the light walks through on its own, one from each kind
   const TOUR = [0, 1, 4, 5, 6, 8, 11, 13, 14, 15];
 
-  for (const root of document.querySelectorAll<HTMLElement>('.fv')) {
-    const rows = [...root.querySelectorAll<HTMLButtonElement>('button.fv__row')];
-    const steps = [...root.querySelectorAll<HTMLElement>('.fv__step')];
+  for (const root of document.querySelectorAll<HTMLElement>('.format-variables')) {
+    const rows = [...root.querySelectorAll<HTMLButtonElement>('button.row')];
+    const steps = [...root.querySelectorAll<HTMLElement>('.step')];
     let tour = 0;
     let timer = 0;
     let held = reducedMotion.matches;

@@ -1,8 +1,4 @@
 ---
-// Format's component build loop: seven steps, each with what it produces.
-// The steps are Format's own (component-build-workflow.md), the examples from
-// its learning log. Built at 1416 × 812 Figma px, scaled as one piece (--u).
-
 import Caption from './BuildLoopCaption.astro';
 
 const steps = [
@@ -17,55 +13,53 @@ const steps = [
 ---
 
 <div class="build-loop" role="group" aria-label="The component build loop: seven steps, each with what it produces">
-  <div class="build-loop__frame">
-    <ol class="build-loop__steps" role="list">
+  <div class="frame">
+    <ol class="steps" role="list">
       {
         steps.map((step, i) => (
           <li>
-            <button class="build-loop__step" type="button" aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`${i + 1}. ${step.title}`}>
+            <button class="step" type="button" aria-pressed={i === 0 ? 'true' : 'false'} aria-label={`${i + 1}. ${step.title}`}>
               {String(i + 1).padStart(2, '0')}
-              <span class="build-loop__rail" aria-hidden="true" />
+              <span class="rail" aria-hidden="true" />
             </button>
           </li>
         ))
       }
     </ol>
 
-    <div class="build-loop__stage">
-      {/* 01 Read */}
-      <section class="build-loop__scene" data-active="">
-        <div class="build-loop__cards">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot" />design-system-rules.md</p>
-            <ul class="bl-rules" role="list">
+    <div class="stage">
+      <section class="scene" data-active="">
+        <div class="cards">
+          <div class="card">
+            <p class="file"><span class="dot" />design-system-rules.md</p>
+            <ul class="rules" role="list">
               <li><b>Tokens first.</b> No raw colours, spacing or radius in a component.</li>
               <li><b>Code owns structure.</b> Variants, states and the API.</li>
               <li><b>Figma owns values.</b> Fonts, padding, colour, radius.</li>
             </ul>
           </div>
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--log" />learning-log.md</p>
-            <p class="bl-entry-title">Icon stroke width</p>
-            <p class="bl-entry">Set by reasoning from the code, not by looking at the rendered SVG.</p>
-            <p class="bl-rule"><b>Rule:</b> check what renders before calling an SVG change done.</p>
+          <div class="card">
+            <p class="file"><span class="dot log" />learning-log.md</p>
+            <p class="entry-title">Icon stroke width</p>
+            <p class="entry">Set by reasoning from the code, not by looking at the rendered SVG.</p>
+            <p class="rule"><b>Rule:</b> check what renders before calling an SVG change done.</p>
           </div>
         </div>
         <Caption {...steps[0]} />
       </section>
 
-      {/* 02 Spec */}
-      <section class="build-loop__scene" aria-hidden="true">
-        <div class="build-loop__cards build-loop__cards--one">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--figma" />Figma · Button</p>
-            <div class="bl-buttons">
-              <span class="bl-button">Default</span>
-              <span class="bl-button bl-button--outline">Outline</span>
-              <span class="bl-button bl-button--ghost">Ghost</span>
-              <span class="bl-button bl-button--danger">Destructive</span>
-              <span class="bl-states">6 states · not the 4 I’d assumed</span>
+      <section class="scene" aria-hidden="true">
+        <div class="cards one">
+          <div class="card">
+            <p class="file"><span class="dot figma" />Figma · Button</p>
+            <div class="mock-buttons">
+              <span class="mock-button">Default</span>
+              <span class="mock-button outline">Outline</span>
+              <span class="mock-button ghost">Ghost</span>
+              <span class="mock-button danger">Destructive</span>
+              <span class="states">6 states · not the 4 I’d assumed</span>
             </div>
-            <table class="bl-table">
+            <table class="table">
               <thead><tr><th>Figma</th><th>Code</th></tr></thead>
               <tbody>
                 <tr><td>color/neutral/900</td><td>var(--neutral-900)</td></tr>
@@ -78,15 +72,14 @@ const steps = [
         <Caption {...steps[1]} />
       </section>
 
-      {/* 03 Build */}
-      <section class="build-loop__scene" aria-hidden="true">
-        <div class="build-loop__cards build-loop__cards--one">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--code" />src/components/ui/button.tsx</p>
-            <pre class="bl-code"><code><span class="c-k">const</span> buttonVariants = <span class="c-f">cva</span>(base, {'{'}
+      <section class="scene" aria-hidden="true">
+        <div class="cards one">
+          <div class="card">
+            <p class="file"><span class="dot code" />src/components/ui/button.tsx</p>
+            <pre class="snippet"><code><span class="keyword">const</span> buttonVariants = <span class="function">cva</span>(base, {'{'}
   variants: {'{'}
-    variant: {'{'} default: <span class="c-s">'bg-primary text-primary-foreground'</span> {'}'},
-    size: {'{'} default: <span class="c-s bl-flag">'h-9 px-2 gap-1'</span> {'}'},
+    variant: {'{'} default: <span class="string">'bg-primary text-primary-foreground'</span> {'}'},
+    size: {'{'} default: <span class="string flag">'h-9 px-2 gap-1'</span> {'}'},
   {'}'},
 {'}'})</code></pre>
           </div>
@@ -94,76 +87,72 @@ const steps = [
         <Caption {...steps[2]} />
       </section>
 
-      {/* 04 Check */}
-      <section class="build-loop__scene" aria-hidden="true">
-        <div class="build-loop__cards build-loop__cards--one">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--qa" />Visual QA · /design/design-system</p>
-            <div class="bl-compare">
-              <figure><span class="bl-measure"><span class="pad">12</span><span class="btn">Button</span><span class="pad">12</span></span><figcaption>Figma</figcaption></figure>
-              <figure><span class="bl-measure bl-measure--wrong"><span class="pad">8</span><span class="btn">Button</span><span class="pad">8</span></span><figcaption>Browser, computed</figcaption></figure>
+      <section class="scene" aria-hidden="true">
+        <div class="cards one">
+          <div class="card">
+            <p class="file"><span class="dot qa" />Visual QA · /design/design-system</p>
+            <div class="comparison">
+              <figure><span class="measure"><span class="padding">12</span><span class="measured">Button</span><span class="padding">12</span></span><figcaption>Figma</figcaption></figure>
+              <figure><span class="measure wrong"><span class="padding">8</span><span class="measured">Button</span><span class="padding">8</span></span><figcaption>Browser, computed</figcaption></figure>
             </div>
-            <p class="bl-status bl-status--fail">1 issue · padding 8px, spec 12px</p>
+            <p class="status fail">1 issue · padding 8px, spec 12px</p>
           </div>
         </div>
         <Caption {...steps[3]} />
       </section>
 
-      {/* 05 Fix */}
-      <section class="build-loop__scene" aria-hidden="true">
-        <div class="build-loop__cards build-loop__cards--one">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--qa" />Visual QA · iteration 1 of 3</p>
-            <pre class="bl-code bl-code--diff"><code><span class="c-del">-  default: 'h-9 px-2 gap-1',</span>
-<span class="c-add">+  default: 'h-9 px-3 gap-1',</span></code></pre>
-            <div class="bl-compare">
-              <figure><span class="bl-measure"><span class="pad">12</span><span class="btn">Button</span><span class="pad">12</span></span><figcaption>Figma</figcaption></figure>
-              <figure><span class="bl-measure bl-measure--right"><span class="pad">12</span><span class="btn">Button</span><span class="pad">12</span></span><figcaption>Browser, computed</figcaption></figure>
+      <section class="scene" aria-hidden="true">
+        <div class="cards one">
+          <div class="card">
+            <p class="file"><span class="dot qa" />Visual QA · iteration 1 of 3</p>
+            <pre class="snippet diff"><code><span class="removed">-  default: 'h-9 px-2 gap-1',</span>
+<span class="added">+  default: 'h-9 px-3 gap-1',</span></code></pre>
+            <div class="comparison">
+              <figure><span class="measure"><span class="padding">12</span><span class="measured">Button</span><span class="padding">12</span></span><figcaption>Figma</figcaption></figure>
+              <figure><span class="measure right"><span class="padding">12</span><span class="measured">Button</span><span class="padding">12</span></span><figcaption>Browser, computed</figcaption></figure>
             </div>
-            <p class="bl-status bl-status--pass">All variants match</p>
+            <p class="status pass">All variants match</p>
           </div>
         </div>
         <Caption {...steps[4]} />
       </section>
 
-      {/* 06 Approve */}
-      <section class="build-loop__scene" aria-hidden="true">
-        <div class="build-loop__cards build-loop__cards--one">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--gate" />Approval gates · Button</p>
-            <div class="bl-gates">
+      <section class="scene" aria-hidden="true">
+        <div class="cards one">
+          <div class="card">
+            <p class="file"><span class="dot gate" />Approval gates · Button</p>
+            <div class="gates">
               <div>
-                <p class="bl-gate">Before building</p>
-                <ul class="bl-checks" role="list">
+                <p class="gate-title">Before building</p>
+                <ul class="checks" role="list">
                   <li>Token mapping</li>
                   <li>Changes to stock shadcn</li>
                   <li>Proposed API</li>
                 </ul>
               </div>
               <div>
-                <p class="bl-gate">Before it’s done</p>
-                <ul class="bl-checks" role="list">
+                <p class="gate-title">Before it’s done</p>
+                <ul class="checks" role="list">
                   <li>Code and live page</li>
                   <li>QA results</li>
                   <li>Known deviations</li>
                 </ul>
               </div>
             </div>
-            <p class="bl-status bl-status--pass">Approved by me, not the AI</p>
+            <p class="status pass">Approved by me, not the AI</p>
           </div>
         </div>
         <Caption {...steps[5]} />
       </section>
 
-      {/* 07 Write It Down */}
-      <section class="build-loop__scene" aria-hidden="true">
-        <div class="build-loop__cards build-loop__cards--one">
-          <div class="build-loop__card">
-            <p class="bl-file"><span class="bl-dot bl-dot--log" />learning-log.md · same pull request</p>
-            <p class="bl-entry-title">Token merge conflict</p>
-            <p class="bl-entry">A merge conflict set a colour token to the wrong value.</p>
-            <p class="bl-rule"><b>Rule:</b> check Figma before accepting either side of a token conflict.</p>
-            <div class="bl-chips">
+      <section class="scene" aria-hidden="true">
+        <div class="cards one">
+          <div class="card">
+            <p class="file"><span class="dot log" />learning-log.md · same pull request</p>
+            <p class="entry-title">Token merge conflict</p>
+            <p class="entry">A merge conflict set a colour token to the wrong value.</p>
+            <p class="rule"><b>Rule:</b> check Figma before accepting either side of a token conflict.</p>
+            <div class="chips">
               <span>Component write-up</span>
               <span>Rulebook updated</span>
               <span>Live library updated</span>
@@ -184,8 +173,7 @@ const steps = [
     background-color: var(--neutral-050);
   }
 
-  /* --u is one Figma px at this width */
-  .build-loop__frame {
+  .frame {
     --u: calc(100cqw / 1416);
     display: grid;
     grid-template-rows: auto 1fr;
@@ -199,7 +187,7 @@ const steps = [
 
   /* Steps */
 
-  .build-loop__steps {
+  .steps {
     display: flex;
     gap: calc(16 * var(--u));
     margin: 0;
@@ -207,12 +195,12 @@ const steps = [
     list-style: none;
   }
 
-  .build-loop__steps li {
+  .steps li {
     flex: 1;
     min-width: 0;
   }
 
-  .build-loop__step {
+  .step {
     position: relative;
     width: 100%;
     padding: calc(8 * var(--u));
@@ -229,12 +217,11 @@ const steps = [
     transition: color var(--duration-m) var(--ease-out);
   }
 
-  .build-loop__step[aria-pressed='true'] {
+  .step[aria-pressed='true'] {
     color: var(--neutral-900);
   }
 
-  /* The underline, filling under the active step while it plays */
-  .build-loop__rail {
+  .rail {
     position: absolute;
     left: 0;
     right: 0;
@@ -245,29 +232,29 @@ const steps = [
     transform-origin: left;
   }
 
-  .build-loop__step[aria-pressed='true'] .build-loop__rail {
+  .step[aria-pressed='true'] .rail {
     transform: scaleX(1);
   }
 
-  .build-loop__step:focus-visible {
+  .step:focus-visible {
     outline: 2px solid var(--brand-blue);
     outline-offset: 2px;
   }
 
   @media (hover: hover) {
-    .build-loop__step:hover {
+    .step:hover {
       color: var(--neutral-900);
     }
   }
 
   /* Scenes */
 
-  .build-loop__stage {
+  .stage {
     display: grid;
     min-height: 0;
   }
 
-  .build-loop__scene {
+  .scene {
     grid-area: 1 / 1;
     display: grid;
     grid-template-rows: 1fr auto;
@@ -276,11 +263,11 @@ const steps = [
     visibility: hidden;
   }
 
-  .build-loop__scene[data-active] {
+  .scene[data-active] {
     visibility: visible;
   }
 
-  .build-loop__cards {
+  .cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: calc(48 * var(--u));
@@ -288,12 +275,12 @@ const steps = [
     min-height: 0;
   }
 
-  .build-loop__cards--one {
+  .cards.one {
     grid-template-columns: minmax(0, calc(820 * var(--u)));
     justify-content: center;
   }
 
-  .build-loop__card {
+  .card {
     display: grid;
     gap: calc(16 * var(--u));
     align-content: start;
@@ -309,7 +296,7 @@ const steps = [
 
   /* Card Contents */
 
-  .bl-file {
+  .file {
     display: flex;
     align-items: center;
     gap: calc(10 * var(--u));
@@ -320,21 +307,21 @@ const steps = [
     line-height: calc(24 / 17);
   }
 
-  .bl-dot {
+  .dot {
     width: calc(10 * var(--u));
     height: calc(10 * var(--u));
     border-radius: 50%;
     background-color: var(--neutral-300);
   }
 
-  .bl-dot--log { background-color: var(--format-yellow-500); }
-  .bl-dot--figma { background-color: var(--format-magenta-500); }
-  .bl-dot--code { background-color: var(--format-cyan-500); }
-  .bl-dot--qa { background-color: var(--format-red-500); }
-  .bl-dot--gate { background-color: var(--format-green-500); }
+  .dot.log { background-color: var(--format-yellow-500); }
+  .dot.figma { background-color: var(--format-magenta-500); }
+  .dot.code { background-color: var(--format-cyan-500); }
+  .dot.qa { background-color: var(--format-red-500); }
+  .dot.gate { background-color: var(--format-green-500); }
 
-  .bl-rules,
-  .bl-checks {
+  .rules,
+  .checks {
     display: grid;
     gap: calc(14 * var(--u));
     margin: 0;
@@ -346,43 +333,43 @@ const steps = [
     font-weight: 260;
   }
 
-  .bl-rules li,
-  .bl-checks li {
+  .rules li,
+  .checks li {
     padding-bottom: calc(14 * var(--u));
     border-bottom: 1px solid var(--neutral-100);
   }
 
-  .bl-rules li:last-child,
-  .bl-checks li:last-child {
+  .rules li:last-child,
+  .checks li:last-child {
     padding-bottom: 0;
     border-bottom: 0;
   }
 
-  .bl-rules b,
-  .bl-rule b {
+  .rules b,
+  .rule b {
     color: var(--neutral-900);
     font-weight: var(--weight-bold);
   }
 
-  .bl-checks li {
+  .checks li {
     display: flex;
     gap: calc(12 * var(--u));
     color: var(--neutral-900);
   }
 
-  .bl-checks li::before {
+  .checks li::before {
     content: '✓';
     color: var(--format-green-600);
     font-weight: var(--weight-bold);
   }
 
-  .bl-gates {
+  .gates {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: calc(32 * var(--u));
   }
 
-  .bl-gate {
+  .gate-title {
     margin: 0 0 calc(14 * var(--u));
     color: var(--neutral-600);
     font-size: calc(17 * var(--u));
@@ -390,7 +377,7 @@ const steps = [
     letter-spacing: 0.06em;
   }
 
-  .bl-entry-title {
+  .entry-title {
     margin: 0;
     color: var(--neutral-900);
     font-size: calc(27 * var(--u));
@@ -398,7 +385,7 @@ const steps = [
     font-weight: var(--weight-bold);
   }
 
-  .bl-entry {
+  .entry {
     margin: 0;
     color: var(--neutral-700);
     font-size: calc(21 * var(--u));
@@ -406,7 +393,7 @@ const steps = [
     font-weight: 260;
   }
 
-  .bl-rule {
+  .rule {
     margin: 0;
     padding-left: calc(18 * var(--u));
     border-left: calc(3 * var(--u)) solid var(--format-yellow-500);
@@ -416,13 +403,13 @@ const steps = [
     font-weight: 260;
   }
 
-  .bl-chips {
+  .chips {
     display: flex;
     flex-wrap: wrap;
     gap: calc(8 * var(--u));
   }
 
-  .bl-chips span {
+  .chips span {
     padding: calc(4 * var(--u)) calc(12 * var(--u));
     border-radius: calc(6 * var(--u));
     color: var(--format-green-600);
@@ -430,14 +417,14 @@ const steps = [
     font-size: calc(16 * var(--u));
   }
 
-  .bl-buttons {
+  .mock-buttons {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: calc(12 * var(--u));
   }
 
-  .bl-button {
+  .mock-button {
     padding: calc(8 * var(--u)) calc(14 * var(--u));
     border-radius: calc(6 * var(--u));
     color: var(--neutral-000);
@@ -446,47 +433,47 @@ const steps = [
     line-height: 1.2;
   }
 
-  .bl-button--outline {
+  .mock-button.outline {
     color: var(--format-neutral-900);
     background: none;
     box-shadow: inset 0 0 0 1px var(--format-neutral-300);
   }
 
-  .bl-button--ghost {
+  .mock-button.ghost {
     color: var(--format-neutral-900);
     background-color: var(--format-neutral-100);
   }
 
-  .bl-button--danger {
+  .mock-button.danger {
     background-color: var(--format-red-600);
   }
 
-  .bl-states {
+  .states {
     margin-left: auto;
     color: var(--format-magenta-600);
     font-size: calc(16 * var(--u));
   }
 
-  .bl-table {
+  .table {
     width: 100%;
     border-collapse: collapse;
     font-family: var(--font-mono);
     font-size: calc(16 * var(--u));
   }
 
-  .bl-table th {
+  .table th {
     color: var(--neutral-600);
     font-weight: normal;
     text-align: left;
   }
 
-  .bl-table th,
-  .bl-table td {
+  .table th,
+  .table td {
     padding: calc(10 * var(--u)) 0;
     border-bottom: 1px solid var(--neutral-100);
   }
 
-  .bl-code {
+  .snippet {
     margin: 0;
     padding: calc(20 * var(--u)) calc(24 * var(--u));
     border-radius: calc(6 * var(--u));
@@ -499,25 +486,25 @@ const steps = [
     overflow: hidden;
   }
 
-  .c-k { color: var(--format-magenta-300); }
-  .c-f { color: var(--format-cyan-300); }
-  .c-s { color: var(--format-yellow-300); }
-  .c-del { color: var(--format-red-300); }
-  .c-add { color: var(--format-green-300); }
+  .keyword { color: var(--format-magenta-300); }
+  .function { color: var(--format-cyan-300); }
+  .string { color: var(--format-yellow-300); }
+  .removed { color: var(--format-red-300); }
+  .added { color: var(--format-green-300); }
 
-  .bl-flag {
+  .flag {
     outline: calc(2 * var(--u)) solid var(--format-red-400);
     outline-offset: calc(2 * var(--u));
     border-radius: calc(3 * var(--u));
   }
 
-  .bl-compare {
+  .comparison {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: calc(16 * var(--u));
   }
 
-  .bl-compare figure {
+  .comparison figure {
     display: grid;
     justify-items: center;
     gap: calc(12 * var(--u));
@@ -527,26 +514,26 @@ const steps = [
     background-color: var(--neutral-050);
   }
 
-  .bl-compare figcaption {
+  .comparison figcaption {
     color: var(--neutral-600);
     font-size: calc(17 * var(--u));
   }
 
-  .bl-measure {
+  .measure {
     display: inline-flex;
     align-items: center;
     gap: calc(8 * var(--u));
     font-size: calc(22 * var(--u));
   }
 
-  .bl-measure .btn {
+  .measure .measured {
     padding: calc(8 * var(--u)) calc(12 * var(--u));
     border-radius: calc(6 * var(--u));
     color: var(--neutral-000);
     background-color: var(--format-neutral-900);
   }
 
-  .bl-measure .pad {
+  .measure .padding {
     min-width: calc(36 * var(--u));
     padding: calc(4 * var(--u)) calc(6 * var(--u));
     border-radius: calc(4 * var(--u));
@@ -557,17 +544,17 @@ const steps = [
     text-align: center;
   }
 
-  .bl-measure--wrong .pad {
+  .measure.wrong .padding {
     color: var(--format-red-600);
     background-color: var(--format-red-100);
   }
 
-  .bl-measure--right .pad {
+  .measure.right .padding {
     color: var(--format-green-600);
     background-color: var(--format-green-100);
   }
 
-  .bl-status {
+  .status {
     display: flex;
     align-items: center;
     gap: calc(10 * var(--u));
@@ -575,20 +562,20 @@ const steps = [
     font-size: calc(19 * var(--u));
   }
 
-  .bl-status::before {
+  .status::before {
     content: '';
     width: calc(10 * var(--u));
     height: calc(10 * var(--u));
     border-radius: 50%;
   }
 
-  .bl-status--fail { color: var(--format-red-600); }
-  .bl-status--fail::before { background-color: var(--format-red-500); }
-  .bl-status--pass { color: var(--format-green-600); }
-  .bl-status--pass::before { background-color: var(--format-green-500); }
+  .status.fail { color: var(--format-red-600); }
+  .status.fail::before { background-color: var(--format-red-500); }
+  .status.pass { color: var(--format-green-600); }
+  .status.pass::before { background-color: var(--format-green-500); }
 
   @media (prefers-reduced-motion: no-preference) {
-    .build-loop__card {
+    .card {
       opacity: 0;
       transform: translateY(calc(28 * var(--u)));
       transition:
@@ -596,7 +583,7 @@ const steps = [
         transform var(--duration-s) var(--ease-out);
     }
 
-    .build-loop__scene[data-active] .build-loop__card {
+    .scene[data-active] .card {
       opacity: 1;
       transform: none;
       transition:
@@ -604,11 +591,11 @@ const steps = [
         transform 720ms var(--ease-spring) 80ms;
     }
 
-    .build-loop__scene[data-active] .build-loop__card:nth-child(2) {
+    .scene[data-active] .card:nth-child(2) {
       transition-delay: 200ms;
     }
 
-    .build-loop[data-playing] .build-loop__step[aria-pressed='true'] .build-loop__rail {
+    .build-loop[data-playing] .step[aria-pressed='true'] .rail {
       transform: scaleX(0);
       animation: build-loop-fill var(--step-ms, 4800ms) linear forwards;
     }
@@ -623,44 +610,44 @@ const steps = [
   /* Phones */
 
   @container (max-width: 720px) {
-    .build-loop__frame {
+    .frame {
       --u: calc(100cqw / 760);
       aspect-ratio: auto;
       gap: 24px;
       padding: 16px;
     }
 
-    .build-loop__steps {
+    .steps {
       gap: 4px;
     }
 
-    .build-loop__step {
+    .step {
       padding: 6px 0;
       font-size: 15px;
     }
 
-    .build-loop__scene {
+    .scene {
       gap: 24px;
     }
 
-    .build-loop__cards {
+    .cards {
       grid-template-columns: 1fr;
       gap: 16px;
     }
 
-    .build-loop__cards--one {
+    .cards.one {
       grid-template-columns: 1fr;
     }
 
-    .build-loop__card {
+    .card {
       padding: 20px;
     }
 
-    .build-loop__card {
+    .card {
       --u: calc(100cqw / 520);
     }
 
-    .bl-gates {
+    .gates {
       grid-template-columns: 1fr;
     }
   }
@@ -672,13 +659,12 @@ const steps = [
   const STEP_MS = 4800;
 
   for (const loop of document.querySelectorAll<HTMLElement>('.build-loop')) {
-    const buttons = [...loop.querySelectorAll<HTMLButtonElement>('.build-loop__step')];
-    const scenes = [...loop.querySelectorAll<HTMLElement>('.build-loop__scene')];
+    const buttons = [...loop.querySelectorAll<HTMLButtonElement>('.step')];
+    const scenes = [...loop.querySelectorAll<HTMLElement>('.scene')];
     loop.style.setProperty('--step-ms', `${STEP_MS}ms`);
     let index = 0;
     let timer = 0;
     let inView = false;
-    // Set once someone picks a step: it holds there
     let held = reducedMotion.matches;
 
     const show = (i: number) => {
@@ -695,7 +681,6 @@ const steps = [
       clearTimeout(timer);
       loop.removeAttribute('data-playing');
       if (held || !inView) return;
-      // Restart the underline: drop the playing state, then set it next frame
       requestAnimationFrame(() => requestAnimationFrame(() => loop.setAttribute('data-playing', '')));
       timer = window.setTimeout(() => {
         show((index + 1) % scenes.length);

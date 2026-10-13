@@ -1,6 +1,4 @@
 ---
-// Dark close to every page: whatever's slotted in (the testimonial on the
-// homepage), then "Let's talk." cropped by the bottom of the page.
 import LetsTalk from './LetsTalk.astro';
 
 interface Props {
@@ -12,7 +10,7 @@ const { email, label } = Astro.props;
 ---
 
 <section class="footer" aria-label={label}>
-  <div class="container footer__inner">
+  <div class="container inner">
     <slot />
     <LetsTalk email={email} />
   </div>
@@ -21,40 +19,35 @@ const { email, label } = Astro.props;
 <style>
   .footer {
     position: relative;
-    /* Sideways only: "Let's talk." hangs below the page (LetsTalk) */
     overflow-x: clip;
     background-color: var(--bg-dark);
     padding-top: clamp(80px, 10.58vw, 160px);
   }
 
-  /* Three of the five grid columns. "Let's talk." is sized from the quote's
-     width, so the two line up. */
-  .footer__inner {
+  .inner {
     container-type: inline-size;
     --three-columns: calc(3 * (100cqi - 4 * var(--grid-gap)) / 5 + 2 * var(--grid-gap));
     --quote-width: var(--three-columns);
     --attribution-width: var(--three-columns);
   }
 
-  /* Sequence (MOTION.md), timed by src/scripts/arrival.ts */
   @media (prefers-reduced-motion: no-preference) {
-    .footer :global(.testimonial[data-arrival='waiting'] .testimonial__quote),
-    .footer :global(.testimonial[data-arrival='waiting'] .testimonial__row) {
+    .footer :global(.testimonial[data-arrival='waiting'] .words),
+    .footer :global(.testimonial[data-arrival='waiting'] .row) {
       opacity: 0;
     }
 
-    .footer :global(.testimonial[data-arrival='arrived'] .testimonial__quote) {
+    .footer :global(.testimonial[data-arrival='arrived'] .words) {
       --drift: 4rem;
       animation: footer-drift 2200ms var(--ease-drift) both;
     }
 
-    .footer :global(.testimonial[data-arrival='arrived'] .testimonial__row) {
+    .footer :global(.testimonial[data-arrival='arrived'] .row) {
       --drift: 2rem;
       animation: footer-drift 1800ms var(--ease-drift) 550ms both;
     }
   }
 
-  /* Fully there well before it has finished settling */
   @keyframes footer-drift {
     from {
       opacity: 0;
@@ -69,15 +62,14 @@ const { email, label } = Astro.props;
     }
   }
 
-  /* Tablets: the quote goes full width; the attribution waits for phones */
   @media (max-width: 1100px) {
-    .footer__inner {
+    .inner {
       --quote-width: 100cqi;
     }
   }
 
   @media (max-width: 700px) {
-    .footer__inner {
+    .inner {
       --attribution-width: 100cqi;
     }
   }
@@ -86,8 +78,6 @@ const { email, label } = Astro.props;
 <script>
   import { whenSeen, arrive, wait } from '../scripts/arrival';
 
-  // ms "Let's talk." waits behind the quote, even when both arrive together
-  // (a jump to the end)
   const TALK_AFTER_QUOTE = 1300;
 
   for (const footer of document.querySelectorAll<HTMLElement>('.footer')) {

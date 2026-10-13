@@ -1,18 +1,11 @@
 ---
-// The homepage showreel, muted and looping, playing only while on screen
-// (docs/SHOWREEL-PLAN.md; made by scripts/reel/). With `loader` it opens the
-// site (MOTION.md: Loader); the page's head script decides before first paint
-// whether that plays (never with reduced motion or Save-Data).
 import type { ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
 
 interface Props {
   poster: ImageMetadata;
   alt: string;
-  // Path without extension: <video>.webm (AV1) and .hevc.mp4, -720 versions
-  // of both for phones, and <video>-720.mp4 (H.264) for anything older
   video: string;
-  // The loader's images, in order; the last is the reel's first frame
   loader?: string[];
 }
 
@@ -25,7 +18,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
 
 <div class="showreel">
   <video
-    class="showreel__media"
+    class="media"
     poster={posterImage.src}
     aria-label={alt}
     muted
@@ -41,8 +34,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
   </video>
   {
     loader && (
-      <div class="showreel__cover" aria-hidden="true">
-        <div class="showreel__flick" data-images={JSON.stringify(loader)} />
+      <div class="cover" aria-hidden="true">
+        <div class="flick" data-images={JSON.stringify(loader)} />
       </div>
     )
   }
@@ -56,7 +49,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
     background-color: var(--neutral-100);
   }
 
-  /* Format's screen in its opener (1102 of 1416): a screen, not a band */
   @media (min-width: 701px) {
     .showreel {
       width: calc(1102 / 1416 * 100%);
@@ -64,14 +56,14 @@ const hevc = 'video/mp4; codecs="hvc1"';
     }
   }
 
-  .showreel__media {
+  .media {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .showreel__cover {
+  .cover {
     display: none;
   }
 
@@ -81,7 +73,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     overflow: hidden;
   }
 
-  :global(html[data-intro]) .showreel__cover {
+  :global(html[data-intro]) .cover {
     display: block;
     position: fixed;
     inset: 0;
@@ -89,16 +81,15 @@ const hevc = 'video/mp4; codecs="hvc1"';
     background-color: var(--bg-page);
   }
 
-  /* The slot waits, empty and unseen, until the reel takes over */
   :global(html[data-intro]:not([data-intro='settling'])) .showreel {
     background-color: transparent;
   }
 
-  :global(html[data-intro]:not([data-intro='settling'])) .showreel__media {
+  :global(html[data-intro]:not([data-intro='settling'])) .media {
     visibility: hidden;
   }
 
-  .showreel__flick {
+  .flick {
     position: fixed;
     inset: 0;
     width: clamp(280px, 36vw, 560px);
@@ -110,7 +101,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     background-color: var(--neutral-100);
   }
 
-  .showreel__flick :global(img) {
+  .flick :global(img) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -118,12 +109,11 @@ const hevc = 'video/mp4; codecs="hvc1"';
     object-fit: cover;
   }
 
-  .showreel__flick :global(img:not([data-on])) {
+  .flick :global(img:not([data-on])) {
     visibility: hidden;
   }
 
-  /* Scanlines, seen only in the frame of a cut */
-  .showreel__flick::after {
+  .flick::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -138,8 +128,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
   import { reducedMotion, wait, token } from '../scripts/arrival';
 
   const root = document.documentElement;
-  // ms each image holds, a slot machine's rhythm (MOTION.md: Loader). An image
-  // not loaded yet holds the one before it.
   const POWER_ON = 560;
   const hold = (i: number, n: number) => {
     const last = n - 1;
@@ -150,20 +138,17 @@ const hevc = 'video/mp4; codecs="hvc1"';
     const p = Math.min(1, i / Math.max(1, last - 4) / 0.45);
     return Math.round(60 + 120 * (1 - p) ** 2);
   };
-  // However slow the network, the page is never held longer than this
   const AT_MOST = 4000;
 
-  for (const video of document.querySelectorAll<HTMLVideoElement>('video.showreel__media')) {
+  // Playback
 
-    // Pauses only once fully off screen, so a reel that lands half on screen
-    // keeps playing
+  for (const video of document.querySelectorAll<HTMLVideoElement>('.showreel video.media')) {
     let seen = false;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (root.hasAttribute('data-intro')) return;
         if (entry.intersectionRatio >= 0.33 && !reducedMotion.matches) {
           seen = true;
-          // Muted, so browsers allow it; ignore the rare refusal
           video.play().catch(() => {});
         } else if (!entry.isIntersecting && seen) {
           video.pause();
@@ -172,7 +157,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
       { threshold: [0, 0.33] },
     );
 
-    const flick = video.parentElement!.querySelector<HTMLElement>('.showreel__flick');
+    const flick = video.parentElement!.querySelector<HTMLElement>('.flick');
     if (flick && root.hasAttribute('data-intro')) {
       root.dataset.intro = 'running';
       loader(video, flick).then(() => {
@@ -183,6 +168,8 @@ const hevc = 'video/mp4; codecs="hvc1"';
       io.observe(video);
     }
   }
+
+  // Loader
 
   async function loader(video: HTMLVideoElement, flick: HTMLElement) {
     const slot = video.parentElement!;
@@ -195,7 +182,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
       flick.append(img);
       return { img, ready: img.decode().then(() => true, () => false) };
     });
-    // The reel loads alongside, so it's ready to take over from its frame
     video.preload = 'auto';
     video.load();
 
@@ -211,7 +197,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
     addEventListener('keydown', onKey);
     const deadline = setTimeout(end, AT_MOST);
 
-    // MOTION.md: Loader (screen-on is in global.css)
     const cut = () => {
       flick.animate([{ filter: 'brightness(1.6) saturate(0.6)' }, { filter: 'none' }], { duration: 70, easing: 'steps(2, end)' });
       flick.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 70, easing: 'steps(2, end)', pseudoElement: '::after' });
@@ -243,7 +228,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
       show(img);
       await wait(hold(i, images.length));
     }
-    // Ended early: cut to the last image (the reel's first frame) if it's here
     if (stop && shown !== last.img && last.img.complete && last.img.naturalWidth) {
       show(last.img);
       land();
@@ -255,10 +239,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     removeEventListener('pointerdown', end);
     removeEventListener('keydown', onKey);
 
-    // 1. Grow to the reel's size: a transform on a box already drawn full
-    // size, so nothing is laid out or resampled
     const page = document.querySelector<HTMLElement>('[data-intro-page]');
-    // A reload part-way down restores its scroll; the page arrives at the top
     window.scrollTo({ top: 0, behavior: 'instant' });
     const from = flick.getBoundingClientRect();
     const to = slot.getBoundingClientRect();
@@ -279,7 +260,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
       )
       .finished.catch(() => {});
 
-    // 2. The reel takes over from the same frame, once it's actually playing
     video.currentTime = 0;
     await Promise.race([
       new Promise((r) => video.addEventListener('playing', r, { once: true })),
@@ -287,8 +267,6 @@ const hevc = 'video/mp4; codecs="hvc1"';
       wait(1500),
     ]);
 
-    // 3. The page, shifted so the slot is where the screen was, replaces the
-    // cover in the same frame, then slides into place
     const shift = to.top - top;
     const sliding = page?.animate([{ translate: `0 ${-shift}px` }, { translate: '0 0' }], {
       duration: 1100,

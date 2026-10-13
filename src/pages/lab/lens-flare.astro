@@ -1,6 +1,4 @@
 ---
-// Lens flare lab, not linked from the site: each project's live gradient with
-// grain and CRT beside the still it replaces, and a tile for trying colours.
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
@@ -15,11 +13,11 @@ const projects = (await getCollection('work'))
   <meta name="robots" content="noindex" slot="head" />
   <main class="lab">
     <h1 class="t-h1">Lens flare</h1>
-    <p class="t-body lab__note">Grain, CRT, then the current still.</p>
+    <p class="t-body note">Grain, CRT, then the current still.</p>
 
-    <section class="lab__try">
-      <LensFlare id="try" class="lab__art" from="var(--gradient-format-from)" to="var(--gradient-format-to)" />
-      <form class="lab__controls t-body" id="try-form">
+    <section class="try">
+      <LensFlare id="try" class="art" from="var(--gradient-format-from)" to="var(--gradient-format-to)" />
+      <form class="controls t-body" id="try-form">
         <label>Opening <input type="color" name="from" value="#7a286c" /></label>
         <label>Closing <input type="color" name="to" value="#9e4228" /></label>
         <label>Seed <input type="number" name="seed" value="0" step="1" /></label>
@@ -30,17 +28,17 @@ const projects = (await getCollection('work'))
             <option value="crt">CRT</option>
           </select>
         </label>
-        <output name="snippet" class="lab__snippet"></output>
+        <output name="snippet" class="snippet"></output>
       </form>
     </section>
 
     {
       projects.map((p) => (
-        <section class="lab__row">
+        <section class="row">
           <h2 class="t-h3-bold">{p.data.title}</h2>
-          <div class="lab__pair">
+          <div class="versions">
             <LensFlare
-              class="lab__art"
+              class="art"
               from={p.data.tile.gradient!.from}
               to={p.data.tile.gradient!.to}
               seed={p.data.tile.gradient!.seed}
@@ -48,7 +46,7 @@ const projects = (await getCollection('work'))
               fringe={p.data.tile.gradient!.fringe}
             />
             <LensFlare
-              class="lab__art"
+              class="art"
               from={p.data.tile.gradient!.from}
               to={p.data.tile.gradient!.to}
               seed={p.data.tile.gradient!.seed}
@@ -56,7 +54,7 @@ const projects = (await getCollection('work'))
               fringe={p.data.tile.gradient!.fringe}
               dither="crt"
             />
-            <Image class="lab__art lab__still" src={p.data.tile.image} alt="" width={820} />
+            <Image class="art still" src={p.data.tile.image} alt="" width={820} />
           </div>
         </section>
       ))
@@ -73,47 +71,47 @@ const projects = (await getCollection('work'))
     gap: var(--space-xl);
   }
 
-  .lab__note {
+  .note {
     color: var(--text-muted);
   }
 
-  .lab__try,
-  .lab__pair {
+  .try,
+  .versions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: var(--space-l);
   }
 
-  .lab__row {
+  .row {
     display: grid;
     gap: var(--space-s);
   }
 
-  .lab__art {
+  .art {
     aspect-ratio: 1;
     width: 100%;
     border-radius: var(--radius-s);
   }
 
-  .lab__still {
+  .still {
     height: auto;
     object-fit: cover;
   }
 
-  .lab__controls {
+  .controls {
     display: grid;
     align-content: start;
     gap: var(--space-s);
   }
 
-  .lab__controls label {
+  .controls label {
     display: flex;
     justify-content: space-between;
     gap: var(--space-m);
     max-width: 280px;
   }
 
-  .lab__snippet {
+  .snippet {
     font-family: ui-monospace, monospace;
     font-size: 13px;
     white-space: pre;

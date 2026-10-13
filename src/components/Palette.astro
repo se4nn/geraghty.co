@@ -1,18 +1,14 @@
 ---
-// A brand palette in one block: the primary ramp named down the left, the
-// secondary ramps as plain chips on the right, one ramp to a row.
 interface Swatch {
   name: string;
   hex: string;
   color: string;
-  // 'dark' where a primary swatch needs light text
   on?: 'light' | 'dark';
 }
 
 interface Props {
   primary: Swatch[];
   secondary: Swatch[];
-  // Shades per secondary ramp
   columns: number;
   label: string;
 }
@@ -21,20 +17,20 @@ const { primary, secondary, columns, label } = Astro.props;
 ---
 
 <div class="palette" role="group" aria-label={label}>
-  <ul class="palette__primary" role="list">
+  <ul class="primary" role="list">
     {
       primary.map((item) => (
-        <li class:list={['palette__swatch', { 'palette__swatch--dark': item.on === 'dark' }]} style={`--swatch: ${item.color}`}>
+        <li class:list={['swatch', item.on]} style={`--swatch: ${item.color}`}>
           <span class="t-body-bold">{item.name}</span>
-          <span class="palette__hex t-label">{item.hex}</span>
+          <span class="hex t-label">{item.hex}</span>
         </li>
       ))
     }
   </ul>
-  <ul class="palette__secondary" role="list" style={`--columns: ${columns}`}>
+  <ul class="secondary" role="list" style={`--columns: ${columns}`}>
     {
       secondary.map((item) => (
-        <li class="palette__chip" style={`--swatch: ${item.color}`}>
+        <li class="shade" style={`--swatch: ${item.color}`}>
           <span class="visually-hidden">
             {item.name} {item.hex}
           </span>
@@ -45,7 +41,6 @@ const { primary, secondary, columns, label } = Astro.props;
 </div>
 
 <style>
-  /* Two halves, spaced like a Pair of images, at 1416 × 560 */
   .palette {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -53,8 +48,8 @@ const { primary, secondary, columns, label } = Astro.props;
     aspect-ratio: 1416 / 560;
   }
 
-  .palette__primary,
-  .palette__secondary {
+  .primary,
+  .secondary {
     display: grid;
     overflow: clip;
     border-radius: var(--radius-s);
@@ -62,16 +57,16 @@ const { primary, secondary, columns, label } = Astro.props;
     padding: 0;
   }
 
-  .palette__primary {
+  .primary {
     grid-auto-rows: minmax(0, 1fr);
   }
 
-  .palette__secondary {
+  .secondary {
     grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
     grid-auto-rows: minmax(0, 1fr);
   }
 
-  .palette__swatch {
+  .swatch {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -81,21 +76,19 @@ const { primary, secondary, columns, label } = Astro.props;
     color: var(--text-strong);
   }
 
-  .palette__swatch--dark {
+  .swatch.dark {
     color: var(--text-on-dark);
   }
 
-  .palette__hex {
+  .hex {
     text-transform: uppercase;
     opacity: 0.72;
   }
 
-  /* A chip can be a gradient as well as a flat colour */
-  .palette__chip {
+  .shade {
     background: var(--swatch);
   }
 
-  /* Phones: the primary ramp, then the grid under it */
   @media (max-width: 700px) {
     .palette {
       grid-template-columns: minmax(0, 1fr);
@@ -103,12 +96,12 @@ const { primary, secondary, columns, label } = Astro.props;
       aspect-ratio: auto;
     }
 
-    .palette__swatch {
+    .swatch {
       padding-block: var(--space-s);
       padding-inline: var(--space-m);
     }
 
-    .palette__chip {
+    .shade {
       aspect-ratio: 1;
     }
   }

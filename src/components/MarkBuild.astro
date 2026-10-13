@@ -1,28 +1,23 @@
----
-// Fertifa's logomark and the three ideas it's built from: an F for Fertifa,
-// a + for health and a shoot for life. Paths are the client presentation's own.
----
-
 <figure class="mark-build">
-  <ol class="mark-build__parts" role="list">
-    <li class="mark-build__part">
+  <ol class="parts" role="list">
+    <li class="part">
       <svg viewBox="0 0 93 134" aria-hidden="true"><path d="M5.5 127H24.5043V74.9708H80.9893V58.6788H24.5043V23.292H87.5V7H5.5V127Z" /></svg>
       <span class="t-body">Fertifa</span>
     </li>
-    <li class="mark-build__part">
+    <li class="part">
       <svg viewBox="265 0 114 134" aria-hidden="true"><path d="M310.789 127H333.211V75.7059H379V56.4118H333.211V7H310.789V56.4118H265V75.7059H310.789V127Z" /></svg>
       <span class="t-body">Health</span>
     </li>
-    <li class="mark-build__part">
-      <svg viewBox="551 0 135 134" aria-hidden="true" class="mark-build__stroked">
+    <li class="part">
+      <svg viewBox="551 0 135 134" aria-hidden="true" class="stroked">
         <path d="M647 10H676V39C676 86.4965 637.496 125 590 125H561V96C561 48.5035 599.504 10 647 10Z" />
         <path d="M565.5 120.5L619 67" />
       </svg>
       <span class="t-body">Life</span>
     </li>
   </ol>
-  <span class="mark-build__arrow t-h1" aria-hidden="true">→</span>
-  <svg class="mark-build__mark" viewBox="0 0 200 200" role="img" aria-label="The Fertifa logomark">
+  <span class="arrow t-h1" aria-hidden="true">→</span>
+  <svg class="mark" viewBox="0 0 200 200" role="img" aria-label="The Fertifa logomark">
     <path d="M200 0C200 22.6689 181.623 41.0457 158.954 41.0457H100V100.19H160V140.095H100V200H60V140.095H0V100.19H60V40.2852H99.2381C99.2355 18.0371 117.27 0 139.519 0H200Z" />
   </svg>
   <figcaption class="visually-hidden">An F for Fertifa, a plus for health and a shoot for life combine into the Fertifa logomark.</figcaption>
@@ -41,48 +36,46 @@
     color: var(--text-strong);
   }
 
-  .mark-build__parts {
+  .parts {
     display: flex;
     gap: calc(80 / 1416 * 100cqi);
   }
 
-  /* Labels hang under the glyphs, so the row lines up on the glyphs */
-  .mark-build__part {
+  .part {
     position: relative;
     display: grid;
     justify-items: center;
     color: var(--text-label);
   }
 
-  .mark-build__part span {
+  .part span {
     position: absolute;
     top: calc(100% + var(--space-m));
   }
 
-  .mark-build__part svg {
+  .part svg {
     height: calc(112 / 1416 * 100cqi);
     width: auto;
     fill: var(--text-strong);
   }
 
-  .mark-build__part .mark-build__stroked {
+  .part .stroked {
     fill: none;
     stroke: var(--text-strong);
     stroke-width: 20;
   }
 
-  .mark-build__arrow {
+  .arrow {
     color: var(--text-label);
     line-height: 1;
   }
 
-  .mark-build__mark {
+  .mark {
     width: calc(200 / 1416 * 100cqi);
     height: auto;
     fill: var(--fertifa-500);
   }
 
-  /* Phones: the three parts across, the mark underneath */
   @media (max-width: 700px) {
     .mark-build {
       flex-direction: column;
@@ -91,21 +84,20 @@
       padding-block: var(--space-2xl);
     }
 
-    /* Room for the hanging labels */
-    .mark-build__parts {
+    .parts {
       gap: var(--space-xl);
       padding-bottom: calc(var(--space-m) + 1lh);
     }
 
-    .mark-build__part svg {
+    .part svg {
       height: 48px;
     }
 
-    .mark-build__arrow {
+    .arrow {
       rotate: 90deg;
     }
 
-    .mark-build__mark {
+    .mark {
       width: 96px;
     }
   }

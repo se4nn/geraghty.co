@@ -1,6 +1,4 @@
 ---
-// A link over words that are part of an image inside a Crop (a chart's source
-// credit), placed by its Figma box. It carries the words as its text too.
 interface Props {
   href: string;
   rect: [number, number, number, number];
@@ -25,7 +23,6 @@ const [x, y, w, h] = rect;
     top: calc(var(--y) * var(--s));
     width: calc(var(--iw) * var(--s));
     height: calc(var(--ih) * var(--s));
-    /* A comfortable target even when the words are small */
     min-width: 24px;
     min-height: 24px;
     translate: 0 calc(min(0px, var(--ih) * var(--s) - 24px) / 2);

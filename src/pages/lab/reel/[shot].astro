@@ -1,20 +1,4 @@
 ---
-// The showreel's stage (docs/SHOWREEL-PLAN.md). One shot full frame at the
-// reel's 1416 × 800, no page chrome, for scripts/reel/capture.mjs to film.
-// Dev only: nothing here is built for the live site. scripts/reel/stage.sh
-// builds it on its own (REEL_STAGE=1) to film from, away from hot reloads.
-//
-// A shot starts off the stage and is brought on when capture starts
-// (window.reelStart()), so components that arrive when first seen play
-// their arrival on camera.
-//
-// A project's tile art, full frame, logo at the case study hero's size:
-// - tile-<project>: switching on the way its case study opens (the CRT
-//   power-on, then the logo burns in)
-// - on-<project>: the power-on alone, no logo (the reel's first frames)
-// - flare-<project>: already on, no logo (the opener's channel changes)
-// - burn-<project>: already on, the logo burns in (where the opener lands)
-// ending: the six homepage tiles, switching off one after another.
 import { getCollection } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import TileArt from '../../../components/TileArt.astro';
@@ -65,7 +49,7 @@ const project = projects.find((p) => p.id === id);
         <div class="reel-grid">
           {projects.map((p) => (
             <TileArt
-              class="reel-grid__tile"
+              class="item"
               image={p.data.tile.image}
               logo={p.data.tile.logo}
               logoScale={p.data.tile.logoScale}
@@ -96,6 +80,8 @@ const project = projects.find((p) => p.id === id);
 </Base>
 
 <style is:global>
+  /* Stage */
+
   html,
   body {
     margin: 0;
@@ -109,11 +95,9 @@ const project = projects.find((p) => p.id === id);
     width: 1416px;
     height: 800px;
     overflow: hidden;
-    /* Full frame: no rounded corners on the shot */
     --radius-s: 0px;
   }
 
-  /* Built at 1416 × 812: centred, so 6px goes top and bottom */
   .reel-shot {
     position: absolute;
     left: 0;
@@ -126,52 +110,49 @@ const project = projects.find((p) => p.id === id);
     translate: none;
   }
 
-  /* Tile art, full frame */
+  /* Tile */
+
   .reel-stage .reel-tile.tile-art {
     position: absolute;
     inset: 0;
   }
 
-  /* The case study hero's logo: 432 wide at 1512 */
-  .reel-tile .tile-art__logo {
+  .reel-tile .logo {
     width: calc(432 / 1512 * 100%);
     max-height: 55%;
     object-fit: contain;
   }
 
-  /* The still under a live gradient never shows on film */
-  .reel-tile .lens-flare__canvas,
-  .reel-grid .lens-flare__canvas {
+  .reel-tile .canvas,
+  .reel-grid .canvas {
     transition: none;
   }
 
-  /* Dark glass until the capture starts, then the case study's power-on */
-  [data-mode='tile'] .tile-art__image,
-  [data-mode='tile'] .tile-art__logo,
-  [data-mode='on'] .tile-art__image,
-  [data-mode='burn'] .tile-art__logo {
+  [data-mode='tile'] .tile-art .image,
+  [data-mode='tile'] .tile-art .logo,
+  [data-mode='on'] .tile-art .image,
+  [data-mode='burn'] .tile-art .logo {
     visibility: hidden;
   }
 
-  [data-reel='on'] [data-mode='tile'] .tile-art__image,
-  [data-reel='on'] [data-mode='on'] .tile-art__image {
+  [data-reel='on'] [data-mode='tile'] .tile-art .image,
+  [data-reel='on'] [data-mode='on'] .tile-art .image {
     visibility: visible;
     animation: screen-on 1000ms 200ms both;
   }
 
-  [data-reel='on'] [data-mode='tile'] .tile-art__logo {
+  [data-reel='on'] [data-mode='tile'] .tile-art .logo {
     visibility: visible;
     animation: logo-burn 700ms var(--ease-out) 720ms both;
   }
 
-  [data-reel='on'] [data-mode='burn'] .tile-art__logo {
+  [data-reel='on'] [data-mode='burn'] .tile-art .logo {
     visibility: visible;
     animation: logo-burn 700ms var(--ease-out) 200ms both;
   }
 
-  /* The ending: the homepage's square tiles, three by two, each switching
-     off in homepage order the way the reel's chapters do (collapse to a
-     bright line, the line to a dot, out) */
+  /* Ending */
+
   .reel-grid {
     position: absolute;
     inset: 0;
@@ -182,19 +163,19 @@ const project = projects.find((p) => p.id === id);
     place-content: center;
   }
 
-  .reel-stage .reel-grid__tile.tile-art {
+  .reel-grid .item.tile-art {
     --radius-s: 8px;
   }
 
-  [data-reel='on'] .reel-grid__tile {
+  [data-reel='on'] .reel-grid .item {
     animation: crt-off 333ms calc(400ms + var(--i, 0) * 240ms) both;
   }
 
-  .reel-grid__tile:nth-child(2) { --i: 1; }
-  .reel-grid__tile:nth-child(3) { --i: 2; }
-  .reel-grid__tile:nth-child(4) { --i: 3; }
-  .reel-grid__tile:nth-child(5) { --i: 4; }
-  .reel-grid__tile:nth-child(6) { --i: 5; }
+  .reel-grid .item:nth-child(2) { --i: 1; }
+  .reel-grid .item:nth-child(3) { --i: 2; }
+  .reel-grid .item:nth-child(4) { --i: 3; }
+  .reel-grid .item:nth-child(5) { --i: 4; }
+  .reel-grid .item:nth-child(6) { --i: 5; }
 
   @keyframes crt-off {
     0% {

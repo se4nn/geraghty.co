@@ -1,20 +1,16 @@
 ---
-// The homepage's opening line, with the scribble drawn round "miss"
-// (MOTION.md: Ink).
 import circle from '../assets/home/hero-circle.svg';
 
-// hero-circle.svg is the brush stroke's outline. The mask draws its centre
-// line, offset to where the export sits that line inside the outline's box.
 const PEN_PATH =
   'M 60.903 22.636 C -154.249 182.703 266.069 270.756 313.699 128.434 C 360.153 -10.374 137.246 -22.313 54.016 25.2';
 const PEN_OFFSET = 'translate(6.144 14.5)';
 ---
 
 <header class="hero">
-  <h1 class="t-display hero__title">
+  <h1 class="t-display title">
     I <em class="italic">solve problems</em><br />
-    others <span class="hero__mark">miss<svg
-        class="hero__circle"
+    others <span class="mark">miss<svg
+        class="circle"
         viewBox="0 0 338.802 223.207"
         width={circle.width}
         height={circle.height}
@@ -23,13 +19,13 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
       >
         <defs>
           <mask id="hero-circle-pen" maskUnits="userSpaceOnUse" x="-20" y="-20" width="380" height="265">
-            <path class="hero__pen" d={PEN_PATH} transform={PEN_OFFSET} pathLength="1" />
+            <path class="pen" d={PEN_PATH} transform={PEN_OFFSET} pathLength="1" />
           </mask>
         </defs>
         <use href={`${circle.src}#mark`} mask="url(#hero-circle-pen)" />
       </svg></span>
   </h1>
-  <p class="t-h3 hero__sub">Leading design at startups<br />where product is built, not briefed.</p>
+  <p class="t-h3 subtitle">Leading design at startups<br />where product is built, not briefed.</p>
 </header>
 
 <style>
@@ -42,21 +38,20 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
     text-align: center;
   }
 
-  .hero__title {
+  .title {
     color: var(--text-display);
   }
 
-  .hero__title em {
+  .title em {
     font-style: italic;
   }
 
-  .hero__mark {
+  .mark {
     position: relative;
     display: inline-block;
   }
 
-  /* darken lets the black type show through the circle */
-  .hero__circle {
+  .circle {
     position: absolute;
     left: -0.04em;
     top: -0.1125em;
@@ -68,9 +63,7 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
     pointer-events: none;
   }
 
-  /* Wider than the 32px brush to cover its bristle streaks; round caps ink
-     the blunt start and the lifted tail */
-  .hero__pen {
+  .pen {
     fill: none;
     stroke: white;
     stroke-width: 48;
@@ -79,17 +72,13 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
     stroke-dasharray: 1 2;
   }
 
-  /* Hidden until drawn only with script and motion; otherwise it's just there */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-    .hero__pen {
+    .pen {
       stroke-dashoffset: 1.02;
     }
 
-    .hero__circle.is-drawing .hero__pen {
-      /* Time to read "I solve problems others" first */
+    .circle.is-drawing .pen {
       animation: hero-pen 1.1s 1.4s forwards;
-      /* Lands slowly, full pace through the middle, lifts off at speed; a
-         softened two-thirds power law eases it round the tight ends */
       animation-timing-function: linear(
         0, 0.008, 0.015, 0.023, 0.031, 0.039, 0.048, 0.057, 0.066, 0.076, 0.087, 0.099, 0.111, 0.124, 0.138, 0.155,
         0.173, 0.195, 0.221, 0.252, 0.287, 0.325, 0.364, 0.402, 0.439, 0.474, 0.507, 0.538, 0.568, 0.599, 0.63,
@@ -97,8 +86,7 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
       );
     }
 
-    /* Paused under the loader; the delay starts with the slide (MOTION.md: Loader) */
-    :global(html[data-intro]:not([data-intro='settling'])) .hero__circle.is-drawing .hero__pen {
+    :global(html[data-intro]:not([data-intro='settling'])) .circle.is-drawing .pen {
       animation-play-state: paused;
     }
   }
@@ -109,17 +97,15 @@ const PEN_OFFSET = 'translate(6.144 14.5)';
     }
   }
 
-  .hero__sub {
+  .subtitle {
     color: var(--text-muted);
   }
 </style>
 
 <script>
-  // Drawn once on screen, so it isn't missed when the page opens part-way down
-  const circle = document.querySelector('.hero__circle');
+  const circle = document.querySelector('.hero .circle');
   if (circle) {
-    // The availability pill waits for this (MOTION.md: Choreography)
-    circle.querySelector('.hero__pen')?.addEventListener('animationend', () => {
+    circle.querySelector('.pen')?.addEventListener('animationend', () => {
       document.dispatchEvent(new CustomEvent('hero:drawn'));
     });
     const io = new IntersectionObserver(([entry]) => {

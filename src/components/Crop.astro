@@ -1,22 +1,4 @@
 ---
-// A Figma crop frame: a window sized to the grid with a larger image behind
-// it. Everything is in Figma px, scaled by --s (the window's width over its
-// Figma width), so the crop holds at every size. More layers (CropImage,
-// CropLink) can be slotted on top.
-//
-// window: the frame's Figma size [w, h]
-// src + rect: the image behind and its box [x, y, w, h] relative to the
-//   window (the export's full bounds, shadows included)
-// bleed: let the image run past the window (the section clips at the page)
-// min: smallest scale, in px per Figma px; below it the window crops in from
-//   the left instead of shrinking the art
-// focus: on phones, the Figma x to centre instead
-// motion: how CropImages with from/to move. arrive: once, when first seen;
-//   scroll: tied to scroll as the crop crosses the screen
-// range, ease: the scroll range and easing (default: the whole crossing, linear)
-// caption: a line under the image, making the crop a figure
-// captionInset: its indent in Figma px (default 48, in line with the screen
-//   inside the panel)
 import type { ImageMetadata } from 'astro';
 import CropImage from './CropImage.astro';
 
@@ -72,32 +54,30 @@ const style = [
 ---
 
 <Root
-  class:list={['crop', { 'crop--bleed': bleed, 'crop--focus': focus !== undefined }, motion && `crop--${motion}`, className]}
+  class:list={['crop', { bleed, focus: focus !== undefined }, motion, className]}
   style={style}
 >
-  <div class="crop__window">
+  <div class="window">
     {src && rect && <CropImage src={src} rect={rect} window={w} alt={alt} eager={eager} />}
     <slot />
   </div>
-  {caption && <figcaption class="crop__caption t-body">{caption}</figcaption>}
+  {caption && <figcaption class="caption t-body">{caption}</figcaption>}
 </Root>
 
 <style>
   .crop {
     margin: 0;
     container-type: inline-size;
-    /* 0: layers sit at their Figma x. 1: centred on --fx (phones only) */
     --anchor: 0;
   }
 
   @media (max-width: 700px) {
-    .crop--focus {
+    .crop.focus {
       --anchor: 1;
     }
   }
 
-  .crop__window {
-    /* px per Figma px, read by every layer inside */
+  .window {
     --s: max(100cqi / var(--w), var(--s-min));
     position: relative;
     height: calc(var(--h) * var(--s));
@@ -106,35 +86,33 @@ const style = [
     background-color: var(--crop-bg, transparent);
   }
 
-  .crop__caption {
+  .caption {
     margin-top: var(--space-l);
     padding-left: calc(var(--caption-inset) / var(--w) * 100cqi);
     color: var(--neutral-600);
   }
 
-  .crop--bleed .crop__window {
+  .crop.bleed .window {
     overflow: visible;
   }
 
-  /* Motion (MOTION.md: Set down / lift, Drift) */
+  /* Motion */
 
   @media (prefers-reduced-motion: no-preference) {
-    /* Arrive: held at the start until the crop is seen */
-    .crop--arrive[data-arrival='waiting'] :global(.crop-image--moves) {
+    .crop.arrive[data-arrival='waiting'] :global(.crop-image.moves) {
       translate: calc(var(--from-x, 0) * var(--s)) calc(var(--from-y, 0) * var(--s));
     }
 
-    .crop--arrive[data-arrival='arrived'] :global(.crop-image--moves) {
+    .crop.arrive[data-arrival='arrived'] :global(.crop-image.moves) {
       transition: translate 1600ms var(--ease-out-expo) var(--delay, 0ms);
     }
 
-    /* Scroll: start to end while the crop crosses the screen */
     @supports (animation-timeline: view()) {
-      .crop--scroll {
+      .crop.scroll {
         view-timeline-name: --crop;
       }
 
-      .crop--scroll :global(.crop-image--moves) {
+      .crop.scroll :global(.crop-image.moves) {
         animation: crop-drift var(--drift-ease, linear) both;
         animation-timeline: --crop;
         animation-range: var(--drift-range, cover 0% cover 100%);
@@ -155,7 +133,7 @@ const style = [
 <script>
   import { whenSeen, arrive } from '../scripts/arrival';
 
-  for (const crop of document.querySelectorAll<HTMLElement>('.crop--arrive')) {
+  for (const crop of document.querySelectorAll<HTMLElement>('.crop.arrive')) {
     whenSeen(crop, 0.25).then((seen) => {
       if (seen) arrive(crop);
     });

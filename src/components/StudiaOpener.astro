@@ -1,7 +1,4 @@
 ---
-// Studia's case study opener, in layers so the pieces around the wordmark
-// can move (MOTION.md: Live). The neon and wordmark are one image; the rest
-// sit on top in Figma px on the 1416 × 812 frame, scaled by --s.
 import { Image } from 'astro:assets';
 import base from '../assets/work/studia/opener/base.png';
 import card from '../assets/work/studia/opener/card.png';
@@ -18,38 +15,37 @@ const W = 1416;
 const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}px), ${Math.min(1, (w / W) * 2.5) * 375}px)`;
 ---
 
-<div class="so" role="img" aria-label={alt}>
-  <div class="so__window">
-    <Image class="so__base" src={base} alt="" widths={[1024, 1600, 2400, base.width]} sizes={share(W)} quality={90} loading="eager" fetchpriority="high" />
+<div class="studia-opener" role="img" aria-label={alt}>
+  <div class="window">
+    <Image class="base" src={base} alt="" widths={[1024, 1600, 2400, base.width]} sizes={share(W)} quality={90} loading="eager" fetchpriority="high" />
 
-    <div class="so__item so__item--card" style="--x: 64; --y: 134; --w: 312; --h: 114; --r: -4deg;">
-      <div class="so__drift"><div class="so__arrive"><div class="so__live">
-        <div class="so__pane so__pane--glass" style="--radius: 18; --fill: 0.52; --stroke: 2.25;">
+    <div class="item card" style="--x: 64; --y: 134; --w: 312; --h: 114; --r: -4deg;">
+      <div class="drift"><div class="arrive"><div class="live">
+        <div class="pane glass" style="--radius: 18; --fill: 0.52; --stroke: 2.25;">
           <Image src={card} alt="" widths={[card.width / 2, card.width]} sizes={share(312)} quality={90} />
         </div>
       </div></div></div>
     </div>
 
-    <div class="so__item so__item--quote" style="--x: 1087; --y: 144; --w: 307; --h: 42; --r: 10deg;">
-      <div class="so__drift"><div class="so__arrive"><div class="so__live">
-        <div class="so__pane so__pane--blur" style="--radius: 36; --fill: 0.68; --stroke: 2.25;">
+    <div class="item review" style="--x: 1087; --y: 144; --w: 307; --h: 42; --r: 10deg;">
+      <div class="drift"><div class="arrive"><div class="live">
+        <div class="pane blur" style="--radius: 36; --fill: 0.68; --stroke: 2.25;">
           <Image src={quote} alt="" widths={[quote.width / 2, quote.width]} sizes={share(307)} quality={90} />
         </div>
       </div></div></div>
     </div>
 
-    <div class="so__item so__item--fire" style="--x: 36; --y: 434; --w: 132; --h: 132; --r: -15deg;">
-      <div class="so__drift"><div class="so__arrive"><div class="so__live">
-        <div class="so__pane so__pane--glass" style="--radius: 66; --fill: 0.32; --stroke: 1.5;">
-          <Image class="so__emoji" src={fire} alt="" widths={[fire.width / 2, fire.width]} sizes={share(132)} quality={90} />
+    <div class="item fire" style="--x: 36; --y: 434; --w: 132; --h: 132; --r: -15deg;">
+      <div class="drift"><div class="arrive"><div class="live">
+        <div class="pane glass" style="--radius: 66; --fill: 0.32; --stroke: 1.5;">
+          <Image class="emoji" src={fire} alt="" widths={[fire.width / 2, fire.width]} sizes={share(132)} quality={90} />
         </div>
-        <div class="so__reactions" aria-hidden="true"></div>
+        <div class="reactions" aria-hidden="true"></div>
       </div></div></div>
     </div>
 
-    {/* Sophia's cursor: the image carries 30px of room for the pointer and shadow */}
-    <div class="so__item so__item--cursor" style="--x: 897; --y: 391; --w: 191; --h: 108; --r: 0deg;">
-      <div class="so__arrive-x"><div class="so__arrive-y"><div class="so__live">
+    <div class="item cursor" style="--x: 897; --y: 391; --w: 191; --h: 108; --r: 0deg;">
+      <div class="arrive-x"><div class="arrive-y"><div class="live">
         <Image src={tag} alt="" widths={[tag.width / 2, tag.width]} sizes={share(191)} quality={90} />
       </div></div></div>
     </div>
@@ -57,27 +53,27 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
 </div>
 
 <style>
-  .so {
+  .studia-opener {
     container-type: inline-size;
   }
 
-  .so__window {
+  .window {
     --s: calc(100cqi / 1416);
     position: relative;
     height: calc(812 * var(--s));
-    overflow: clip; /* hides the pieces waiting to arrive */
+    overflow: clip;
     border-radius: var(--radius-s);
-    background-color: oklch(92.8% 0.2202 125); /* #c6ff33, under the image */
+    background-color: oklch(92.8% 0.2202 125);
   }
 
-  .so__base {
+  .base {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
   }
 
-  .so__item {
+  .item {
     position: absolute;
     left: calc(var(--x) * var(--s));
     top: calc(var(--y) * var(--s));
@@ -85,26 +81,24 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
     height: calc(var(--h) * var(--s));
   }
 
-  .so__item :global(img) {
+  .item :global(img) {
     display: block;
     width: 100%;
     height: 100%;
   }
 
-  .so__drift,
-  .so__arrive,
-  .so__arrive-x,
-  .so__arrive-y,
-  .so__live {
+  .drift,
+  .arrive,
+  .arrive-x,
+  .arrive-y,
+  .live {
     width: 100%;
     height: 100%;
   }
 
   /* Panes */
 
-  /* Glass in CSS, not baked into the images, so it blurs the real wordmark
-     as it moves. Rotates about its top left corner, as in Figma */
-  .so__pane {
+  .pane {
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -119,27 +113,25 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
       0 calc(6.75 * var(--s)) calc(18 * var(--s)) calc(-3.375 * var(--s)) oklch(19.27% 0.0201 233.09 / 0.2);
   }
 
-  /* Figma's background blur (40) is about half that radius in CSS */
-  .so__pane--glass {
+  .pane.glass {
     backdrop-filter: blur(calc(16 * var(--s))) saturate(1.15);
   }
 
-  .so__pane--blur {
+  .pane.blur {
     backdrop-filter: blur(calc(20 * var(--s)));
   }
 
-  /* Reactions float up from the fire, over everything else */
-  .so__item--fire {
+  .item.fire {
     z-index: 1;
   }
 
-  .so__reactions {
+  .reactions {
     position: absolute;
     inset: 0;
     pointer-events: none;
   }
 
-  .so__reactions :global(img) {
+  .reactions :global(img) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -149,104 +141,103 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
   @media (prefers-reduced-motion: no-preference) {
     /* Arrive */
 
-    .so[data-arrival='waiting'] .so__item--card .so__arrive {
+    .studia-opener[data-arrival='waiting'] .item.card .arrive {
       translate: 0 calc(-300 * var(--s));
       rotate: -6deg;
     }
 
-    .so[data-arrival='waiting'] .so__item--quote .so__arrive {
+    .studia-opener[data-arrival='waiting'] .item.review .arrive {
       translate: 0 calc(-260 * var(--s));
       rotate: 6deg;
     }
 
-    .so[data-arrival='waiting'] .so__item--fire .so__arrive {
+    .studia-opener[data-arrival='waiting'] .item.fire .arrive {
       scale: 0;
     }
 
-    .so[data-arrival='arrived'] .so__item--fire .so__arrive {
+    .studia-opener[data-arrival='arrived'] .item.fire .arrive {
       transition: scale 760ms var(--ease-bounce) 420ms;
     }
 
-    .so[data-arrival='waiting'] .so__item--cursor .so__arrive-x {
+    .studia-opener[data-arrival='waiting'] .item.cursor .arrive-x {
       translate: calc(560 * var(--s)) 0;
     }
 
-    .so[data-arrival='waiting'] .so__item--cursor .so__arrive-y {
+    .studia-opener[data-arrival='waiting'] .item.cursor .arrive-y {
       translate: 0 calc(260 * var(--s));
     }
 
-    .so[data-arrival='arrived'] .so__arrive {
+    .studia-opener[data-arrival='arrived'] .arrive {
       transition:
         translate 1600ms var(--ease-out-expo) var(--delay, 0ms),
         rotate 1600ms var(--ease-out-expo) var(--delay, 0ms);
     }
 
-    .so__item--quote {
+    .item.review {
       --delay: 140ms;
     }
 
-    .so__item--fire {
+    .item.fire {
       --delay: 280ms;
     }
 
-    /* Separate x and y easings bring the cursor in on a curve */
-    .so[data-arrival='arrived'] .so__arrive-x {
+    .studia-opener[data-arrival='arrived'] .arrive-x {
       transition: translate 1900ms var(--ease-out-expo) 650ms;
     }
 
-    .so[data-arrival='arrived'] .so__arrive-y {
+    .studia-opener[data-arrival='arrived'] .arrive-y {
       transition: translate 1900ms var(--ease-in-out) 650ms;
     }
 
-    /* Live (the cursor and the fire's pops are scripted) */
+    /* Live */
 
-    .so__item--card .so__live {
-      animation: so-float 7.2s var(--ease-in-out) 1.6s infinite alternate;
+    .item.card .live {
+      animation: studia-opener-float 7.2s var(--ease-in-out) 1.6s infinite alternate;
       --float: 6;
     }
 
-    .so__item--quote .so__live {
-      animation: so-float 5.6s var(--ease-in-out) 1.9s infinite alternate-reverse;
+    .item.review .live {
+      animation: studia-opener-float 5.6s var(--ease-in-out) 1.9s infinite alternate-reverse;
       --float: 7;
     }
 
-    .so:not([data-live]) .so__live {
+    .studia-opener:not([data-live]) .live {
       animation-play-state: paused;
     }
 
     /* Drift */
 
     @supports (animation-timeline: view()) {
-      .so {
+      .studia-opener {
         view-timeline-name: --studia-opener;
       }
 
-      .so__drift {
-        animation: so-drift linear both;
+      .drift {
+        animation: studia-opener-drift linear both;
         animation-timeline: --studia-opener;
         animation-range: cover 0% cover 100%;
       }
 
-      .so__item--card .so__drift {
+      .item.card .drift {
         --depth: 36;
       }
 
-      .so__item--quote .so__drift {
+      .item.review .drift {
         --depth: 24;
       }
 
-      .so__item--fire .so__drift {
+      .item.fire .drift {
         --depth: 56;
       }
     }
   }
 
-  @keyframes so-float {
+  @keyframes studia-opener-float {
     from { translate: 0 0; }
     to { translate: 0 calc(var(--float) * var(--s)); }
   }
 
-  @keyframes so-drift {
+  @keyframes studia-opener-drift {
     from { translate: 0 calc(var(--depth, 0) * var(--s)); }
     to { translate: 0 calc(var(--depth, 0) * -1 * var(--s)); }
   }
@@ -259,8 +250,7 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
 
   const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
-  for (const opener of document.querySelectorAll<HTMLElement>('.so')) {
-    // Live only while it's on screen; `whenLive` waits for it to come back
+  for (const opener of document.querySelectorAll<HTMLElement>('.studia-opener')) {
     let live = false;
     let wake: (() => void) | null = null;
     const whenLive = () => (live ? Promise.resolve() : new Promise<void>((r) => (wake = r)));
@@ -270,19 +260,16 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
       if (live && wake) (wake(), (wake = null));
     }).observe(opener);
 
-    // Already on screen at load, it skips the arrival
     whenSeen(opener, 0.3).then(async (seen) => {
       if (reducedMotion.matches) return;
       if (seen) {
         arrive(opener);
         await wait(2600);
       }
-      wander(opener.querySelector<HTMLElement>('.so__item--cursor .so__live')!);
-      react(opener.querySelector<HTMLElement>('.so__item--fire')!);
+      wander(opener.querySelector<HTMLElement>('.item.cursor .live')!);
+      react(opener.querySelector<HTMLElement>('.item.fire')!);
     });
 
-    // Sophia's cursor, in Figma px from where the tag sits. Moves follow a
-    // minimum-jerk profile on a slight curve, timed by distance (Fitts' law)
     async function wander(el: HTMLElement) {
       let x = 0;
       let y = 0;
@@ -295,7 +282,6 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
         const sx = x;
         const sy = y;
         const d = Math.hypot(tx - sx, ty - sy);
-        // A control point off to one side bends the path a little
         const bend = rand(-0.22, 0.22) * d;
         const cx = (sx + tx) / 2 - ((ty - sy) / (d || 1)) * bend;
         const cy = (sy + ty) / 2 + ((tx - sx) / (d || 1)) * bend;
@@ -332,14 +318,12 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
       }
 
       for (;;) {
-        // Somewhere over the wordmark, not too near where it is now
         let tx = 0;
         let ty = 0;
         do {
           tx = rand(-330, 150);
           ty = rand(-170, 70);
         } while (Math.hypot(tx - x, ty - y) < 50);
-        // Drift home now and then, so it never strays for long
         if (Math.random() < 0.2) (tx = rand(-12, 12)), (ty = rand(-8, 8));
 
         const d = Math.hypot(tx - x, ty - y);
@@ -360,8 +344,8 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
     }
 
     async function react(item: HTMLElement) {
-      const emoji = item.querySelector<HTMLElement>('.so__emoji')!;
-      const stream = item.querySelector<HTMLElement>('.so__reactions')!;
+      const emoji = item.querySelector<HTMLElement>('.emoji')!;
+      const stream = item.querySelector<HTMLElement>('.reactions')!;
       for (;;) {
         await wait(rand(2600, 5200));
         await whenLive();

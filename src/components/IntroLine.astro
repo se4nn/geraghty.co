@@ -1,6 +1,4 @@
 ---
-// The homepage's serif intro line: underlined links that never break
-// mid-phrase. A link with `images` fans them out on hover (MOTION.md: Fan).
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 
@@ -11,13 +9,11 @@ interface Props {
 
 const { lead, links } = Astro.props;
 const last = links.length - 1;
-// Punctuation that ends a label sits after the link, out of its underline
 const split = (label: string) => label.match(/^(.*?)([,.;:]?)$/)!.slice(1);
 
-// Fan geometry, in em of the line's type
 const SPREAD = 2.4;
-const TURN = 6; // deg a step from the middle
-const ARC = 0.3; // drops back at the ends
+const TURN = 6;
+const ARC = 0.3;
 const fan = (n: number) =>
   Array.from({ length: n }, (_, i) => {
     const offset = i - (n - 1) / 2;
@@ -38,12 +34,12 @@ const fan = (n: number) =>
       <>
         {i === last && <>&amp; </>}
         {link.href ? (
-          <a class="intro-line__link" href={link.href}>
+          <a class="link" href={link.href}>
             {split(link.label)[0]}
             {link.images && (
-              <span class="intro-fan" aria-hidden="true">
+              <span class="fan" aria-hidden="true">
                 {fan(link.images.length).map((style, i) => (
-                  <span class="intro-fan__card" style={style}>
+                  <span class="card" style={style}>
                     <Image src={link.images![i]} alt="" widths={[240, 480]} sizes="180px" quality={90} />
                   </span>
                 ))}
@@ -51,7 +47,7 @@ const fan = (n: number) =>
             )}
           </a>
         ) : (
-          <span class="intro-line__link">{split(link.label)[0]}</span>
+          <span class="link">{split(link.label)[0]}</span>
         )}{split(link.label)[1]}{' '}
       </>
     ))
@@ -66,22 +62,20 @@ const fan = (n: number) =>
     color: var(--text-strong);
   }
 
-  /* Underline sits on the line box edge, below the descenders, as in Figma */
-  .intro-line__link {
+  .link {
     display: inline-block;
     border-bottom: var(--underline-width) solid currentColor;
     white-space: nowrap;
   }
 
-  a.intro-line__link {
+  a.link {
     position: relative;
     transition: color var(--duration-s) var(--ease-out);
   }
 
   /* Fan */
 
-  .intro-fan {
-    /* Short intent delay so sweeping across the line doesn't flash it */
+  .fan {
     --intent: 100ms;
 
     position: absolute;
@@ -93,8 +87,7 @@ const fan = (n: number) =>
     pointer-events: none;
   }
 
-  .intro-fan__card {
-    /* 180 × 225 at 55px type */
+  .card {
     position: absolute;
     left: -1.6364em;
     bottom: 0;
@@ -103,7 +96,6 @@ const fan = (n: number) =>
     border-radius: var(--radius-s);
     overflow: hidden;
     background-color: var(--neutral-100);
-    /* ProjectPreview's shadow, untinted */
     box-shadow:
       0 24px 24px -12px oklch(from var(--neutral-900) l c h / 0.3),
       0 4px 4px -4px oklch(from var(--neutral-900) l c h / 0.25);
@@ -117,7 +109,7 @@ const fan = (n: number) =>
       visibility 0s linear 160ms;
   }
 
-  .intro-fan__card :global(img) {
+  .card :global(img) {
     display: block;
     width: 100%;
     height: 100%;
@@ -125,7 +117,7 @@ const fan = (n: number) =>
   }
 
   @media (hover: hover) {
-    a.intro-line__link:hover .intro-fan__card {
+    a.link:hover .card {
       opacity: 1;
       visibility: visible;
       transform: translate(var(--fan-x), var(--fan-y)) rotate(var(--fan-r));
@@ -137,15 +129,14 @@ const fan = (n: number) =>
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .intro-fan__card,
-    a.intro-line__link:hover .intro-fan__card {
+    .card,
+    a.link:hover .card {
       transition: opacity 140ms var(--ease-out), visibility 0s;
     }
   }
 
-  /* Touch screens never hover: out of the layout altogether */
   @media (hover: none) {
-    .intro-fan {
+    .fan {
       display: none;
     }
   }
@@ -153,20 +144,18 @@ const fan = (n: number) =>
   /* Hover */
 
   @media (hover: hover) {
-    a.intro-line__link:hover {
+    a.link:hover {
       color: var(--text-muted);
     }
   }
 
-  /* The underline redraws (MOTION.md: Ink). The border keeps its space but
-     goes clear, so nothing shifts; a line drawn over it does the moving */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    a.intro-line__link {
+    a.link {
       position: relative;
       border-bottom-color: transparent;
     }
 
-    a.intro-line__link::after {
+    a.link::after {
       content: '';
       position: absolute;
       left: 0;
@@ -176,7 +165,7 @@ const fan = (n: number) =>
       background-color: currentColor;
     }
 
-    a.intro-line__link:hover::after {
+    a.link:hover::after {
       animation: intro-underline-redraw 720ms both;
     }
   }
@@ -191,7 +180,6 @@ const fan = (n: number) =>
       scale: 0 1;
       transform-origin: right;
     }
-    /* Pen lifted for a beat before it comes back in */
     38.01%,
     48% {
       scale: 0 1;

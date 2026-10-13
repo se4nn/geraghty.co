@@ -1,6 +1,4 @@
 ---
-// The homepage's staggered project grid: five columns with square rows
-// (row height = column width).
 import type { CollectionEntry } from 'astro:content';
 import ProjectTile, { type TileShape } from './ProjectTile.astro';
 
@@ -12,7 +10,6 @@ const { projects } = Astro.props;
 
 type Slot = { col: string; row: number; rowSpan: number; shape: TileShape; align: 'center' | 'end' };
 
-// One pass of the pattern covers six projects over 14 rows
 const PATTERN: Slot[] = [
   { col: '1 / span 3', row: 1, rowSpan: 4, shape: 'square', align: 'center' },
   { col: '4 / span 2', row: 3, rowSpan: 4, shape: 'tall', align: 'center' },
@@ -34,7 +31,7 @@ const placed = projects.map((project, i) => {
   <ul class="work-grid" role="list">
     {
       placed.map(({ project, slot, style }) => (
-        <li class:list={['work-grid__item', `work-grid__item--${slot.align}`]} style={style}>
+        <li class:list={['item', slot.align]} style={style}>
           <ProjectTile project={project} shape={slot.shape} />
         </li>
       ))
@@ -43,8 +40,6 @@ const placed = projects.map((project, i) => {
 </div>
 
 <style>
-  /* Registered so 100cqi resolves once, on the grid, not in each tile's
-     container (MOTION.md, Gotchas) */
   @property --col {
     syntax: '<length>';
     inherits: true;
@@ -64,7 +59,7 @@ const placed = projects.map((project, i) => {
     list-style: none;
   }
 
-  .work-grid__item {
+  .item {
     grid-column: var(--place-col);
     grid-row: var(--place-row);
     display: flex;
@@ -72,11 +67,10 @@ const placed = projects.map((project, i) => {
     justify-content: center;
   }
 
-  .work-grid__item--end {
+  .item.end {
     justify-content: flex-end;
   }
 
-  /* Phones: one column, tiles in date order */
   @media (max-width: 700px) {
     .work-grid {
       --col: 100cqi;
@@ -85,7 +79,7 @@ const placed = projects.map((project, i) => {
       gap: var(--space-3xl);
     }
 
-    .work-grid__item {
+    .item {
       grid-column: 1 / -1;
       grid-row: auto;
     }

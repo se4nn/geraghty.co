@@ -14,11 +14,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  /* Overscroll shows this, not the body's (MOTION.md, Gotchas) */
   background-color: var(--bg-page);
 }
 
-/* Overscroll: light above the hero, dark below the footer */
 @supports (animation-timeline: scroll()) {
   html {
     animation: overscroll-edge linear both;
@@ -63,7 +61,7 @@ a {
   text-decoration: none;
 }
 
-/* Type styles, named as in Figma */
+/* Type */
 
 .t-display {
   font-family: var(--font-serif);
@@ -148,8 +146,6 @@ a {
 
 /* Motion */
 
-/* Page transitions (MOTION.md: Morph, Power on). Base.astro tags each one
-   open, next or close */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
@@ -172,7 +168,6 @@ a {
   animation-timing-function: var(--ease-out-expo);
 }
 
-/* Square tile to wide hero: crop the snapshots rather than stretch them */
 ::view-transition-image-pair(.art) {
   overflow: hidden;
   border-radius: var(--radius-s);
@@ -185,13 +180,10 @@ a {
   object-fit: cover;
 }
 
-/* Open. No backing colour on the pair: the other tiles would hold as black
-   boxes over the case study (MOTION.md, Gotchas) */
 html:active-view-transition-type(open)::view-transition-old(.art) {
   animation: screen-off 240ms var(--ease-out) both;
 }
 
-/* Tiles that aren't being opened leave with the page */
 html:active-view-transition-type(open)::view-transition-old(.art):only-child,
 html:active-view-transition-type(open)::view-transition-old(.logo):only-child {
   animation: fade-out var(--duration-s) var(--ease-out) both;
@@ -209,8 +201,6 @@ html:active-view-transition-type(open)::view-transition-new(.logo) {
   animation: logo-burn 700ms var(--ease-out) 720ms both;
 }
 
-/* Next: the old, dark page holds as the backdrop so the light one doesn't
-   flash in under the morph */
 html:active-view-transition-type(next)::view-transition-old(root) {
   animation: fade-out 420ms var(--ease-out) 560ms both;
 }

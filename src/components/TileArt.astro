@@ -1,7 +1,4 @@
 ---
-// A project's artwork (live LensFlare, or a still with grain) and centred
-// logo, filling whatever box the parent gives it: work tiles, hover cards,
-// case study heroes, Next Project.
 import type { ImageMetadata } from 'astro';
 import { Image, getImage } from 'astro:assets';
 import grain from '../assets/work/grain.jpg';
@@ -10,12 +7,9 @@ import LensFlare from './LensFlare.astro';
 interface Props {
   image: ImageMetadata;
   logo: ImageMetadata;
-  // Logo width as a share of the thumbnail width
   logoScale: number;
   grain?: boolean;
-  // Off where many share a page: browsers cap live WebGL canvases
   live?: boolean;
-  // Live gradient over the still, from the project's front matter
   gradient?: {
     from: string;
     to: string;
@@ -28,9 +22,7 @@ interface Props {
   sizes: string;
   widths?: number[];
   eager?: boolean;
-  // For the morph (MOTION.md). One per project per page: hover cards leave it off
   transitionName?: string;
-  // Off where the page places the logo itself (the Next Project tile)
   showLogo?: boolean;
   class?: string;
 }
@@ -67,7 +59,7 @@ const loading = eager ? 'eager' : 'lazy';
   {
     gradient ? (
       <LensFlare
-        class="tile-art__image"
+        class="image"
         from={gradient.from}
         to={gradient.to}
         seed={gradient.seed}
@@ -76,7 +68,7 @@ const loading = eager ? 'eager' : 'lazy';
         dither={gradient.dither}
       >
         <Image
-          class="tile-art__poster"
+          class="poster"
           src={image}
           alt=""
           widths={widths}
@@ -88,7 +80,7 @@ const loading = eager ? 'eager' : 'lazy';
       </LensFlare>
     ) : (
       <Image
-        class="tile-art__image"
+        class="image"
         src={image}
         alt=""
         widths={widths}
@@ -99,11 +91,11 @@ const loading = eager ? 'eager' : 'lazy';
       />
     )
   }
-  {showGrain && !gradient && <img class="tile-art__grain" src={grainImage.src} alt="" loading={loading} />}
+  {showGrain && !gradient && <img class="grain" src={grainImage.src} alt="" loading={loading} />}
   {
     showLogo && (
       <img
-        class="tile-art__logo"
+        class="logo"
         src={logo.src}
         alt={alt}
         width={logo.width}
@@ -122,7 +114,7 @@ const loading = eager ? 'eager' : 'lazy';
     isolation: isolate;
   }
 
-  .tile-art__image {
+  .image {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -130,8 +122,7 @@ const loading = eager ? 'eager' : 'lazy';
     object-fit: cover;
   }
 
-  /* Still under the live gradient, shown until it's ready */
-  .tile-art__poster {
+  .poster {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -139,8 +130,7 @@ const loading = eager ? 'eager' : 'lazy';
     object-fit: cover;
   }
 
-  /* Grain from Figma: oversized and offset, colour-dodged at half strength */
-  .tile-art__grain {
+  .grain {
     position: absolute;
     top: -56.59%;
     left: -109.88%;
@@ -152,7 +142,7 @@ const loading = eager ? 'eager' : 'lazy';
     pointer-events: none;
   }
 
-  .tile-art__logo {
+  .logo {
     position: absolute;
     top: 50%;
     left: 50%;

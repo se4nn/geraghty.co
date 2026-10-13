@@ -1,7 +1,4 @@
 ---
-// The availability pill (click copies the email address), bottom right, and
-// the SG mark home link, bottom left. Render it last in the content that
-// scrolls before the footer: both park above the footer.
 import sg from '../assets/logos/sg.svg';
 
 interface Props {
@@ -13,7 +10,7 @@ const { label, email } = Astro.props;
 ---
 
 <div data-availability-end></div>
-<div class="availability-rail availability-rail--mark">
+<div class="availability-rail mark">
   <a class="availability-mark" href="/" aria-label="Sean Geraghty, home">
     <img src={sg.src} width="32" height="32" alt="" />
   </a>
@@ -25,12 +22,12 @@ const { label, email } = Astro.props;
     data-email={email}
     aria-label={`${label}. Copy email address ${email}`}
   >
-    <span class="availability__fill" aria-hidden="true"></span>
-    <span class="availability__rest" aria-hidden="true">{label}</span>
-    <span class="availability__dot" aria-hidden="true"></span>
-    <span class="availability__hover" aria-hidden="true">
-      <span class="availability__action">Copy email</span>
-      <span class="availability__done">Copied</span>
+    <span class="fill" aria-hidden="true"></span>
+    <span class="rest" aria-hidden="true">{label}</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span class="hover" aria-hidden="true">
+      <span class="action">Copy email</span>
+      <span class="done">Copied</span>
     </span>
   </button>
   <span class="visually-hidden" role="status" aria-live="polite" data-availability-status></span>
@@ -39,16 +36,13 @@ const { label, email } = Astro.props;
 <script>
   import { reducedMotion, token } from '../scripts/arrival';
 
-  // ms "Copied" holds when the pointer stays on the pill (or on touch)
+  // Copy
+
   const COPIED_FOR = 1800;
-  // ms "Copied" shows at least, before the pill follows a pointer that's left
   const COPIED_MIN = 500;
-  // Matches the leave sequence, so the label only resets once it's hidden
   const EXIT_TIME = 460;
   const BOUNCE = token('--ease-bounce', 'ease-out');
 
-  // Falls back to the older selection copy for browsers or embeds that block
-  // the Clipboard API
   async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -66,10 +60,11 @@ const { label, email } = Astro.props;
     }
   }
 
-  // Entrance (MOTION.md: Choreography)
+  // Entrance
+
   const ENTER_AFTER_SCRIBBLE = 150;
   const ENTER_AT_MOST = 4000;
-  const heroCircle = document.querySelector('.hero__circle');
+  const heroCircle = document.querySelector('.hero .circle');
   const heroOnScreen = (() => {
     if (!heroCircle) return false;
     const { top, bottom } = heroCircle.getBoundingClientRect();
@@ -91,25 +86,21 @@ const { label, email } = Astro.props;
     }
     document.addEventListener('hero:drawn', () => window.setTimeout(enter, ENTER_AFTER_SCRIBBLE), { once: true });
     const heroGone = new IntersectionObserver(([entry]) => {
-      // Off screen during the loader's slide, the hero is arriving, not gone
       if (!entry.isIntersecting && !document.documentElement.hasAttribute('data-intro')) {
         heroGone.disconnect();
         enter();
       }
     });
     heroGone.observe(heroCircle);
-    // In case the scribble doesn't play; counted from the loader's end if it runs
     const fallback = () => window.setTimeout(enter, ENTER_AT_MOST);
     if (document.documentElement.hasAttribute('data-intro')) document.addEventListener('intro:done', fallback, { once: true });
     else fallback();
   });
 
-  // Phones: make way (MOTION.md)
+  // Phones
+
   const phone = window.matchMedia('(max-width: 700px)');
-  // Where the rails park. A marker, not a sibling: the element after the
-  // rails is this component's own <script>
   const end = document.querySelector<HTMLElement>('[data-availability-end]');
-  // Less than this is a resting thumb, not a scroll
   const NUDGE = 8;
   const BACK_AFTER_STOP = 800;
   let lastY = window.scrollY;
@@ -118,14 +109,12 @@ const { label, email } = Astro.props;
 
   const away = (on: boolean) => rails.forEach((rail) => rail.toggleAttribute('data-away', on));
   const parked = () => !end || end.getBoundingClientRect().top < window.innerHeight;
-  // "Copied" keeps both on screen until it's done
   const holding = () => Boolean(document.querySelector('.availability[data-held]'));
 
   const update = () => {
     frame = 0;
     const y = window.scrollY;
     const dy = y - lastY;
-    // Over a screen at once is a jump (a #link, a restored scroll), not scrolling
     if (y <= NUDGE || Math.abs(dy) > window.innerHeight || parked() || holding()) {
       away(false);
       lastY = y;
@@ -150,6 +139,8 @@ const { label, email } = Astro.props;
     lastY = window.scrollY;
   });
 
+  // Pill
+
   document.querySelectorAll<HTMLButtonElement>('.availability').forEach((button) => {
     const status = button.parentElement?.querySelector('[data-availability-status]');
     const email = button.dataset.email ?? '';
@@ -161,8 +152,6 @@ const { label, email } = Astro.props;
       lastPointer = event.pointerType;
     });
 
-    // data-held keeps the pill open without hover; data-copied swaps the
-    // label, reset only once the pill has closed so it doesn't change mid-exit
     const releaseAfter = (delay: number) => {
       window.clearTimeout(release);
       release = window.setTimeout(() => {
@@ -175,10 +164,8 @@ const { label, email } = Astro.props;
       }, delay);
     };
 
-    // The fill's radius reaches exactly the far corner, so it moves from the
-    // first frame
     const measure = () => {
-      const dot = button.querySelector('.availability__dot');
+      const dot = button.querySelector('.dot');
       if (!dot) return;
       const pill = button.getBoundingClientRect();
       const d = dot.getBoundingClientRect();
@@ -191,7 +178,6 @@ const { label, email } = Astro.props;
     document.fonts?.ready.then(measure);
 
     button.addEventListener('click', async () => {
-      // Press (MOTION.md), played on click so a fast tap feels like a held press
       if (!reducedMotion.matches) {
         button.animate(
           [
@@ -211,12 +197,10 @@ const { label, email } = Astro.props;
       button.dataset.held = '';
       copiedAt = performance.now();
       if (status) status.textContent = 'Email address copied';
-      // If a mouse has already left by the time the copy lands, don't hold
       const mouseGone = lastPointer === 'mouse' && !button.matches(':hover');
       releaseAfter(mouseGone ? COPIED_MIN : COPIED_FOR);
     });
 
-    // A mouse leaving takes the pill with it, once "Copied" has had a moment
     button.addEventListener('pointerleave', (event) => {
       if (event.pointerType !== 'mouse' || !('held' in button.dataset)) return;
       releaseAfter(Math.max(0, copiedAt + COPIED_MIN - performance.now()));
@@ -227,9 +211,7 @@ const { label, email } = Astro.props;
 <style>
   /* Rails */
 
-  /* Zero-height and sticky: held to the bottom of the screen, then parked */
   .availability-rail {
-    /* Far enough below the screen's edge to clear the pill and its focus ring */
     --below: calc(1.5 * var(--page-gutter) + 3em);
 
     position: sticky;
@@ -238,13 +220,10 @@ const { label, email } = Astro.props;
     height: 0;
   }
 
-  /* So the pill never draws over the footer. clip, not hidden, so the rail
-     still sticks */
   :global(:has(> .availability-rail)) {
     overflow: clip;
   }
 
-  /* Entrance (MOTION.md: Choreography), timed by the script */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .availability-rail:not([data-in]) {
       visibility: hidden;
@@ -264,7 +243,6 @@ const { label, email } = Astro.props;
     }
   }
 
-  /* Already parked: a short way, so it never passes over the footer */
   @keyframes availability-settle {
     from {
       translate: 0 0.4em;
@@ -277,9 +255,6 @@ const { label, email } = Astro.props;
     }
   }
 
-  /* Phones: make way (MOTION.md). transform, not translate, so it stacks with
-     the entrance. Focus holds it in at once: a slide would start off screen
-     and the browser would scroll the page to find it */
   @media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
     .availability-rail {
       transition: transform var(--duration-l) var(--ease-out);
@@ -303,7 +278,6 @@ const { label, email } = Astro.props;
 
   /* SG Mark */
 
-  /* As tall as the pill, so the two sit on one line at every size */
   .availability-mark {
     position: absolute;
     left: var(--page-gutter);
@@ -315,9 +289,7 @@ const { label, email } = Astro.props;
     transition: opacity var(--duration-s) var(--ease-out);
   }
 
-  /* White, differenced: dark on the page, light over dark. On its own rail: a
-     blend only reaches the page from the top of its own layer */
-  .availability-rail--mark {
+  .availability-rail.mark {
     mix-blend-mode: difference;
   }
 
@@ -346,7 +318,6 @@ const { label, email } = Astro.props;
     --bloom: cubic-bezier(0.32, 0.72, 0, 1);
     --settle: cubic-bezier(0.25, 0.8, 0.3, 1);
     --accelerate: cubic-bezier(0.4, 0, 1, 1);
-    /* Dot centre, measured from the pill's right edge */
     --dot-x: calc(var(--space-m) + 6px);
 
     position: absolute;
@@ -356,8 +327,6 @@ const { label, email } = Astro.props;
     align-items: center;
     justify-content: center;
     gap: var(--space-s);
-    /* 200 × 56 at 33px type. Strokes sit inside the box, as in Figma, so the
-       padding gives way */
     min-width: 6.06em;
     padding: calc(var(--space-xs) - var(--border-width)) calc(var(--space-m) - var(--border-width));
     overflow: hidden;
@@ -371,14 +340,12 @@ const { label, email } = Astro.props;
     line-height: var(--h3-lh);
     white-space: nowrap;
     cursor: pointer;
-    /* Leaving: in step with the retreating fill */
     transition:
       border-color 300ms var(--settle) 60ms,
       scale 620ms var(--ease-bounce);
   }
 
-  /* At rest a circle exactly over the dot; it grows to the far corner */
-  .availability__fill {
+  .fill {
     position: absolute;
     inset: 0;
     z-index: -1;
@@ -387,30 +354,28 @@ const { label, email } = Astro.props;
     transition: clip-path 380ms var(--settle) 60ms;
   }
 
-  .availability__dot {
+  .dot {
     flex: none;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background-color: var(--brand-neon);
     box-shadow: inset 0 0 0 var(--border-width) var(--brand-neon-edge);
-    /* Leaving: the edge only returns once the fill has landed */
     transition: box-shadow 160ms var(--ease-out) 360ms;
   }
 
-  .availability__rest,
-  .availability__hover {
+  .rest,
+  .hover {
     transition-property: transform, opacity, filter;
   }
 
-  /* Leaving: "Open to work" comes back down once the hover label has cleared */
-  .availability__rest {
+  .rest {
     transition-duration: 340ms, 220ms, 220ms;
     transition-timing-function: var(--settle);
     transition-delay: 110ms;
   }
 
-  .availability__hover {
+  .hover {
     position: absolute;
     inset: 0;
     display: grid;
@@ -422,46 +387,44 @@ const { label, email } = Astro.props;
     transition-timing-function: var(--accelerate);
   }
 
-  /* "Copy email" and "Copied" share a cell and swap vertically */
-  .availability__action,
-  .availability__done {
+  .action,
+  .done {
     grid-area: 1 / 1;
     transition:
       transform 420ms var(--ease-spring),
       opacity 180ms var(--ease-out);
   }
 
-  .availability__done {
+  .done {
     opacity: 0;
     transform: translateY(60%);
   }
 
-  .availability[data-copied] .availability__action {
+  .availability[data-copied] .action {
     opacity: 0;
     transform: translateY(-60%);
   }
 
-  .availability[data-copied] .availability__done {
+  .availability[data-copied] .done {
     opacity: 1;
     transform: none;
   }
 
-  /* Held after a copy: filled without hover (on touch, the only time it shows) */
   .availability[data-held] {
     border-color: var(--brand-neon-edge);
   }
 
-  .availability[data-held] .availability__fill {
+  .availability[data-held] .fill {
     clip-path: circle(var(--cover-r, 125%) at calc(100% - var(--dot-x)) 50%);
     transition: clip-path 460ms var(--bloom);
   }
 
-  .availability[data-held] .availability__dot {
+  .availability[data-held] .dot {
     box-shadow: inset 0 0 0 var(--border-width) transparent;
     transition: box-shadow 120ms var(--ease-out);
   }
 
-  .availability[data-held] .availability__rest {
+  .availability[data-held] .rest {
     opacity: 0;
     transform: translateY(-55%);
     filter: blur(2px);
@@ -470,7 +433,7 @@ const { label, email } = Astro.props;
     transition-delay: 0ms;
   }
 
-  .availability[data-held] .availability__hover {
+  .availability[data-held] .hover {
     opacity: 1;
     transform: none;
     filter: none;
@@ -490,20 +453,20 @@ const { label, email } = Astro.props;
         scale 620ms var(--ease-bounce);
     }
 
-    .availability:hover .availability__fill,
-    .availability:focus-visible .availability__fill {
+    .availability:hover .fill,
+    .availability:focus-visible .fill {
       clip-path: circle(var(--cover-r, 125%) at calc(100% - var(--dot-x)) 50%);
       transition: clip-path 460ms var(--bloom);
     }
 
-    .availability:hover .availability__dot,
-    .availability:focus-visible .availability__dot {
+    .availability:hover .dot,
+    .availability:focus-visible .dot {
       box-shadow: inset 0 0 0 var(--border-width) transparent;
       transition: box-shadow 120ms var(--ease-out);
     }
 
-    .availability:hover .availability__rest,
-    .availability:focus-visible .availability__rest {
+    .availability:hover .rest,
+    .availability:focus-visible .rest {
       opacity: 0;
       transform: translateY(-55%);
       filter: blur(2px);
@@ -512,8 +475,8 @@ const { label, email } = Astro.props;
       transition-delay: 0ms;
     }
 
-    .availability:hover .availability__hover,
-    .availability:focus-visible .availability__hover {
+    .availability:hover .hover,
+    .availability:focus-visible .hover {
       opacity: 1;
       transform: none;
       filter: none;
@@ -549,20 +512,19 @@ const { label, email } = Astro.props;
       filter: none !important;
     }
 
-    .availability__fill {
+    .fill {
       clip-path: none;
       opacity: 0;
       transition: opacity 200ms linear;
     }
 
-    .availability:hover .availability__fill,
-    .availability:focus-visible .availability__fill {
+    .availability:hover .fill,
+    .availability:focus-visible .fill {
       clip-path: none;
       opacity: 1;
     }
   }
 
-  /* Phones keep the heading size (24px there): at body size it read tiny */
   @media (max-width: 700px) {
     .availability {
       --dot-x: calc(var(--space-s) + 6px);

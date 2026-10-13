@@ -1,6 +1,4 @@
 ---
-// A homepage work tile: the artwork and logo (TileArt), then a Bar with tags
-// and dates. Placed by WorkGrid.
 import type { CollectionEntry } from 'astro:content';
 import TileArt from './TileArt.astro';
 import Bar from './Bar.astro';
@@ -17,10 +15,10 @@ const { title, tags, dates, tile, link } = project.data;
 const Wrapper = link ? 'a' : 'div';
 ---
 
-<Wrapper class:list={['tile', `tile--${shape}`]} href={link}>
-  <span id={`work-${project.id}`} class="tile__anchor" aria-hidden="true"></span>
+<Wrapper class:list={['tile', shape]} href={link}>
+  <span id={`work-${project.id}`} class="anchor" aria-hidden="true"></span>
   <TileArt
-    class="tile__art"
+    class="art"
     image={tile.image}
     logo={tile.logo}
     logoScale={tile.logoScale}
@@ -35,7 +33,6 @@ const Wrapper = link ? 'a' : 'div';
 
 <style>
   .tile {
-    /* A container so the hover corners can be sized off the tile's width */
     container-type: inline-size;
     display: flex;
     flex-direction: column;
@@ -43,51 +40,52 @@ const Wrapper = link ? 'a' : 'div';
     color: var(--text-strong);
   }
 
-  .tile :global(.tile__art) {
+  .tile :global(.tile-art.art) {
     aspect-ratio: 1;
   }
 
-  /* The #work-<id> target (Projects on a case study, the skill chips): mid-art,
-     scrolled to mid-screen, so a jump lands with the tile centred */
+  /* Anchor */
+
   .tile {
     position: relative;
   }
 
-  .tile__anchor {
+  .anchor {
     position: absolute;
     top: 50cqi;
     left: 0;
     scroll-margin-top: 50svh;
   }
 
-  .tile--tall .tile__anchor {
+  .tile.tall .anchor {
     top: calc((3 * var(--col) + 2 * var(--grid-gap)) / 2);
   }
 
   @media (max-width: 700px) {
-    .tile__anchor,
-    .tile--tall .tile__anchor {
+    .anchor,
+    .tile.tall .anchor {
       top: calc(50cqi * 812 / 1416);
     }
   }
 
-  /* Tall tiles are two columns wide and three columns high */
-  .tile--tall :global(.tile__art) {
+  /* Shapes */
+
+  .tile.tall :global(.tile-art.art) {
     aspect-ratio: auto;
     height: calc(3 * var(--col) + 2 * var(--grid-gap));
   }
 
-  /* Phones: a case study's full-width image shape, not a stack of squares */
   @media (max-width: 700px) {
-    .tile :global(.tile__art),
-    .tile--tall :global(.tile__art) {
+    .tile :global(.tile-art.art),
+    .tile.tall :global(.tile-art.art) {
       height: auto;
       aspect-ratio: 1416 / 812;
     }
   }
 
-  /* Hover: rounds into a CRT screen with a soft glass edge, rather than zooming */
-  .tile :global(.tile__art)::after {
+  /* Hover */
+
+  .tile :global(.tile-art.art)::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -100,27 +98,25 @@ const Wrapper = link ? 'a' : 'div';
   }
 
   @media (hover: hover) {
-    /* 9% of the width, as a length so tall tiles keep round corners
-       (MOTION.md, Gotchas) */
-    a.tile:hover :global(.tile__art) {
+    a.tile:hover :global(.tile-art.art) {
       border-radius: 9cqi;
     }
 
-    a.tile:hover :global(.tile__art)::after {
+    a.tile:hover :global(.tile-art.art)::after {
       opacity: 1;
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .tile :global(.tile__art),
-    .tile :global(.tile__art)::after {
+    .tile :global(.tile-art.art),
+    .tile :global(.tile-art.art)::after {
       transition:
         border-radius var(--duration-m) var(--ease-out),
         opacity var(--duration-m) var(--ease-out);
     }
 
-    a.tile:hover :global(.tile__art),
-    a.tile:hover :global(.tile__art)::after {
+    a.tile:hover :global(.tile-art.art),
+    a.tile:hover :global(.tile-art.art)::after {
       transition-duration: var(--duration-l);
     }
   }

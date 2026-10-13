@@ -1,11 +1,7 @@
 ---
-// A titled text block in a case study: the title from the left edge, the
-// copy in two Columns (grid columns 2–3 and 4–5), an optional tag (a Label)
-// far right.
 import Label from './Label.astro';
 
 interface Props {
-  // Left off where a section carries on from the one above
   title?: string;
   tag?: string;
 }
@@ -13,9 +9,9 @@ interface Props {
 const { title, tag } = Astro.props;
 ---
 
-<section class:list={['section', { 'section--untitled': !title && !tag }]}>
-  {title && <h2 class="section__title t-h1">{title}</h2>}
-  {tag && <Label class="section__tag">{tag}</Label>}
+<section class:list={['section', { untitled: !title && !tag }]}>
+  {title && <h2 class="title t-h1">{title}</h2>}
+  {tag && <Label class="note">{tag}</Label>}
   <slot />
 </section>
 
@@ -28,14 +24,14 @@ const { title, tag } = Astro.props;
     padding-block: var(--space-xl);
   }
 
-  .section__title {
+  .title {
     grid-column: 1 / span 3;
     grid-row: 1;
     color: var(--text-muted);
     text-wrap: balance;
   }
 
-  .section :global(.section__tag) {
+  .section :global(.label.note) {
     grid-column: 5;
     grid-row: 1;
     justify-self: end;
@@ -51,7 +47,7 @@ const { title, tag } = Astro.props;
     grid-column: 4 / span 2;
   }
 
-  .section--untitled > :global(.column) {
+  .section.untitled > :global(.column) {
     grid-row: 1;
   }
 
@@ -63,18 +59,19 @@ const { title, tag } = Astro.props;
       column-gap: var(--space-xl);
     }
 
-    .section__title,
-    .section :global(.section__tag) {
+    .title,
+    .section :global(.label.note) {
       grid-column: 1 / -1;
       grid-row: auto;
     }
 
-    .section :global(.section__tag) {
+    .section :global(.label.note) {
       order: -1;
       justify-self: start;
     }
 
-    .section > :global(.column) {
+    .section > :global(.column),
+    .section.untitled > :global(.column) {
       grid-row: auto;
       grid-column: 1;
     }
