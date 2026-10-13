@@ -118,7 +118,7 @@ export const previous = {
     { name: 'QuickNode', src: quicknode, href: 'https://www.quicknode.com' },
     { name: 'Knoma', src: knoma },
     { name: 'ustwo', src: ustwo, href: 'https://ustwo.com' },
-    { name: 'Snoots', src: snoots },
+    { name: 'Snoots', src: snoots, href: 'https://www.snootsvet.com' },
     { name: 'FARE', src: fare },
     { name: 'Florence', src: florence, href: 'https://www.florence.co.uk' },
     { name: 'Nested', src: nested, href: 'https://nested.com' },
