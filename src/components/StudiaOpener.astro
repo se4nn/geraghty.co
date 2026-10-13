@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Pause from './Pause.astro';
 import base from '../assets/work/studia/opener/base.png';
 import card from '../assets/work/studia/opener/card.png';
 import quote from '../assets/work/studia/opener/quote.png';
@@ -15,8 +16,8 @@ const W = 1416;
 const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}px), ${Math.min(1, (w / W) * 2.5) * 375}px)`;
 ---
 
-<div class="studia-opener" role="img" aria-label={alt}>
-  <div class="window">
+<div class="studia-opener">
+  <div class="window" role="img" aria-label={alt}>
     <Image class="base" src={base} alt="" widths={[1024, 1600, 2400, base.width]} sizes={share(W)} quality={90} loading="eager" fetchpriority="high" />
 
     <div class="item card" style="--x: 64; --y: 134; --w: 312; --h: 114; --r: -4deg;">
@@ -50,10 +51,12 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
       </div></div></div>
     </div>
   </div>
+  <Pause />
 </div>
 
 <style>
   .studia-opener {
+    position: relative;
     container-type: inline-size;
   }
 
@@ -252,12 +255,22 @@ const share = (w: number) => `max(${(w / W).toFixed(4)} * min(100vw - 32px, ${W}
 
   for (const opener of document.querySelectorAll<HTMLElement>('.studia-opener')) {
     let live = false;
-    let wake: (() => void) | null = null;
-    const whenLive = () => (live ? Promise.resolve() : new Promise<void>((r) => (wake = r)));
-    new IntersectionObserver(([entry]) => {
-      live = entry.isIntersecting;
+    let seen = false;
+    let paused = false;
+    let waiting: (() => void)[] = [];
+    const whenLive = () => (live ? Promise.resolve() : new Promise<void>((r) => waiting.push(r)));
+    const update = () => {
+      live = seen && !paused;
       opener.toggleAttribute('data-live', live);
-      if (live && wake) (wake(), (wake = null));
+      if (live) waiting.splice(0).forEach((wake) => wake());
+    };
+    opener.addEventListener('pausechange', (event) => {
+      paused = (event as CustomEvent<boolean>).detail;
+      update();
+    });
+    new IntersectionObserver(([entry]) => {
+      seen = entry.isIntersecting;
+      update();
     }).observe(opener);
 
     whenSeen(opener, 0.3).then(async (seen) => {

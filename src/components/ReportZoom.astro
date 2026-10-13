@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Pause from './Pause.astro';
 import brief from '../assets/work/format/brief-header.png';
 
 interface Props {
@@ -16,8 +17,8 @@ const by = +(72 + BY * K).toFixed(1);
 ---
 
 <figure class="report-zoom" style={`--bx: ${bx}; --by: ${by};`}>
-  <div class="panel" role="img" aria-label={alt}>
-    <div class="window">
+  <div class="panel">
+    <div class="window" role="img" aria-label={alt}>
       <div class="camera">
         <div class="screen">
           <Image src={brief} alt="" widths={[1224, 1836, 2448, brief.width]} sizes="calc(1.1 * min(100vw - 32px, 1416px))" quality={90} loading="lazy" />
@@ -35,6 +36,7 @@ const by = +(72 + BY * K).toFixed(1);
         </svg>
       </div>
     </div>
+    <Pause />
   </div>
   {caption && <figcaption class="caption t-body">{caption}</figcaption>}
 </figure>
@@ -45,6 +47,7 @@ const by = +(72 + BY * K).toFixed(1);
   }
 
   .panel {
+    position: relative;
     container-type: inline-size;
     border-radius: var(--radius-s);
     overflow: hidden;
@@ -266,6 +269,19 @@ const by = +(72 + BY * K).toFixed(1);
       move(REST, 0);
     };
 
-    new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), { threshold: 0.4 }).observe(root);
+    let seen = false;
+    let paused = false;
+    const update = () => (seen && !paused ? start() : stop());
+    root.addEventListener('pausechange', (event) => {
+      paused = (event as CustomEvent<boolean>).detail;
+      update();
+    });
+    new IntersectionObserver(
+      ([entry]) => {
+        seen = entry.isIntersecting;
+        update();
+      },
+      { threshold: 0.4 },
+    ).observe(root);
   }
 </script>

@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Pause from './Pause.astro';
 import overview from '../assets/work/format/reports-overview.png';
 import briefLong from '../assets/work/format/opener/brief-long.png';
 import briefNav from '../assets/work/format/opener/brief-nav.png';
@@ -16,8 +17,8 @@ const sizes = 'calc(0.7785 * min(100vw - 32px, 1416px))';
 const widths = [1102, 1653, 2204, 3024];
 ---
 
-<div class="format-opener" role="img" aria-label={alt}>
-  <div class="window">
+<div class="format-opener">
+  <div class="window" role="img" aria-label={alt}>
     <div class="screen">
       <Image class="page" data-page="overview" src={overview} alt="" widths={widths} sizes={sizes} quality={90} loading="eager" fetchpriority="high" data-shown style="z-index: 1" />
 
@@ -41,10 +42,12 @@ const widths = [1102, 1653, 2204, 3024];
       </svg>
     </div>
   </div>
+  <Pause />
 </div>
 
 <style>
   .format-opener {
+    position: relative;
     container-type: inline-size;
     border-radius: var(--radius-s);
     overflow: hidden;
@@ -341,6 +344,19 @@ const widths = [1102, 1653, 2204, 3024];
       cursor.style.setProperty('--cy', String(REST[1]));
     };
 
-    new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), { threshold: 0.3 }).observe(opener);
+    let seen = false;
+    let paused = false;
+    const update = () => (seen && !paused ? start() : stop());
+    opener.addEventListener('pausechange', (event) => {
+      paused = (event as CustomEvent<boolean>).detail;
+      update();
+    });
+    new IntersectionObserver(
+      ([entry]) => {
+        seen = entry.isIntersecting;
+        update();
+      },
+      { threshold: 0.3 },
+    ).observe(opener);
   }
 </script>

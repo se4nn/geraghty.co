@@ -1,0 +1,88 @@
+<button class="pause" type="button" aria-label="Pause animation">
+  <svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+    <path class="bars" d="M4 3h2.75v10H4zM9.25 3H12v10H9.25z" />
+    <path class="play" d="M4.75 2.75v10.5L13.25 8z" />
+  </svg>
+</button>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.pause')) {
+    button.addEventListener('click', () => {
+      const paused = !button.hasAttribute('data-paused');
+      button.toggleAttribute('data-paused', paused);
+      button.setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+      button.dispatchEvent(new CustomEvent('pausechange', { bubbles: true, detail: paused }));
+    });
+  }
+</script>
+
+<style>
+  .pause {
+    position: absolute;
+    z-index: 10;
+    top: var(--space-m);
+    right: var(--space-m);
+    display: grid;
+    place-items: center;
+    width: calc(var(--label-size) * var(--label-lh) + 2 * var(--space-xs));
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-l);
+    color: var(--text-on-dark);
+    background-color: oklch(from var(--neutral-1000) l c h / 0.45);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: background-color var(--duration-s) var(--ease-out);
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  .play,
+  .pause[data-paused] .bars {
+    display: none;
+  }
+
+  .pause[data-paused] .play {
+    display: inline;
+  }
+
+  @media (max-width: 700px) {
+    .pause {
+      top: var(--space-xs);
+      right: var(--space-xs);
+      width: 28px;
+      border-radius: var(--radius-m);
+    }
+
+    .icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce), (scripting: none) {
+    .pause {
+      display: none;
+    }
+  }
+
+  /* Hover */
+
+  @media (hover: hover) {
+    .pause:hover {
+      background-color: oklch(from var(--neutral-1000) l c h / 0.7);
+    }
+  }
+
+  /* Focus */
+
+  .pause:focus-visible {
+    outline: 2px solid var(--neutral-900);
+    outline-offset: 2px;
+  }
+</style>
