@@ -1,0 +1,558 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Button from './Button.astro';
+
+import format from '../assets/work/format/insight-world-poster.png';
+import fertifa from '../assets/work/fertifa/menopause-posters.jpg';
+import studia from '../assets/work/studia/brand-creator-live.png';
+import shuffle from '../assets/work/shuffle/poster-billboard.jpg';
+import minimum from '../assets/work/minimum/social-grid.png';
+import steepclub from '../assets/work/steepclub/boxes-partea.jpg';
+
+const work: Record<string, ImageMetadata> = { format, fertifa, studia, shuffle, minimum, steepclub };
+
+const projects = (await getCollection('work'))
+  .filter((p) => p.data.caseStudy)
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((p) => ({ id: p.id, title: p.data.title, href: p.data.link!, image: work[p.id] ?? p.data.tile.image }));
+
+const colours = ['white', 'yellow', 'cyan', 'green', 'magenta', 'red', 'blue', 'black'];
+const bars = projects.slice(0, colours.length).map((p, i) => ({ ...p, colour: colours[i], channel: i + 1 }));
+
+const barWidth = 900 / bars.length;
+const pc = (n: number, of: number) => `${(n / of) * 100}%`;
+
+const castellations = [
+  ...Array.from({ length: 16 }, (_, i) => ({ x: i * 75, y: 0, w: 75, h: 36, on: i % 2 === 0 })),
+  ...Array.from({ length: 16 }, (_, i) => ({ x: i * 75, y: 864, w: 75, h: 36, on: i % 2 === 1 })),
+  ...Array.from({ length: 12 }, (_, i) => ({ x: 0, y: i * 75, w: 36, h: 75, on: i % 2 === 0 })),
+  ...Array.from({ length: 12 }, (_, i) => ({ x: 1164, y: i * 75, w: 36, h: 75, on: i % 2 === 1 })),
+];
+const greys = ['000', '100', '300', '600', '900', '1000'];
+const gratings = [30, 24, 18, 12, 8, 6];
+---
+
+<section class="test-card">
+  <div class="screen">
+    <svg class="pattern" viewBox="0 0 1200 900" aria-hidden="true" focusable="false">
+      <defs>
+        {
+          gratings.map((period, i) => (
+            <pattern id={`grating-${i}`} width={period} height="75" patternUnits="userSpaceOnUse">
+              <rect width={period / 2} height="75" class="ink" />
+              <rect x={period / 2} width={period / 2} height="75" class="paper" />
+            </pattern>
+          ))
+        }
+      </defs>
+
+      <rect width="1200" height="900" class="field" />
+      {Array.from({ length: 15 }, (_, i) => <line x1={(i + 1) * 75} y1="0" x2={(i + 1) * 75} y2="900" class="grid" />)}
+      {Array.from({ length: 11 }, (_, i) => <line x1="0" y1={(i + 1) * 75} x2="1200" y2={(i + 1) * 75} class="grid" />)}
+
+      {castellations.map((c) => <rect x={c.x} y={c.y} width={c.w} height={c.h} class={c.on ? 'paper' : 'ink'} />)}
+
+      {greys.map((g, i) => <rect x="90" y={225 + i * 75} width="150" height="75" style={`fill: var(--neutral-${g})`} />)}
+      {gratings.map((_, i) => <rect x="960" y={225 + i * 75} width="150" height="75" fill={`url(#grating-${i})`} />)}
+
+      {bars.map((bar, i) => <rect x={150 + i * barWidth} y="72" width={barWidth} height="78" class={`stripe ${bar.colour}`} />)}
+
+      <circle cx="600" cy="450" r="303" class="rim" />
+
+      <rect x="75" y="774" width="225" height="72" class="ink" />
+      <text x="187.5" y="826" class="ident">SG</text>
+      <rect x="900" y="774" width="225" height="72" class="ink" />
+      <text x="1012.5" y="826" class="ident">404</text>
+    </svg>
+
+    <div class="circle">
+      {
+        projects.map((p, i) => (
+          <Image class={i === 0 ? 'work on' : 'work'} data-id={p.id} src={p.image} alt="" widths={[400, 800, 1200]} sizes="(max-width: 700px) 50vw, 600px" quality={90} />
+        ))
+      }
+      <p class="board" aria-hidden="true">404</p>
+    </div>
+
+    <p class="channel t-label" aria-live="polite">No signal</p>
+
+    {
+      bars.map((bar, i) => (
+        <a
+          class:list={['tune', bar.colour]}
+          href={bar.href}
+          data-id={bar.id}
+          data-channel={bar.channel}
+          data-title={bar.title}
+          style={`left: ${pc(150 + i * barWidth, 1200)}; top: ${pc(72, 900)}; width: ${pc(barWidth, 1200)}; height: ${pc(78, 900)}`}
+        >
+          <span class="visually-hidden">{bar.title}</span>
+          <Image class="peek" src={bar.image} alt="" widths={[260, 520]} sizes="11vw" quality={90} loading="lazy" />
+        </a>
+      ))
+    }
+  </div>
+
+  <div class="message">
+    <h1 class="t-h1">Nothing on this channel.</h1>
+    <p class="t-h3 aside">This page is a problem I missed.</p>
+    <Button href="/" label="Back to all work">Back to all work</Button>
+  </div>
+
+  <div class="saver" hidden>
+    <div class="thumb">
+      {projects.map((p) => <Image class="work" data-id={p.id} src={p.image} alt="" widths={[400, 800]} sizes="(max-width: 700px) 40vw, 24vw" quality={90} loading="lazy" />)}
+    </div>
+    <p class="wake t-label">Tap anywhere to come back</p>
+  </div>
+</section>
+
+<style>
+  .test-card {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xl);
+    padding: var(--space-xl) var(--page-gutter);
+    background-color: var(--bg-dark);
+    color: var(--text-on-dark);
+    overflow: clip;
+  }
+
+  /* Screen */
+  .screen {
+    position: relative;
+    container-type: inline-size;
+    width: min(100%, calc((100svh - 18rem) * 4 / 3), 1200px);
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-l);
+    overflow: clip;
+  }
+
+  .pattern {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .field {
+    fill: var(--test-card-grey);
+  }
+
+  .grid {
+    stroke: var(--neutral-000);
+    stroke-width: 3;
+  }
+
+  .ink {
+    fill: var(--neutral-1000);
+  }
+
+  .paper {
+    fill: var(--neutral-000);
+  }
+
+  .rim {
+    fill: none;
+    stroke: var(--neutral-000);
+    stroke-width: 6;
+  }
+
+  .ident {
+    fill: var(--neutral-000);
+    font-family: var(--font-sans);
+    font-variation-settings: var(--sans-axes);
+    font-weight: var(--weight-bold);
+    font-size: 44px;
+    text-anchor: middle;
+  }
+
+  /* Colour Bars */
+  .stripe.white,
+  .tune.white {
+    fill: var(--test-card-white);
+    background-color: var(--test-card-white);
+  }
+
+  .stripe.yellow,
+  .tune.yellow {
+    fill: var(--test-card-yellow);
+    background-color: var(--test-card-yellow);
+  }
+
+  .stripe.cyan,
+  .tune.cyan {
+    fill: var(--test-card-cyan);
+    background-color: var(--test-card-cyan);
+  }
+
+  .stripe.green,
+  .tune.green {
+    fill: var(--test-card-green);
+    background-color: var(--test-card-green);
+  }
+
+  .stripe.magenta,
+  .tune.magenta {
+    fill: var(--test-card-magenta);
+    background-color: var(--test-card-magenta);
+  }
+
+  .stripe.red,
+  .tune.red {
+    fill: var(--test-card-red);
+    background-color: var(--test-card-red);
+  }
+
+  .stripe.blue,
+  .tune.blue {
+    fill: var(--test-card-blue);
+    background-color: var(--test-card-blue);
+  }
+
+  .stripe.black,
+  .tune.black {
+    fill: var(--neutral-1000);
+    background-color: var(--neutral-1000);
+  }
+
+  .tune {
+    position: absolute;
+    display: block;
+    overflow: clip;
+  }
+
+  .peek {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    visibility: hidden;
+  }
+
+  .tune:focus-visible {
+    outline: 2px solid var(--neutral-000);
+    outline-offset: 3px;
+    z-index: 1;
+  }
+
+  .tune:focus-visible .peek {
+    visibility: visible;
+  }
+
+  @media (hover: hover) {
+    .tune:hover .peek {
+      visibility: visible;
+    }
+  }
+
+  /* Circle */
+  .circle {
+    position: absolute;
+    left: 25%;
+    top: calc(150 / 900 * 100%);
+    width: 50%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: clip;
+    background-color: var(--neutral-1000);
+  }
+
+  .circle .work {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    visibility: hidden;
+  }
+
+  .circle .work.on {
+    visibility: visible;
+  }
+
+  .board {
+    position: absolute;
+    left: 54%;
+    top: 56%;
+    width: 30%;
+    padding-block: 2cqi;
+    border: 0.6cqi solid var(--neutral-000);
+    border-radius: 1cqi;
+    background-color: var(--test-card-board);
+    color: var(--neutral-000);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 6cqi;
+    line-height: 1;
+    text-align: center;
+  }
+
+  /* Channel */
+  .channel {
+    position: absolute;
+    left: 35%;
+    top: calc(774 / 900 * 100%);
+    width: 30%;
+    height: calc(72 / 900 * 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    background-color: var(--neutral-1000);
+    color: var(--neutral-000);
+    font-size: max(10px, 1.8cqi);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Message */
+  .message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+    text-align: center;
+  }
+
+  .message h1 {
+    margin: 0;
+  }
+
+  .aside {
+    margin: 0;
+    color: var(--text-on-dark-muted);
+  }
+
+  /* Screensaver */
+  .saver {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: var(--neutral-1000);
+    cursor: pointer;
+  }
+
+  .saver[hidden] {
+    display: none;
+  }
+
+  .thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: clamp(160px, 24vw, 420px);
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-l);
+    overflow: clip;
+    will-change: transform;
+  }
+
+  .thumb .work {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    visibility: hidden;
+  }
+
+  .thumb .work.on {
+    visibility: visible;
+  }
+
+  .wake {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--space-xl);
+    margin: 0;
+    color: var(--text-on-dark-muted);
+    text-align: center;
+  }
+
+  /* Motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .screen {
+      animation: screen-on 1000ms 200ms both;
+    }
+
+    .thumb.corner {
+      animation: corner 900ms var(--ease-out);
+    }
+  }
+
+  @keyframes corner {
+    0%,
+    40% {
+      filter: brightness(2.2) saturate(1.4);
+    }
+  }
+
+  /* Phones */
+  @media (max-width: 700px) {
+    .screen {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const IDLE = 5000;
+  const SPEED = 0.09;
+
+  for (const card of document.querySelectorAll<HTMLElement>('.test-card')) {
+    const circle = [...card.querySelectorAll<HTMLImageElement>('.circle .work')];
+    const channel = card.querySelector<HTMLElement>('.channel')!;
+    const saver = card.querySelector<HTMLElement>('.saver')!;
+    const thumb = card.querySelector<HTMLElement>('.thumb')!;
+    const thumbs = [...thumb.querySelectorAll<HTMLImageElement>('.work')];
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+    /* Tuning */
+    const resting = circle[Math.floor(Math.random() * circle.length)]?.dataset.id;
+    const show = (id?: string) => circle.forEach((img) => img.classList.toggle('on', img.dataset.id === id));
+    show(resting);
+
+    let intent = 0;
+    const tune = (bar: HTMLElement | null) => {
+      clearTimeout(intent);
+      intent = window.setTimeout(() => {
+        if (!bar) {
+          show(resting);
+          channel.textContent = 'No signal';
+          return;
+        }
+        show(bar.dataset.id ?? resting);
+        channel.textContent = `CH ${bar.dataset.channel} · ${bar.dataset.title}`;
+      }, 100);
+    };
+
+    for (const bar of card.querySelectorAll<HTMLElement>('.tune')) {
+      bar.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && tune(bar));
+      bar.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && tune(null));
+      bar.addEventListener('focus', () => tune(bar));
+      bar.addEventListener('blur', () => tune(null));
+    }
+
+    /* Screensaver */
+    let running = false;
+    let frame = 0;
+    let last = 0;
+    let x = 0;
+    let y = 0;
+    let vx = 1;
+    let vy = 1;
+    let index = 0;
+    let idle = 0;
+    let swallow = false;
+
+    const pick = (i: number) => {
+      index = (i + thumbs.length) % thumbs.length;
+      thumbs.forEach((img, n) => img.classList.toggle('on', n === index));
+    };
+
+    const step = (now: number) => {
+      const dt = Math.min(now - last, 100) / 1000;
+      last = now;
+      const w = thumb.offsetWidth;
+      const h = thumb.offsetHeight;
+      const maxX = innerWidth - w;
+      const maxY = innerHeight - h;
+      const speed = SPEED * Math.max(innerWidth, innerHeight);
+      x += vx * speed * dt;
+      y += vy * speed * dt;
+      let hitX = false;
+      let hitY = false;
+      if (x <= 0 || x >= maxX) {
+        x = Math.min(Math.max(x, 0), maxX);
+        vx = -vx;
+        hitX = true;
+      }
+      if (y <= 0 || y >= maxY) {
+        y = Math.min(Math.max(y, 0), maxY);
+        vy = -vy;
+        hitY = true;
+      }
+      const near = 6;
+      const cornered =
+        (hitX && (y <= near || y >= maxY - near)) || (hitY && (x <= near || x >= maxX - near));
+      if (hitX || hitY) pick(index + 1);
+      if (cornered) {
+        thumb.classList.remove('corner');
+        void thumb.offsetWidth;
+        thumb.classList.add('corner');
+      }
+      thumb.style.transform = `translate(${x}px, ${y}px)`;
+      frame = requestAnimationFrame(step);
+    };
+
+    const start = () => {
+      if (running || reduced.matches) return;
+      running = true;
+      saver.hidden = false;
+      const w = thumb.offsetWidth;
+      const h = thumb.offsetHeight;
+      x = Math.random() * Math.max(innerWidth - w, 0);
+      y = Math.random() * Math.max(innerHeight - h, 0);
+      vx = Math.random() < 0.5 ? -1 : 1;
+      vy = Math.random() < 0.5 ? -1 : 1;
+      pick(Math.floor(Math.random() * thumbs.length));
+      last = performance.now();
+      frame = requestAnimationFrame(step);
+    };
+
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(frame);
+      saver.hidden = true;
+      thumb.classList.remove('corner');
+    };
+
+    const wait = () => {
+      clearTimeout(idle);
+      if (!running) idle = window.setTimeout(start, IDLE);
+    };
+
+    addEventListener('pointermove', () => !running && wait(), { passive: true });
+    addEventListener('scroll', () => !running && wait(), { passive: true });
+    addEventListener(
+      'pointerdown',
+      () => {
+        if (running) {
+          swallow = true;
+          stop();
+        }
+        wait();
+      },
+      { capture: true },
+    );
+    addEventListener(
+      'click',
+      (e) => {
+        if (!swallow) return;
+        swallow = false;
+        e.preventDefault();
+        e.stopPropagation();
+      },
+      { capture: true },
+    );
+    addEventListener('keydown', () => {
+      stop();
+      wait();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) start();
+    });
+
+    wait();
+  }
+</script>
