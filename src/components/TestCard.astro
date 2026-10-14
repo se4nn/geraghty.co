@@ -2,7 +2,6 @@
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
-import Button from './Button.astro';
 
 import format from '../assets/work/format/insight-world-poster.png';
 import fertifa from '../assets/work/fertifa/menopause-posters.jpg';
@@ -16,94 +15,96 @@ const work: Record<string, ImageMetadata> = { format, fertifa, studia, shuffle, 
 const projects = (await getCollection('work'))
   .filter((p) => p.data.caseStudy)
   .sort((a, b) => a.data.order - b.data.order)
-  .map((p) => ({ id: p.id, title: p.data.title, href: p.data.link!, image: work[p.id] ?? p.data.tile.image }));
+  .slice(0, 8)
+  .map((p) => ({
+    id: p.id,
+    title: p.data.title,
+    href: p.data.link!,
+    art: p.data.tile.image,
+    logo: p.data.tile.logo,
+    work: work[p.id] ?? p.data.tile.image,
+  }));
 
-const colours = ['white', 'yellow', 'cyan', 'green', 'magenta', 'red', 'blue', 'black'];
-const bars = projects.slice(0, colours.length).map((p, i) => ({ ...p, colour: colours[i], channel: i + 1 }));
+const cols = 20;
+const rows = 12;
 
-const barWidth = 900 / bars.length;
-const pc = (n: number, of: number) => `${(n / of) * 100}%`;
+const isInk = (r: number, c: number) => {
+  if (r === 0) return c === 0 || c % 2 === 1;
+  if (r === rows - 1) return c % 2 === 0 || c === cols - 1;
+  if (c === 0) return r % 2 === 1;
+  if (c === cols - 1) return r % 2 === 0;
+  return false;
+};
+const isEdge = (r: number, c: number) => r === 0 || c === 0 || r === rows - 1 || c === cols - 1;
+const cells = Array.from({ length: rows * cols }, (_, i) => {
+  const r = Math.floor(i / cols);
+  const c = i % cols;
+  return isEdge(r, c) ? (isInk(r, c) ? 'ink' : 'paper') : '';
+});
 
-const castellations = [
-  ...Array.from({ length: 16 }, (_, i) => ({ x: i * 75, y: 0, w: 75, h: 36, on: i % 2 === 0 })),
-  ...Array.from({ length: 16 }, (_, i) => ({ x: i * 75, y: 864, w: 75, h: 36, on: i % 2 === 1 })),
-  ...Array.from({ length: 12 }, (_, i) => ({ x: 0, y: i * 75, w: 36, h: 75, on: i % 2 === 0 })),
-  ...Array.from({ length: 12 }, (_, i) => ({ x: 1164, y: i * 75, w: 36, h: 75, on: i % 2 === 1 })),
-];
-const greys = ['000', '100', '300', '600', '900', '1000'];
-const gratings = [30, 24, 18, 12, 8, 6];
+const barStart = Math.floor((cols - projects.length * 2) / 2);
+const standbySpan = 8;
+const standbyStart = Math.floor((cols - standbySpan) / 2);
 ---
 
-<section class="test-card">
-  <div class="screen">
-    <svg class="pattern" viewBox="0 0 1200 900" aria-hidden="true" focusable="false">
-      <defs>
-        {
-          gratings.map((period, i) => (
-            <pattern id={`grating-${i}`} width={period} height="75" patternUnits="userSpaceOnUse">
-              <rect width={period / 2} height="75" class="ink" />
-              <rect x={period / 2} width={period / 2} height="75" class="paper" />
-            </pattern>
-          ))
-        }
-      </defs>
+<section class="test-card" style={`--cols: ${cols}; --rows: ${rows}`}>
+  <h1 class="visually-hidden">Nothing on this channel</h1>
 
-      <rect width="1200" height="900" class="field" />
-      {Array.from({ length: 15 }, (_, i) => <line x1={(i + 1) * 75} y1="0" x2={(i + 1) * 75} y2="900" class="grid" />)}
-      {Array.from({ length: 11 }, (_, i) => <line x1="0" y1={(i + 1) * 75} x2="1200" y2={(i + 1) * 75} class="grid" />)}
+  <div class="cells" aria-hidden="true">
+    {cells.map((name) => <span class={name || undefined} />)}
+  </div>
 
-      {castellations.map((c) => <rect x={c.x} y={c.y} width={c.w} height={c.h} class={c.on ? 'paper' : 'ink'} />)}
-
-      {greys.map((g, i) => <rect x="90" y={225 + i * 75} width="150" height="75" style={`fill: var(--neutral-${g})`} />)}
-      {gratings.map((_, i) => <rect x="960" y={225 + i * 75} width="150" height="75" fill={`url(#grating-${i})`} />)}
-
-      {bars.map((bar, i) => <rect x={150 + i * barWidth} y="72" width={barWidth} height="78" class={`stripe ${bar.colour}`} />)}
-
-      <circle cx="600" cy="450" r="303" class="rim" />
-
-      <rect x="75" y="774" width="225" height="72" class="ink" />
-      <text x="187.5" y="826" class="ident">SG</text>
-      <rect x="900" y="774" width="225" height="72" class="ink" />
-      <text x="1012.5" y="826" class="ident">404</text>
-    </svg>
-
-    <div class="circle">
-      {
-        projects.map((p, i) => (
-          <Image class={i === 0 ? 'work on' : 'work'} data-id={p.id} src={p.image} alt="" widths={[400, 800, 1200]} sizes="(max-width: 700px) 50vw, 600px" quality={90} />
-        ))
-      }
-      <p class="board" aria-hidden="true">404</p>
-    </div>
-
-    <p class="channel t-label" aria-live="polite">No signal</p>
-
+  <div class="layer">
     {
-      bars.map((bar, i) => (
+      projects.map((p, i) => (
         <a
-          class:list={['tune', bar.colour]}
-          href={bar.href}
-          data-id={bar.id}
-          data-channel={bar.channel}
-          data-title={bar.title}
-          style={`left: ${pc(150 + i * barWidth, 1200)}; top: ${pc(72, 900)}; width: ${pc(barWidth, 1200)}; height: ${pc(78, 900)}`}
+          class="tune"
+          href={p.href}
+          data-id={p.id}
+          data-title={p.title}
+          style={`grid-area: 3 / ${barStart + i * 2 + 1} / span 1 / span 2`}
         >
-          <span class="visually-hidden">{bar.title}</span>
-          <Image class="peek" src={bar.image} alt="" widths={[260, 520]} sizes="11vw" quality={90} loading="lazy" />
+          <span class="visually-hidden">{p.title}</span>
+          <Image class="art" src={p.art} alt="" widths={[600, 1200]} sizes="(max-width: 900px) 70vw, 35vw" quality={90} />
+          <Image class="peek" src={p.work} alt="" widths={[300, 600]} sizes="(max-width: 900px) 25vw, 12vw" quality={90} loading="lazy" />
         </a>
+      ))
+    }
+
+    <p class="standby t-h3-bold" aria-live="polite" style={`grid-area: ${rows - 2} / ${standbyStart + 1} / span 1 / span ${standbySpan}`}>
+      Please stand by…
+    </p>
+
+    <a class="home" href="/" style={`grid-area: ${rows} / 1`}>
+      <span class="visually-hidden">Back to all work</span>
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M13.25 4L12.5 4L12.5795 4.71575C12.5973 4.87563 12.412 4.99402 12.269 4.92041C11.6388 4.59602 10.1836 4 8 4C5 4 2.125 5.5 2.125 9.625C2.125 16 10.75 15.625 11.5 21.625C11.875 25.75 9.25 26.875 7 26.875C2.86103 26.875 2.50001 25.75 1.75 22H1L1.75 27.75H2.75L2.62145 27.1072C2.58507 26.9253 2.83287 26.778 2.99115 26.8748C4.05862 27.5273 6.00672 28 7.75 28C11.125 28 15.25 26.875 15.25 21.25C15.25 14.1222 5.125 13.375 4.75 8.875C4.5625 6.25 6.5 5 9 5C12 5 13 6.5 13.25 8H14L13.25 4Z" />
+        <path d="M28.25 4H27.5L27.6299 4.51959C27.6564 4.62543 27.4539 4.75539 27.3592 4.70114C26.8451 4.40649 25.7315 4 23.5 4C18 4 15.5 10.875 15.5 16C15.5 22.375 18 28 23.5 28C28 28 29.5 27 29.5 21V16.3604C29.5 16.1452 29.6377 15.9541 29.8419 15.886L31 15.5V15H25V15.5L26.1581 15.886C26.3623 15.9541 26.5 16.1452 26.5 16.3604V23C26.5 26 26 27 24 27C18.5 27 18.6872 18.2464 18.5 16C18.5 13 18.5 5 24 5C27 5 28 6.5 28.25 8H29L28.25 4Z" />
+      </svg>
+    </a>
+
+    <p class="code t-h3-bold" style={`grid-area: ${rows} / ${cols}`}>404</p>
+  </div>
+
+  <div class="circle">
+    {
+      projects.map((p, i) => (
+        <img
+          class={i === 0 ? 'logo on' : 'logo'}
+          data-id={p.id}
+          src={p.logo.src}
+          width={p.logo.width}
+          height={p.logo.height}
+          alt=""
+          style={`--logo-aspect: ${(p.logo.width / p.logo.height).toFixed(4)}`}
+        />
       ))
     }
   </div>
 
-  <div class="message">
-    <h1 class="t-h1">Nothing on this channel.</h1>
-    <p class="t-h3 aside">This page is a problem I missed.</p>
-    <Button href="/" label="Back to all work">Back to all work</Button>
-  </div>
-
   <div class="saver" hidden>
     <div class="thumb">
-      {projects.map((p) => <Image class="work" data-id={p.id} src={p.image} alt="" widths={[400, 800]} sizes="(max-width: 700px) 40vw, 24vw" quality={90} loading="lazy" />)}
+      {projects.map((p) => <Image class="work" data-id={p.id} src={p.work} alt="" widths={[400, 800]} sizes="(max-width: 700px) 40vw, 24vw" quality={90} loading="lazy" />)}
     </div>
     <p class="wake t-label">Tap anywhere to come back</p>
   </div>
@@ -111,133 +112,65 @@ const gratings = [30, 24, 18, 12, 8, 6];
 
 <style>
   .test-card {
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xl);
-    padding: var(--space-xl) var(--page-gutter);
-    background-color: var(--bg-dark);
-    color: var(--text-on-dark);
-    overflow: clip;
-  }
-
-  /* Screen */
-  .screen {
     position: relative;
-    container-type: inline-size;
-    width: min(100%, calc((100svh - 18rem) * 4 / 3), 1200px);
-    aspect-ratio: 4 / 3;
-    border-radius: var(--radius-l);
+    height: 100svh;
     overflow: clip;
+    background-color: var(--neutral-000);
+    --cell: calc(100vw / var(--cols));
   }
 
-  .pattern {
+  /* Grid */
+  .cells,
+  .layer {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+    gap: 2px;
   }
 
-  .field {
-    fill: var(--test-card-grey);
+  .cells :global(span) {
+    border-radius: 2px;
+    background-color: var(--neutral-300);
   }
 
-  .grid {
-    stroke: var(--neutral-000);
-    stroke-width: 3;
-  }
-
-  .ink {
-    fill: var(--neutral-1000);
-  }
-
-  .paper {
-    fill: var(--neutral-000);
-  }
-
-  .rim {
-    fill: none;
-    stroke: var(--neutral-000);
-    stroke-width: 6;
-  }
-
-  .ident {
-    fill: var(--neutral-000);
-    font-family: var(--font-sans);
-    font-variation-settings: var(--sans-axes);
-    font-weight: var(--weight-bold);
-    font-size: 44px;
-    text-anchor: middle;
-  }
-
-  /* Colour Bars */
-  .stripe.white,
-  .tune.white {
-    fill: var(--test-card-white);
-    background-color: var(--test-card-white);
-  }
-
-  .stripe.yellow,
-  .tune.yellow {
-    fill: var(--test-card-yellow);
-    background-color: var(--test-card-yellow);
-  }
-
-  .stripe.cyan,
-  .tune.cyan {
-    fill: var(--test-card-cyan);
-    background-color: var(--test-card-cyan);
-  }
-
-  .stripe.green,
-  .tune.green {
-    fill: var(--test-card-green);
-    background-color: var(--test-card-green);
-  }
-
-  .stripe.magenta,
-  .tune.magenta {
-    fill: var(--test-card-magenta);
-    background-color: var(--test-card-magenta);
-  }
-
-  .stripe.red,
-  .tune.red {
-    fill: var(--test-card-red);
-    background-color: var(--test-card-red);
-  }
-
-  .stripe.blue,
-  .tune.blue {
-    fill: var(--test-card-blue);
-    background-color: var(--test-card-blue);
-  }
-
-  .stripe.black,
-  .tune.black {
-    fill: var(--neutral-1000);
+  .cells :global(span.ink) {
     background-color: var(--neutral-1000);
   }
 
-  .tune {
-    position: absolute;
-    display: block;
-    overflow: clip;
+  .cells :global(span.paper) {
+    background-color: var(--neutral-000);
   }
 
+  /* Colour Bars */
+  .tune {
+    position: relative;
+    display: block;
+    overflow: clip;
+    border-radius: 2px;
+    background-color: var(--neutral-1000);
+  }
+
+  .tune .art,
   .peek {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  .tune .art {
+    scale: 3;
+  }
+
+  .peek {
     visibility: hidden;
   }
 
   .tune:focus-visible {
-    outline: 2px solid var(--neutral-000);
+    outline: 2px solid var(--neutral-1000);
     outline-offset: 3px;
     z-index: 1;
   }
@@ -252,83 +185,65 @@ const gratings = [30, 24, 18, 12, 8, 6];
     }
   }
 
-  /* Circle */
-  .circle {
-    position: absolute;
-    left: 25%;
-    top: calc(150 / 900 * 100%);
-    width: 50%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    overflow: clip;
-    background-color: var(--neutral-1000);
-  }
-
-  .circle .work {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    visibility: hidden;
-  }
-
-  .circle .work.on {
-    visibility: visible;
-  }
-
-  .board {
-    position: absolute;
-    left: 54%;
-    top: 56%;
-    width: 30%;
-    padding-block: 2cqi;
-    border: 0.6cqi solid var(--neutral-000);
-    border-radius: 1cqi;
-    background-color: var(--test-card-board);
-    color: var(--neutral-000);
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 6cqi;
-    line-height: 1;
-    text-align: center;
-  }
-
-  /* Channel */
-  .channel {
-    position: absolute;
-    left: 35%;
-    top: calc(774 / 900 * 100%);
-    width: 30%;
-    height: calc(72 / 900 * 100%);
+  /* Labels */
+  .standby,
+  .code,
+  .home {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
+    border-radius: 2px;
     background-color: var(--neutral-1000);
     color: var(--neutral-000);
-    font-size: max(10px, 1.8cqi);
-    letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
+    overflow: clip;
   }
 
-  /* Message */
-  .message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-m);
-    text-align: center;
+  .code {
+    font-size: min(var(--h3-size), calc(var(--cell) * 0.42));
   }
 
-  .message h1 {
-    margin: 0;
+  .home svg {
+    width: 44%;
+    fill: currentColor;
   }
 
-  .aside {
-    margin: 0;
-    color: var(--text-on-dark-muted);
+  .home:focus-visible {
+    outline: 2px solid var(--neutral-1000);
+    outline-offset: 3px;
+  }
+
+  /* Circle */
+  .circle {
+    position: absolute;
+    left: 50%;
+    top: var(--circle-y, 50%);
+    width: var(--circle, calc(var(--cell) * 4.44));
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border: 2px solid var(--neutral-000);
+    border-radius: 50%;
+    background-color: var(--neutral-100);
+    pointer-events: none;
+  }
+
+  .logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(calc(32.7% * sqrt(var(--logo-aspect))), 82%);
+    max-height: 50%;
+    height: auto;
+    object-fit: contain;
+    translate: -50% -50%;
+    filter: brightness(0);
+    visibility: hidden;
+  }
+
+  .logo.on {
+    visibility: visible;
   }
 
   /* Screensaver */
@@ -380,7 +295,7 @@ const gratings = [30, 24, 18, 12, 8, 6];
 
   /* Motion */
   @media (prefers-reduced-motion: no-preference) {
-    .screen {
+    .test-card {
       animation: screen-on 1000ms 200ms both;
     }
 
@@ -395,13 +310,6 @@ const gratings = [30, 24, 18, 12, 8, 6];
       filter: brightness(2.2) saturate(1.4);
     }
   }
-
-  /* Phones */
-  @media (max-width: 700px) {
-    .screen {
-      width: 100%;
-    }
-  }
 </style>
 
 <script>
@@ -409,33 +317,86 @@ const gratings = [30, 24, 18, 12, 8, 6];
   const SPEED = 0.09;
 
   for (const card of document.querySelectorAll<HTMLElement>('.test-card')) {
-    const circle = [...card.querySelectorAll<HTMLImageElement>('.circle .work')];
-    const channel = card.querySelector<HTMLElement>('.channel')!;
+    const cells = card.querySelector<HTMLElement>('.cells')!;
+    const bars = [...card.querySelectorAll<HTMLElement>('.tune')];
+    const standby = card.querySelector<HTMLElement>('.standby')!;
+    const home = card.querySelector<HTMLElement>('.home')!;
+    const code = card.querySelector<HTMLElement>('.code')!;
+    const logos = [...card.querySelectorAll<HTMLImageElement>('.circle .logo')];
     const saver = card.querySelector<HTMLElement>('.saver')!;
     const thumb = card.querySelector<HTMLElement>('.thumb')!;
     const thumbs = [...thumb.querySelectorAll<HTMLImageElement>('.work')];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const waiting = standby.textContent!.trim();
+
+    /* Layout */
+    const layout = () => {
+      const w = card.clientWidth;
+      const h = card.clientHeight;
+      const cols = w >= 900 ? 20 : w >= 600 ? 14 : 10;
+      const cell = w / cols;
+      const rows = Math.max(9, Math.round(h / cell));
+      const cellH = h / rows;
+      card.style.setProperty('--cols', String(cols));
+      card.style.setProperty('--rows', String(rows));
+
+      const ink = (r: number, c: number) => {
+        if (r === 0) return c === 0 || c % 2 === 1;
+        if (r === rows - 1) return c % 2 === 0 || c === cols - 1;
+        if (c === 0) return r % 2 === 1;
+        if (c === cols - 1) return r % 2 === 0;
+        return false;
+      };
+      const html: string[] = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const edge = r === 0 || c === 0 || r === rows - 1 || c === cols - 1;
+          html.push(edge ? `<span class="${ink(r, c) ? 'ink' : 'paper'}"></span>` : '<span></span>');
+        }
+      }
+      cells.innerHTML = html.join('');
+
+      const perRow = Math.min(bars.length, Math.floor((cols - 4) / 2));
+      const barRows = Math.ceil(bars.length / perRow);
+      bars.forEach((bar, i) => {
+        const row = Math.floor(i / perRow);
+        const inRow = Math.min(perRow, bars.length - row * perRow);
+        const start = Math.floor((cols - inRow * 2) / 2);
+        bar.style.gridArea = `${3 + row} / ${start + (i % perRow) * 2 + 1} / span 1 / span 2`;
+      });
+
+      const span = Math.min(8, cols - 2);
+      const standbyRow = rows - 3;
+      standby.style.gridArea = `${standbyRow + 1} / ${Math.floor((cols - span) / 2) + 1} / span 1 / span ${span}`;
+      home.style.gridArea = `${rows} / 1`;
+      code.style.gridArea = `${rows} / ${cols}`;
+
+      const top = (2 + barRows) * cellH;
+      const bottom = standbyRow * cellH;
+      const room = bottom - top - cellH * 0.5;
+      const size = Math.min(cell * (cols >= 20 ? 4.44 : cols * 0.6), room);
+      card.style.setProperty('--circle', `${size}px`);
+      card.style.setProperty('--circle-y', `${(top + bottom) / 2}px`);
+    };
+
+    layout();
+    new ResizeObserver(layout).observe(card);
 
     /* Tuning */
-    const resting = circle[Math.floor(Math.random() * circle.length)]?.dataset.id;
-    const show = (id?: string) => circle.forEach((img) => img.classList.toggle('on', img.dataset.id === id));
+    const resting = logos[Math.floor(Math.random() * logos.length)]?.dataset.id;
+    const show = (id?: string) => logos.forEach((img) => img.classList.toggle('on', img.dataset.id === id));
     show(resting);
 
     let intent = 0;
     const tune = (bar: HTMLElement | null) => {
       clearTimeout(intent);
       intent = window.setTimeout(() => {
-        if (!bar) {
-          show(resting);
-          channel.textContent = 'No signal';
-          return;
-        }
-        show(bar.dataset.id ?? resting);
-        channel.textContent = `CH ${bar.dataset.channel} · ${bar.dataset.title}`;
+        show(bar?.dataset.id ?? resting);
+        standby.textContent = bar ? `Now showing: ${bar.dataset.title}` : waiting;
       }, 100);
     };
 
-    for (const bar of card.querySelectorAll<HTMLElement>('.tune')) {
+    for (const bar of bars) {
       bar.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && tune(bar));
       bar.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && tune(null));
       bar.addEventListener('focus', () => tune(bar));
@@ -462,10 +423,8 @@ const gratings = [30, 24, 18, 12, 8, 6];
     const step = (now: number) => {
       const dt = Math.min(now - last, 100) / 1000;
       last = now;
-      const w = thumb.offsetWidth;
-      const h = thumb.offsetHeight;
-      const maxX = innerWidth - w;
-      const maxY = innerHeight - h;
+      const maxX = innerWidth - thumb.offsetWidth;
+      const maxY = innerHeight - thumb.offsetHeight;
       const speed = SPEED * Math.max(innerWidth, innerHeight);
       x += vx * speed * dt;
       y += vy * speed * dt;
@@ -482,8 +441,7 @@ const gratings = [30, 24, 18, 12, 8, 6];
         hitY = true;
       }
       const near = 6;
-      const cornered =
-        (hitX && (y <= near || y >= maxY - near)) || (hitY && (x <= near || x >= maxX - near));
+      const cornered = (hitX && (y <= near || y >= maxY - near)) || (hitY && (x <= near || x >= maxX - near));
       if (hitX || hitY) pick(index + 1);
       if (cornered) {
         thumb.classList.remove('corner');
@@ -498,10 +456,8 @@ const gratings = [30, 24, 18, 12, 8, 6];
       if (running || reduced.matches) return;
       running = true;
       saver.hidden = false;
-      const w = thumb.offsetWidth;
-      const h = thumb.offsetHeight;
-      x = Math.random() * Math.max(innerWidth - w, 0);
-      y = Math.random() * Math.max(innerHeight - h, 0);
+      x = Math.random() * Math.max(innerWidth - thumb.offsetWidth, 0);
+      y = Math.random() * Math.max(innerHeight - thumb.offsetHeight, 0);
       vx = Math.random() < 0.5 ? -1 : 1;
       vy = Math.random() < 0.5 ? -1 : 1;
       pick(Math.floor(Math.random() * thumbs.length));
