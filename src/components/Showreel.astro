@@ -125,7 +125,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
 </style>
 
 <script>
-  import { reducedMotion, wait, token } from '../scripts/arrival';
+  import { reducedMotion, wait, token, ms } from '../scripts/arrival';
 
   const root = document.documentElement;
   const POWER_ON = 560;
@@ -267,7 +267,7 @@ const hevc = 'video/mp4; codecs="hvc1"';
     const shift = to.top - top;
     page?.style.setProperty('--intro-shift', `${shift}px`);
     const sliding = page?.animate([{ translate: `0 ${-shift}px` }, { translate: '0 0' }], {
-      duration: parseFloat(token('--duration-page', '1100')),
+      duration: ms('--duration-page', 1100),
       easing: token('--ease-in-out', 'ease-in-out'),
     });
     root.dataset.intro = 'settling';

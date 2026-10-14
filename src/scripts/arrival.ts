@@ -5,6 +5,13 @@ export const wait = (ms: number) => new Promise<void>((resolve) => window.setTim
 export const token = (name: string, fallback = '') =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 
+export const ms = (name: string, fallback: number) => {
+  const value = token(name);
+  const n = parseFloat(value);
+  if (Number.isNaN(n)) return fallback;
+  return value.endsWith('ms') ? n : value.endsWith('s') ? n * 1000 : n;
+};
+
 export function whenSeen(el: HTMLElement, share = 0.25): Promise<boolean> {
   if (reducedMotion.matches) return Promise.resolve(false);
 
