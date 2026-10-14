@@ -161,6 +161,12 @@ const by = +(72 + BY * K).toFixed(1);
     color: var(--neutral-600);
   }
 
+  @media (max-width: 700px) {
+    .caption {
+      padding-left: 0;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ring {
       opacity: 1;

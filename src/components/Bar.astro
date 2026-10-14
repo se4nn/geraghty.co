@@ -50,6 +50,10 @@ const { lead, middle, trail } = Astro.props;
   /* Phones */
 
   @media (max-width: 700px) {
+    .bar {
+      flex-direction: column;
+    }
+
     .bar.three {
       grid-template-columns: 1fr;
       gap: var(--space-2xs);

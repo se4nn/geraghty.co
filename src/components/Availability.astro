@@ -240,12 +240,11 @@ const { label, email } = Astro.props;
 
   @media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
     .availability-rail {
-      transition: transform var(--duration-l) var(--ease-out);
+      transition: transform var(--duration-l) var(--ease-in-out);
     }
 
     .availability-rail[data-away]:not(:has(:focus-visible)) {
       transform: translateY(var(--below));
-      transition-duration: var(--duration-s);
     }
 
     .availability-rail:has(:focus-visible) {
