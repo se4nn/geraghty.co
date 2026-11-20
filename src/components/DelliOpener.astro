@@ -1,0 +1,391 @@
+---
+import { Image } from 'astro:assets';
+import Pause from './Pause.astro';
+import change from '../assets/work/delli/flow/1-pricing-change.png';
+import edit from '../assets/work/delli/flow/2-edit.png';
+import typed from '../assets/work/delli/flow/3-new-price.png';
+import modal from '../assets/work/delli/flow/4-update-future.png';
+import updated from '../assets/work/delli/flow/5-price-updated.png';
+import accepted from '../assets/work/delli/flow/6-accepted.png';
+
+interface Props {
+  alt: string;
+}
+const { alt } = Astro.props;
+
+const sizes = 'calc(0.7415 * min(100vw - 32px, 1416px))';
+const widths = [1050, 1575, 2100, 2880];
+const pages = [
+  { name: 'change', src: change },
+  { name: 'edit', src: edit },
+  { name: 'typed', src: typed },
+  { name: 'modal', src: modal },
+  { name: 'updated', src: updated },
+  { name: 'accepted', src: accepted },
+];
+---
+
+<div class="delli-opener">
+  <div class="window" role="img" aria-label={alt}>
+    <div class="screen">
+      {pages.map(({ name, src }, i) => (
+        <Image
+          class:list={['page', { still: name === 'modal' }]}
+          data-page={name}
+          data-shown={i === 0 ? '' : undefined}
+          src={src}
+          alt=""
+          widths={widths}
+          sizes={sizes}
+          quality={90}
+          loading="eager"
+          fetchpriority={i === 0 ? 'high' : 'low'}
+          style={i === 0 ? 'z-index: 1' : undefined}
+        />
+      ))}
+      <span class="selection" aria-hidden="true" />
+    </div>
+
+    <div class="cursor" aria-hidden="true">
+      <span class="ring" />
+      <svg class="arrow" viewBox="0 0 24 24">
+        <path d="M5 2.5v17.2l4.6-4.4 2.9 6.5 2.7-1.2-2.9-6.4h6.3z" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" />
+      </svg>
+      <svg class="hand" viewBox="0 0 24 24">
+        <path d="M9 2.5c-.8 0-1.5.7-1.5 1.5v8.3l-1.3-1.3a1.55 1.55 0 0 0-2.2 0 1.5 1.5 0 0 0 0 2.1l4.6 5.2c.9 1 2.1 1.6 3.4 1.6h3c2.2 0 4-1.8 4-4v-4.6a1.5 1.5 0 0 0-3 0v-1a1.5 1.5 0 0 0-3 0v-.6a1.5 1.5 0 0 0-3-.2V4c0-.8-.7-1.5-1.5-1.5z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round" />
+      </svg>
+      <svg class="beam" viewBox="0 0 24 24">
+        <path d="M9 3.5h2.2c.4 0 .8.4.8.8v15.4c0 .4-.4.8-.8.8H9m6-17h-2.2c-.4 0-.8.4-.8.8v15.4c0 .4.4.8.8.8H15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+        <path d="M9 3.5h2.2c.4 0 .8.4.8.8v15.4c0 .4-.4.8-.8.8H9m6-17h-2.2c-.4 0-.8.4-.8.8v15.4c0 .4.4.8.8.8H15" fill="none" stroke="#111" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+    </div>
+  </div>
+  <Pause />
+</div>
+
+<style>
+  .delli-opener {
+    position: relative;
+    container-type: inline-size;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--neutral-050);
+  }
+
+  .window {
+    --u: calc(100cqw / 1416);
+    position: relative;
+    aspect-ratio: 1416 / 812;
+  }
+
+  /* Screen */
+
+  .screen {
+    --k: 0.7291;
+    position: absolute;
+    left: calc(183 * var(--u));
+    top: calc(48 * var(--u));
+    width: calc(1440 * var(--k) * var(--u));
+    height: calc(1317 * var(--k) * var(--u));
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: calc(12 * var(--u));
+    background-color: var(--neutral-000);
+    box-shadow:
+      0 0 0 1px oklch(0% 0 0 / 0.06),
+      0 calc(12 * var(--u)) calc(40 * var(--u)) oklch(0% 0 0 / 0.1);
+  }
+
+  .page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    visibility: hidden;
+  }
+
+  .page[data-shown] {
+    visibility: visible;
+  }
+
+  .selection {
+    position: absolute;
+    z-index: 50;
+    left: calc(468 * var(--k) * var(--u));
+    top: calc(624 * var(--k) * var(--u));
+    width: calc(64 * var(--k) * var(--u));
+    height: calc(20 * var(--k) * var(--u));
+    border-radius: calc(2 * var(--u));
+    background-color: oklch(from var(--delli-blue) l c h / 0.28);
+    opacity: 0;
+  }
+
+  .delli-opener[data-selecting] .selection {
+    opacity: 1;
+  }
+
+  /* Cursor */
+
+  .cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    display: none;
+    transform: translate(calc(var(--cx, 1150) * var(--u)), calc(var(--cy, 640) * var(--u)));
+    filter: drop-shadow(0 calc(2 * var(--u)) calc(3 * var(--u)) oklch(0% 0 0 / 0.25));
+  }
+
+  .cursor svg {
+    position: absolute;
+    width: calc(26 * var(--u));
+    max-width: none;
+    height: calc(26 * var(--u));
+    transform-origin: top left;
+  }
+
+  .arrow {
+    left: calc(-5.4 * var(--u));
+    top: calc(-2.7 * var(--u));
+  }
+
+  .hand {
+    left: calc(-9.75 * var(--u));
+    top: calc(-2.7 * var(--u));
+    visibility: hidden;
+  }
+
+  .beam {
+    left: calc(-13 * var(--u));
+    top: calc(-13 * var(--u));
+    visibility: hidden;
+  }
+
+  .delli-opener[data-hand] .arrow,
+  .delli-opener[data-beam] .arrow {
+    visibility: hidden;
+  }
+
+  .delli-opener[data-hand] .hand,
+  .delli-opener[data-beam] .beam {
+    visibility: visible;
+  }
+
+  .ring {
+    position: absolute;
+    left: calc(-19 * var(--u));
+    top: calc(-19 * var(--u));
+    width: calc(38 * var(--u));
+    height: calc(38 * var(--u));
+    border-radius: 50%;
+    background-color: oklch(from var(--delli-blue) l c h / 0.3);
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page {
+      visibility: hidden;
+    }
+
+    .page.still {
+      visibility: visible;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .delli-opener[data-live] .cursor {
+      display: block;
+      transition: transform var(--move, 900ms) cubic-bezier(0.45, 0, 0.2, 1);
+    }
+
+    .cursor svg {
+      transition: scale 120ms var(--ease-out);
+    }
+
+    .delli-opener[data-pressing] .cursor svg {
+      scale: 0.86;
+    }
+
+    .delli-opener[data-pressing] .ring {
+      animation: delli-opener-click 520ms var(--ease-out);
+    }
+
+    .page[data-arriving='lift'] {
+      animation: delli-opener-lift 720ms var(--ease-spring) both;
+    }
+
+    .page[data-arriving='appear'] {
+      animation: delli-opener-appear 200ms var(--ease-out) both;
+    }
+  }
+
+  @keyframes delli-opener-lift {
+    from {
+      transform: translateY(calc(48 * var(--u)));
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes delli-opener-appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes delli-opener-click {
+    0% {
+      opacity: 1;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.4);
+    }
+  }
+</style>
+
+<script>
+  import { reducedMotion } from '../scripts/arrival';
+
+  type Point = readonly [number, number];
+  const K = 0.7291;
+  const at = (x: number, y: number): Point => [183 + x * K, 48 + y * K];
+  const REST: Point = [1150, 640];
+
+  for (const opener of document.querySelectorAll<HTMLElement>('.delli-opener')) {
+    if (reducedMotion.matches) continue;
+    const page = (name: string) => opener.querySelector<HTMLElement>(`[data-page="${name}"]`)!;
+    const cursor = opener.querySelector<HTMLElement>('.cursor')!;
+    let run = 0;
+    let z = 1;
+
+    const wait = (ms: number, id: number) =>
+      new Promise<void>((resolve, reject) => setTimeout(() => (id === run ? resolve() : reject()), ms));
+
+    const move = async ([x, y]: Point, ms: number, id: number) => {
+      cursor.style.setProperty('--move', `${ms}ms`);
+      cursor.style.setProperty('--cx', String(x));
+      cursor.style.setProperty('--cy', String(y));
+      await wait(ms, id);
+    };
+
+    const pointer = (kind: 'arrow' | 'hand' | 'beam') => {
+      opener.toggleAttribute('data-hand', kind === 'hand');
+      opener.toggleAttribute('data-beam', kind === 'beam');
+    };
+
+    const press = async (id: number) => {
+      opener.toggleAttribute('data-pressing', true);
+      await wait(220, id);
+      opener.removeAttribute('data-pressing');
+    };
+
+    const click = async (target: Point, ms: number, id: number) => {
+      await move(target, ms, id);
+      pointer('hand');
+      await wait(320, id);
+      await press(id);
+    };
+
+    const show = (name: string, how: 'cut' | 'lift' | 'appear' = 'cut') => {
+      const el = page(name);
+      el.style.zIndex = String(++z);
+      el.toggleAttribute('data-shown', true);
+      el.removeAttribute('data-arriving');
+      if (how !== 'cut') {
+        void el.offsetWidth;
+        el.setAttribute('data-arriving', how);
+      }
+      const hideOthers = () =>
+        opener.querySelectorAll<HTMLElement>('.page').forEach((p) => {
+          if (p !== el) p.removeAttribute('data-shown');
+        });
+      if (how === 'cut') hideOthers();
+      else setTimeout(hideOthers, 760);
+    };
+
+    const loop = async (id: number) => {
+      while (id === run) {
+        await wait(1200, id);
+        await click(at(779, 332), 1100, id);
+        pointer('arrow');
+        show('edit');
+
+        await wait(500, id);
+        await move(at(510, 634), 800, id);
+        pointer('beam');
+        await wait(300, id);
+        await press(id);
+        await wait(90, id);
+        await press(id);
+        opener.toggleAttribute('data-selecting', true);
+        await wait(650, id);
+        opener.removeAttribute('data-selecting');
+        show('typed');
+        await wait(1100, id);
+
+        await click(at(810, 772), 1000, id);
+        pointer('arrow');
+        show('modal', 'appear');
+        await wait(1500, id);
+
+        await click(at(955, 682), 1000, id);
+        pointer('arrow');
+        show('updated');
+        await wait(1300, id);
+
+        await click(at(801, 1012), 1000, id);
+        pointer('arrow');
+        show('accepted');
+        await move(REST, 1100, id);
+        await wait(2800, id);
+        show('change', 'lift');
+      }
+    };
+
+    const ready = Promise.all([...opener.querySelectorAll('img')].map((img) => img.decode().catch(() => {})));
+
+    const start = () => {
+      const id = ++run;
+      opener.toggleAttribute('data-live', true);
+      ready.then(() => loop(id)).catch(() => {});
+    };
+
+    const stop = () => {
+      run++;
+      pointer('arrow');
+      opener.removeAttribute('data-pressing');
+      opener.removeAttribute('data-selecting');
+      z = 1;
+      opener.querySelectorAll<HTMLElement>('.page').forEach((p) => {
+        const first = p.dataset.page === 'change';
+        p.toggleAttribute('data-shown', first);
+        p.removeAttribute('data-arriving');
+        p.style.zIndex = first ? '1' : '';
+      });
+      cursor.style.setProperty('--move', '0ms');
+      cursor.style.setProperty('--cx', String(REST[0]));
+      cursor.style.setProperty('--cy', String(REST[1]));
+    };
+
+    let seen = false;
+    let paused = false;
+    const update = () => (seen && !paused ? start() : stop());
+    opener.addEventListener('pausechange', (event) => {
+      paused = (event as CustomEvent<boolean>).detail;
+      update();
+    });
+    new IntersectionObserver(
+      ([entry]) => {
+        seen = entry.isIntersecting;
+        update();
+      },
+      { threshold: 0.3 },
+    ).observe(opener);
+  }
+</script>

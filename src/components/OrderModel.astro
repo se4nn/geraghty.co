@@ -1,0 +1,400 @@
+---
+import Pause from './Pause.astro';
+
+interface Props {
+  alt: string;
+}
+const { alt } = Astro.props;
+
+const inputs = [
+  { name: 'Email', detail: 'From, to, time, attachments, body', next: false },
+  { name: 'Typed in', detail: 'By the maker, from a call or a note', next: true },
+  { name: 'Shopify', detail: 'And other online stores', next: true },
+  { name: 'Socials', detail: 'A message or a comment', next: true },
+  { name: 'In store', detail: 'At the counter', next: true },
+];
+
+const order = [
+  ['Input', 'Email from Mary'],
+  ['Customer', 'Ocado'],
+  ['Products', '2 lines, 4 cases'],
+  ['Rules', '2 applied'],
+  ['History', 'Every change, kept'],
+];
+
+const customer = [
+  ['Company', 'Ocado'],
+  ['Person', 'Mary Earps'],
+  ['Branch', 'Welwyn warehouse'],
+  ['Addresses', 'Delivery, billing'],
+];
+
+const product = [
+  ['Variant', 'Dry Apple, Quince & Passion Flower'],
+  ['SKU', 'WTH-DA-330'],
+  ['Price', 'By band, customer or quantity'],
+  ['Size', '330ml, pack, case of 24'],
+];
+---
+
+<div class="order-model">
+  <div class="frame" role="img" aria-label={alt}>
+    <svg class="links" viewBox="0 0 1416 812" aria-hidden="true">
+      <defs>
+        <marker id="order-model-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+          <path d="M0 0 10 5 0 10z" fill="currentColor" />
+        </marker>
+      </defs>
+      <g class="base">
+        <path d="M424 433H514" marker-end="url(#order-model-head)" />
+        <path d="M992 218H944V433H902" marker-end="url(#order-model-head)" />
+        <path d="M992 450H944V433H902" marker-end="url(#order-model-head)" />
+        <path d="M992 665H944V433H902" marker-end="url(#order-model-head)" />
+      </g>
+      <g class="lit">
+        <path data-link="input" d="M424 433H514" />
+        <path data-link="customer" d="M992 218H944V433H902" />
+        <path data-link="product" d="M992 450H944V433H902" />
+        <path data-link="rule" d="M992 665H944V433H902" />
+      </g>
+    </svg>
+
+    <section class="card input" data-part="input">
+      <span class="glow" aria-hidden="true" />
+      <h3 class="title">Input</h3>
+      <p class="note">How an order arrives</p>
+      <ul class="rows">
+        {inputs.map(({ name, detail, next }) => (
+          <li class:list={['row', { next }]}>
+            <span class="name">{name}{next && <span class="soon">Next</span>}</span>
+            <span class="value">{detail}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="card order" data-part="order">
+      <span class="glow" aria-hidden="true" />
+      <h3 class="title">Order</h3>
+      <p class="note">PO-OCA-4182</p>
+      <ul class="rows">
+        {order.map(([name, value]) => (
+          <li class="row"><span class="name">{name}</span><span class="value">{value}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="card customer" data-part="customer">
+      <span class="glow" aria-hidden="true" />
+      <h3 class="title">Customer</h3>
+      <ul class="rows">
+        {customer.map(([name, value]) => (
+          <li class="row"><span class="name">{name}</span><span class="value">{value}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="card product" data-part="product">
+      <span class="glow" aria-hidden="true" />
+      <h3 class="title">Product</h3>
+      <ul class="rows">
+        {product.map(([name, value]) => (
+          <li class="row"><span class="name">{name}</span><span class="value">{value}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="card rule" data-part="rule">
+      <span class="glow" aria-hidden="true" />
+      <h3 class="title">Rules <span class="soon new">New</span></h3>
+      <p class="said">Every time an email says “Orange”, it means Bitter Orange, Mango & Citra Hops.</p>
+      <p class="said">Every time Ocado orders Dry Apple, it’s £110 a case.</p>
+    </section>
+  </div>
+  <Pause />
+</div>
+
+<style>
+  .order-model {
+    position: relative;
+    container-type: inline-size;
+    border-radius: var(--radius-s);
+    overflow: hidden;
+    background-color: var(--neutral-050);
+  }
+
+  .frame {
+    --u: calc(100cqw / 1416);
+    position: relative;
+    aspect-ratio: 1416 / 812;
+    color: var(--text-strong);
+    font-family: var(--font-sans);
+    font-variation-settings: var(--sans-axes);
+  }
+
+  /* Links */
+
+  .links {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .links path {
+    fill: none;
+    stroke-width: 1.6;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .base {
+    color: var(--neutral-300);
+    stroke: currentColor;
+    stroke-dasharray: 6 5;
+  }
+
+  .lit path {
+    stroke: var(--delli-blue);
+    stroke-width: 2.4;
+    opacity: 0;
+  }
+
+  .lit path[data-on] {
+    opacity: 1;
+  }
+
+  /* Cards */
+
+  .card {
+    position: absolute;
+    display: grid;
+    align-content: start;
+    gap: calc(12 * var(--u));
+    margin: 0;
+    padding: calc(24 * var(--u)) calc(28 * var(--u));
+    border: 0.5px solid var(--neutral-300);
+    border-radius: calc(10 * var(--u));
+    background-color: var(--neutral-000);
+    box-shadow:
+      0 calc(9.8 * var(--u)) calc(9.8 * var(--u)) calc(-6.5 * var(--u)) oklch(from var(--neutral-900) l c h / 0.12),
+      0 calc(1.6 * var(--u)) calc(1.6 * var(--u)) calc(-1.6 * var(--u)) oklch(from var(--neutral-900) l c h / 0.16);
+  }
+
+  .card.input { left: calc(64 * var(--u)); top: calc(206 * var(--u)); width: calc(360 * var(--u)); }
+  .card.order { left: calc(520 * var(--u)); top: calc(296 * var(--u)); width: calc(376 * var(--u)); }
+  .card.customer { left: calc(992 * var(--u)); top: calc(112 * var(--u)); width: calc(360 * var(--u)); }
+  .card.product { left: calc(992 * var(--u)); top: calc(344 * var(--u)); width: calc(360 * var(--u)); }
+  .card.rule { left: calc(992 * var(--u)); top: calc(576 * var(--u)); width: calc(360 * var(--u)); }
+
+  .glow {
+    position: absolute;
+    inset: -1px;
+    border: 2px solid var(--delli-blue);
+    border-radius: inherit;
+    box-shadow: 0 0 0 calc(5 * var(--u)) oklch(from var(--delli-blue) l c h / 0.12);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .card[data-lit] .glow {
+    opacity: 1;
+  }
+
+  /* Card Contents */
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: calc(10 * var(--u));
+    margin: 0;
+    font-size: calc(26 * var(--u));
+    line-height: calc(32 / 26);
+    font-weight: var(--weight-bold);
+  }
+
+  .note {
+    margin: calc(-6 * var(--u)) 0 calc(4 * var(--u));
+    color: var(--neutral-600);
+    font-family: var(--font-mono);
+    font-size: calc(15 * var(--u));
+    line-height: calc(20 / 15);
+  }
+
+  .rows {
+    display: grid;
+    gap: calc(10 * var(--u));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: calc(104 * var(--u)) 1fr;
+    gap: calc(12 * var(--u));
+    font-size: calc(16 * var(--u));
+    line-height: calc(22 / 16);
+  }
+
+  .input .row {
+    grid-template-columns: 1fr;
+    gap: calc(2 * var(--u));
+    padding-top: calc(10 * var(--u));
+    border-top: 0.5px solid var(--neutral-100);
+  }
+
+  .name {
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    color: var(--neutral-600);
+    font-family: var(--font-mono);
+    font-size: calc(14 * var(--u));
+  }
+
+  .input .name {
+    color: var(--text-strong);
+    font-family: var(--font-sans);
+    font-size: calc(17 * var(--u));
+    font-weight: var(--weight-bold);
+  }
+
+  .row.next .name,
+  .row.next .value {
+    color: var(--neutral-600);
+  }
+
+  .soon {
+    padding: calc(2 * var(--u)) calc(8 * var(--u));
+    border-radius: calc(20 * var(--u));
+    color: var(--neutral-600);
+    background-color: var(--neutral-100);
+    font-family: var(--font-mono);
+    font-size: calc(12 * var(--u));
+    line-height: calc(16 / 12);
+    font-weight: normal;
+  }
+
+  .soon.new {
+    color: var(--delli-blue);
+    background-color: oklch(from var(--delli-blue) l c h / 0.1);
+  }
+
+  .said {
+    margin: 0;
+    padding-left: calc(14 * var(--u));
+    border-left: 2px solid var(--neutral-100);
+    font-size: calc(17 * var(--u));
+    line-height: calc(24 / 17);
+  }
+
+  /* Phones */
+
+  @container (max-width: 640px) {
+    .frame {
+      --u: calc(100cqw / 480);
+      display: grid;
+      gap: calc(24 * var(--u));
+      aspect-ratio: auto;
+      padding: calc(32 * var(--u));
+    }
+
+    .links {
+      display: none;
+    }
+
+    .card.input,
+    .card.order,
+    .card.customer,
+    .card.product,
+    .card.rule {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: auto;
+      height: auto;
+    }
+
+    .card.input { order: 1; }
+    .card.rule { order: 2; }
+    .card.product { order: 3; }
+    .card.customer { order: 4; }
+    .card.order { order: 5; }
+
+    .title { font-size: calc(30 * var(--u)); }
+    .row, .said, .input .name { font-size: calc(20 * var(--u)); }
+    .name, .note { font-size: calc(17 * var(--u)); }
+    .row { grid-template-columns: calc(130 * var(--u)) 1fr; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .glow,
+    .lit path {
+      transition: opacity 500ms var(--ease-out);
+    }
+  }
+</style>
+
+<script>
+  import { reducedMotion } from '../scripts/arrival';
+
+  const TOUR: { part: string; links: string[] }[] = [
+    { part: 'input', links: ['input'] },
+    { part: 'rule', links: ['rule'] },
+    { part: 'product', links: ['product'] },
+    { part: 'customer', links: ['customer'] },
+    { part: 'order', links: ['input', 'rule', 'product', 'customer'] },
+  ];
+  const STEP = 1800;
+
+  for (const model of document.querySelectorAll<HTMLElement>('.order-model')) {
+    if (reducedMotion.matches) continue;
+    const cards = model.querySelectorAll<HTMLElement>('.card');
+    const links = model.querySelectorAll<SVGPathElement>('.lit path');
+    let timer = 0;
+    let step = 0;
+
+    const light = (i: number) => {
+      const { part, links: on } = TOUR[i];
+      cards.forEach((c) => c.toggleAttribute('data-lit', c.dataset.part === part));
+      links.forEach((l) => l.toggleAttribute('data-on', on.includes(l.dataset.link!)));
+    };
+
+    const clear = () => {
+      cards.forEach((c) => c.removeAttribute('data-lit'));
+      links.forEach((l) => l.removeAttribute('data-on'));
+    };
+
+    const start = () => {
+      if (timer) return;
+      step = 0;
+      light(step);
+      timer = window.setInterval(() => {
+        step = (step + 1) % TOUR.length;
+        light(step);
+      }, STEP);
+    };
+
+    const stop = () => {
+      window.clearInterval(timer);
+      timer = 0;
+      clear();
+    };
+
+    let seen = false;
+    let paused = false;
+    const update = () => (seen && !paused ? start() : stop());
+    model.addEventListener('pausechange', (event) => {
+      paused = (event as CustomEvent<boolean>).detail;
+      update();
+    });
+    new IntersectionObserver(
+      ([entry]) => {
+        seen = entry.isIntersecting;
+        update();
+      },
+      { threshold: 0.4 },
+    ).observe(model);
+  }
+</script>

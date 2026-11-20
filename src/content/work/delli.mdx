@@ -1,7 +1,7 @@
 ---
 title: DELLI
 tags: [AI, B2B SaaS]
-dates: Jan → Mar ’26
+dates: Jan → Feb ’26
 order: 3
 tile:
   image: ../../assets/work/delli-tile.png
@@ -17,4 +17,91 @@ tile:
     fringe: warm
     dither: crt
   grain: false
+link: /work/delli/
+caseStudy:
+  summary: Helping DELLI’s Order Hub take orders however they arrive, and giving it a component library to grow on.
+  role: Lead Product Designer
+  links:
+    - label: Website
+      href: https://delli.market
 ---
+
+import selectStates from '../../assets/work/delli/select-states.png';
+
+<CaseIntro title="Every Order Handled, However It Arrives">
+  <Fragment slot="lead">I joined DELLI in January 2026 as contract cover for its Lead Product Designer, while it was turning a marketplace for independent food makers into software for the makers themselves. Its Order Hub, where makers manage their orders, had been built to read the PDF orders they get by email. My part was helping it take on every other kind of order too, and giving it a component library it could grow on.</Fragment>
+
+  <Skills items={[
+    { label: 'Product Design', logos: [] },
+    { label: 'AI Product', logos: [] },
+    { label: 'Design Systems', logos: [] },
+    { label: 'Code', logos: [] },
+  ]} />
+</CaseIntro>
+
+<Chapter label="The story">
+
+<DelliOpener alt="An Ocado order for the drinks maker With in DELLI’s Order Hub. A banner says the PO’s price for Dry Apple, Quince & Passion Flower is £110 a case, where it was £120 last time. A cursor clicks Edit, selects the unit price and types 110.00, and the subtotal and total update. It clicks Save changes, and a dialog asks whether to use the new price for future orders; it clicks Save and update. A toast confirms the price change, the cursor clicks Accept order, and the order is marked Accepted and sent to Xero" />
+
+<Section title="Orders, However They Arrive">
+<Column>
+
+Reading PDFs from email was the right place to start: it’s how a lot of wholesale orders arrive. But makers also take orders by hand, online through Shopify (or other stores), over socials and even in store, and the next step was bringing those in too.
+
+I mapped out what every order has in common (who it’s for, what’s in it, the price band, how many to a case), so an email became one way to process and track orders among several.
+
+</Column>
+<Column>
+
+Some orders are clear and some aren’t. When the Order Hub isn’t sure, it asks: the email says “10x Orange”, so is that Bitter Orange, Mango & Citra Hops? The plan was for each answer to become a rule, so the same question doesn’t come up twice. When a PO’s price doesn’t match the last order, the maker can apply the new one to that shop or to every customer.
+
+</Column>
+</Section>
+
+<OrderModel alt="What an order is made of. An Input, how the order arrived: email now, with typed in, Shopify, socials and in store next. An Order, PO-OCA-4182, holding its input, customer, products, the rules applied and its history. A Customer: the company, Ocado, a person, Mary Earps, a branch, the Welwyn warehouse, and delivery and billing addresses. A Product: the variant, Dry Apple, Quince & Passion Flower, its SKU, its price by band, customer or quantity, and its size, 330ml, a pack or a case of 24. And new, Rules in plain words: every time an email says Orange, it means Bitter Orange, Mango & Citra Hops; every time Ocado orders Dry Apple, it’s £110 a case. Each part feeds the order" />
+
+<Section title="A Library to Grow On">
+<Column>
+
+The new screens needed components the Order Hub didn’t have yet. The existing ones were MUI, styled a screen at a time, which got the team moving fast but meant more than 150 slightly different versions. With more screens on the way, I proposed moving to Base UI, shadcn/ui and Tailwind, with DELLI’s colours, spacing and type as tokens shared by Figma and code. It took under a week of groundwork before new screens could use it.
+
+</Column>
+<Column>
+
+I built each component in code with help from Claude, working directly from its Figma spec. This is where my way of building components started: Claude learning from its own mistakes, reading the documentation before building, and checking earlier components for what we could reuse.
+
+</Column>
+</Section>
+
+<Pair>
+  <Crop window={[684, 812]} bg="var(--neutral-050)" caption="The Select, in four of its seven states">
+    <CropImage src={selectStates} rect={[0, 0, 684, 812]} window={684} alt="DELLI’s Select component set to Case (24), in four states: default, warning (an orange tint), disabled (greyed out) and open, its list showing Case (24) selected, then Case (12), Pack (4), Single and Mixed case" />
+  </Crop>
+  <BuildLog
+    title="Select"
+    meta="4 rounds"
+    read="Base UI’s docs for Select, the rules so far, and how Input was built"
+    rounds={[
+      { went: 'The list opened over the field, not under it', rule: 'Read a primitive’s defaults before building' },
+      { went: 'The list was narrower than the field', rule: 'Size a popup from the field it opens from' },
+      { went: 'Disabled didn’t show the not-allowed cursor', rule: 'Let the browser handle disabled' },
+      { went: 'The last option’s border was clipped', rule: 'Measure a scrolling list exactly, then round up' },
+    ]}
+    reused="The warning dot, from Input"
+    footer="Every rule is read before the next build. Seven components in, there were 28."
+  />
+</Pair>
+
+</Chapter>
+
+<Chapter label="What happened next" glow>
+
+<Section title="Moving Forward">
+<Column>
+
+I’ve kept that way of working since: [Format’s design system](/work/format/) started from the same kind of build log.
+
+</Column>
+</Section>
+
+</Chapter>
