@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Kindle Tasks" description="Today's Notion tasks on a jailbroken Kindle, designed and built by Sean Geraghty with Claude Code.">
+  <meta name="robots" content="noindex" slot="head" />
+  <main class="lab">
+    <h1 class="t-h1">Kindle Tasks</h1>
+    <video
+      class="demo"
+      src="/img/kindle-tasks/demo.mp4"
+      poster="/img/kindle-tasks/board.webp"
+      width="600"
+      height="800"
+      autoplay
+      muted
+      loop
+      playsinline
+      controls
+      aria-label="The Kindle Tasks board: today's to-dos ticked off one by one"
+    ></video>
+    <p class="t-body note">
+      Today's Notion tasks on a jailbroken Kindle, designed and built by me with Claude Code. Shown in the KOReader
+      preview with made-up tasks.
+    </p>
+  </main>
+</Base>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>('.demo');
+  if (video) {
+    video.muted = true;
+    video.defaultMuted = true;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) video.pause();
+    else video.play().catch(() => {});
+  }
+</script>
+
+<style>
+  .lab {
+    max-width: 600px;
+    margin-inline: auto;
+    padding: var(--space-2xl) var(--page-gutter);
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .demo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius-s);
+    background: var(--bg-work);
+  }
+
+  .note {
+    color: var(--text-muted);
+  }
+</style>
